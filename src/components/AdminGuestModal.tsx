@@ -456,8 +456,8 @@ export const AdminGuestModal: React.FC<AdminGuestModalProps> = ({ isOpen, onClos
 
             {/* Guest List Table */}
             <div className="rounded-xl border border-stone-200 bg-white overflow-hidden shadow-2xs">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs sm:text-sm font-display">
+              <div className="hidden sm:block overflow-x-auto">
+                <table className="w-full text-left text-sm font-display">
                   <thead className="bg-[#FAF5E8] border-b border-stone-200 text-stone-700 font-caps uppercase tracking-wider text-[11px]">
                     <tr>
                       <th className="py-3 px-3 w-12 text-center">STT</th>
@@ -474,15 +474,11 @@ export const AdminGuestModal: React.FC<AdminGuestModalProps> = ({ isOpen, onClos
                     {filteredRsvps.length > 0 ? (
                       filteredRsvps.map((item, index) => (
                         <tr key={item.id} className="hover:bg-stone-50/80 transition-colors">
-                          <td className="py-3 px-3 text-center font-mono text-stone-400">
-                            {index + 1}
-                          </td>
-                          <td className="py-3 px-3 font-semibold text-stone-900">
-                            {item.name}
-                          </td>
+                          <td className="py-3 px-3 text-center font-mono text-stone-400">{index + 1}</td>
+                          <td className="py-3 px-3 font-semibold text-stone-900">{item.name}</td>
                           <td className="py-3 px-3 text-stone-600">
                             <span className="inline-block px-2 py-0.5 rounded bg-stone-100 text-[11px] font-sans">
-                              {item.relationship || 'Người thân của nhà chú rể cô dâu'}
+                              {item.relationship || 'Người thân'}
                             </span>
                           </td>
                           <td className="py-3 px-3 text-center">
@@ -503,14 +499,12 @@ export const AdminGuestModal: React.FC<AdminGuestModalProps> = ({ isOpen, onClos
                           <td className="py-3 px-3 text-stone-600 max-w-xs italic text-xs">
                             {item.wishes ? `"${item.wishes}"` : <span className="text-stone-300">-</span>}
                           </td>
-                          <td className="py-3 px-3 text-right text-stone-400 text-xs font-mono">
-                            {item.submittedAt}
-                          </td>
+                          <td className="py-3 px-3 text-right text-stone-400 text-xs font-mono">{item.submittedAt}</td>
                           <td className="py-3 px-3 text-center">
                             <button
                               onClick={() => handleDelete(item.id)}
                               className="rounded p-1 text-stone-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
-                              title="Xóa phản hồi này"
+                              title="Xóa"
                             >
                               <Trash2 className="h-3.5 w-3.5" />
                             </button>
@@ -521,21 +515,43 @@ export const AdminGuestModal: React.FC<AdminGuestModalProps> = ({ isOpen, onClos
                       <tr>
                         <td colSpan={8} className="py-12 text-center text-stone-500 font-display">
                           <p className="text-sm font-semibold text-stone-700">Chưa có phản hồi nào phù hợp.</p>
-                          <p className="text-xs text-stone-400 mt-1">
-                            Khi người thân bấm xác nhận trên thiệp, thông tin sẽ hiển thị tự động tại đây.
-                          </p>
-                          <button
-                            type="button"
-                            onClick={handleLoadSamples}
-                            className="mt-3 inline-flex items-center gap-1 text-xs text-[#8B1E22] underline font-bold hover:text-[#6E1418]"
-                          >
-                            Tải lại dữ liệu mẫu xem thử
-                          </button>
                         </td>
                       </tr>
                     )}
                   </tbody>
                 </table>
+              </div>
+
+              {/* Mobile Card List */}
+              <div className="sm:hidden divide-y divide-stone-100">
+                {filteredRsvps.length > 0 ? (
+                  filteredRsvps.map((item, index) => (
+                    <div key={item.id} className="p-4 space-y-2">
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="font-bold text-stone-900 text-sm">
+                          {index + 1}. {item.name}
+                        </div>
+                        <button
+                          onClick={() => handleDelete(item.id)}
+                          className="text-stone-400 hover:text-rose-600"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                      <div className="text-xs text-stone-600">
+                        {item.relationship} | {item.attending === 'yes' ? `${item.guestCount} khách` : 'Vắng mặt'}
+                      </div>
+                      {item.wishes && (
+                        <div className="text-xs italic text-stone-500 bg-stone-50 p-2 rounded-md">
+                          "{item.wishes}"
+                        </div>
+                      )}
+                      <div className="text-[10px] text-stone-400">{item.submittedAt}</div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-8 text-center text-stone-500 text-sm">Không có dữ liệu.</div>
+                )}
               </div>
             </div>
 

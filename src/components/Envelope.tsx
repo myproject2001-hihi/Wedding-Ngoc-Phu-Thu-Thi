@@ -51,14 +51,14 @@ export const Envelope: React.FC<EnvelopeProps> = ({
         </div>
 
         <div className="mt-4 flex flex-col items-center justify-center space-y-0.5 sm:space-y-1">
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-wedding-names font-bold text-[#8B1E22] tracking-wide break-words text-center py-1 select-none">
-            {groomName}
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-wedding-names font-bold text-[#8B1E22] tracking-wide text-center py-1 select-none leading-tight">
+            Huỳnh Lê <br className="block sm:hidden" /> Ngọc Phú
           </h1>
           <span className="font-calligraphy text-2xl sm:text-4xl text-[#C5A059] my-0.5 select-none leading-none font-bold">
             &
           </span>
-          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-wedding-names font-bold text-[#8B1E22] tracking-wide break-words text-center py-1 select-none">
-            {brideName}
+          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-wedding-names font-bold text-[#8B1E22] tracking-wide text-center py-1 select-none leading-tight">
+            Huỳnh Thị <br className="block sm:hidden" /> Thu Thi
           </h2>
         </div>
 
@@ -67,10 +67,18 @@ export const Envelope: React.FC<EnvelopeProps> = ({
         </p>
       </div>
 
-      {/* 3D Envelope Wrapper (Hình 1: Tối ưu thiết kế và chiều cao container khi mở thiệp để thiệp trượt ra mượt mà không bị lòi ra thô) */}
-      <div className={`relative w-full max-w-[340px] sm:max-w-[460px] md:max-w-[520px] transition-all duration-700 mx-auto ${isOpen ? 'min-h-[420px] sm:min-h-[500px]' : 'aspect-[4/3]'} perspective-1200`}>
-        {/* Envelope Container */}
-        <div className="relative w-full h-full preserve-3d">
+      {/* 3D Envelope Wrapper & Letter Experience */}
+      <div
+        className={`relative w-full max-w-[340px] sm:max-w-[460px] md:max-w-[500px] mx-auto transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          isOpen ? 'h-[470px] sm:h-[510px]' : 'h-[240px] sm:h-[310px] md:h-[330px]'
+        } perspective-1200`}
+      >
+        {/* ENVELOPE BODY (Trượt xuống nhẹ nhàng khi mở để lá thư xuất hiện bên trên mà không che tiêu đề) */}
+        <div
+          className={`relative w-full h-[240px] sm:h-[310px] md:h-[330px] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            isOpen ? 'translate-y-[170px] sm:translate-y-[180px]' : 'translate-y-0'
+          }`}
+        >
           {/* BACK PANEL OF ENVELOPE */}
           <div className="absolute inset-0 rounded-2xl bg-[#F5ECDB] shadow-2xl border-2 border-[#C5A059]/40 overflow-hidden">
             <div
@@ -85,7 +93,7 @@ export const Envelope: React.FC<EnvelopeProps> = ({
 
           {/* TOP FLAP */}
           <div
-            className={`absolute top-0 left-0 right-0 h-1/2 z-30 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] origin-top`}
+            className="absolute top-0 left-0 right-0 h-1/2 z-20 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] origin-top"
             style={{
               transformStyle: 'preserve-3d',
               transform: isOpen ? 'rotateX(180deg)' : 'rotateX(0deg)',
@@ -105,60 +113,6 @@ export const Envelope: React.FC<EnvelopeProps> = ({
                   background: 'linear-gradient(180deg, rgba(197, 160, 89, 0.08) 0%, rgba(197, 160, 89, 0.25) 100%)',
                 }}
               />
-            </div>
-          </div>
-
-          {/* INVITATION CARD (Tấm thiệp trượt lên khi mở phong bì - Đã căn chỉnh vị trí và z-index chuẩn) */}
-          <div
-            className={`absolute left-3 right-3 sm:left-6 sm:right-6 rounded-2xl bg-[#FFFDF9] border border-[#C5A059]/70 p-4 sm:p-7 shadow-2xl transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-              isOpen
-                ? 'z-50 -translate-y-[44%] sm:-translate-y-[48%] scale-100 opacity-100 shadow-2xl'
-                : 'z-10 translate-y-4 scale-95 opacity-85 pointer-events-none'
-            }`}
-          >
-            {/* Corner gold ornaments */}
-            <div className="absolute top-2 left-2 text-[#C5A059] opacity-75 text-xs select-none">✦</div>
-            <div className="absolute top-2 right-2 text-[#C5A059] opacity-75 text-xs select-none">✦</div>
-            <div className="absolute bottom-2 left-2 text-[#C5A059] opacity-75 text-xs select-none">✦</div>
-            <div className="absolute bottom-2 right-2 text-[#C5A059] opacity-75 text-xs select-none">✦</div>
-
-            <div className="text-center">
-              <span className="text-[10px] sm:text-[11px] font-caps tracking-[0.22em] uppercase text-[#8B1E22] font-semibold">
-                TRÂN TRỌNG KÍNH MỜI
-              </span>
-              <div className="mt-1 text-xl sm:text-3xl font-display font-bold text-[#8B1E22] tracking-wide break-words">
-                {guestName || 'Quý Khách & Gia Đình'}
-              </div>
-
-              <div className="my-2 flex items-center justify-center gap-3">
-                <span className="h-[1px] w-12 bg-gradient-to-r from-transparent to-[#C5A059]" />
-                <Heart className="h-3.5 w-3.5 text-[#8B1E22] fill-[#8B1E22]" />
-                <span className="h-[1px] w-12 bg-gradient-to-l from-transparent to-[#C5A059]" />
-              </div>
-
-              <p className="text-xs sm:text-sm font-display text-stone-700 leading-relaxed max-w-sm mx-auto">
-                Đến dự tiệc mừng ngày thành hôn của hai con chúng tôi
-              </p>
-
-              <div className="my-2 text-2xl sm:text-4xl font-wedding-names text-[#8B1E22] select-none font-bold">
-                {groomName} & {brideName}
-              </div>
-
-              <div className="mt-2 inline-block rounded-md border border-[#8B1E22]/30 bg-[#FAF4E6] px-4 py-1.5 text-xs font-caps tracking-[0.15em] text-[#8B1E22] font-semibold">
-                {weddingDateFormatted}
-              </div>
-
-              {isOpen && (
-                <div className="mt-4 pt-3 border-t border-[#C5A059]/25">
-                  <button
-                    onClick={handleScrollToContent}
-                    className="inline-flex items-center gap-1.5 text-xs font-caps font-semibold uppercase tracking-wider text-[#8B1E22] hover:text-[#5E1215] transition-colors cursor-pointer"
-                  >
-                    <span>Xem Toàn Bộ Thiệp Cưới</span>
-                    <ChevronDown className="h-3.5 w-3.5 animate-bounce" />
-                  </button>
-                </div>
-              )}
             </div>
           </div>
 
@@ -226,6 +180,56 @@ export const Envelope: React.FC<EnvelopeProps> = ({
                 </div>
               </div>
             </button>
+          </div>
+        </div>
+
+        {/* INVITATION CARD (Lá thư xuất hiện nằm hoàn toàn DƯỚI tiêu đề Hình 1, không che khuất tiêu đề, đã bỏ tên cô dâu chú rể) */}
+        <div
+          className={`absolute top-0 left-2.5 right-2.5 sm:left-5 sm:right-5 rounded-2xl bg-[#FFFDF9] border border-[#C5A059]/70 p-4 sm:p-6 shadow-2xl transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            isOpen
+              ? 'z-40 translate-y-0 scale-100 opacity-100'
+              : 'z-10 translate-y-12 scale-90 opacity-0 pointer-events-none'
+          }`}
+        >
+          {/* Corner gold ornaments */}
+          <div className="absolute top-2 left-2 text-[#C5A059] opacity-75 text-xs select-none">✦</div>
+          <div className="absolute top-2 right-2 text-[#C5A059] opacity-75 text-xs select-none">✦</div>
+          <div className="absolute bottom-2 left-2 text-[#C5A059] opacity-75 text-xs select-none">✦</div>
+          <div className="absolute bottom-2 right-2 text-[#C5A059] opacity-75 text-xs select-none">✦</div>
+
+          <div className="text-center">
+            <span className="text-[10px] sm:text-[11px] font-caps tracking-[0.22em] uppercase text-[#8B1E22] font-semibold">
+              TRÂN TRỌNG KÍNH MỜI
+            </span>
+            <div className="mt-1 text-xl sm:text-3xl font-display font-bold text-[#8B1E22] tracking-wide break-words">
+              {guestName || 'Quý Khách & Gia Đình'}
+            </div>
+
+            <div className="my-2 flex items-center justify-center gap-3">
+              <span className="h-[1px] w-12 bg-gradient-to-r from-transparent to-[#C5A059]" />
+              <Heart className="h-3.5 w-3.5 text-[#8B1E22] fill-[#8B1E22]" />
+              <span className="h-[1px] w-12 bg-gradient-to-l from-transparent to-[#C5A059]" />
+            </div>
+
+            <p className="text-xs sm:text-sm font-display text-stone-700 leading-relaxed max-w-sm mx-auto">
+              Đến dự tiệc mừng ngày thành hôn của hai con chúng tôi
+            </p>
+
+            <div className="mt-2.5 inline-block rounded-md border border-[#8B1E22]/30 bg-[#FAF4E6] px-4 py-1.5 text-xs font-caps tracking-[0.15em] text-[#8B1E22] font-semibold">
+              {weddingDateFormatted}
+            </div>
+
+            {isOpen && (
+              <div className="mt-4 pt-3 border-t border-[#C5A059]/25">
+                <button
+                  onClick={handleScrollToContent}
+                  className="inline-flex items-center gap-1.5 text-xs font-caps font-semibold uppercase tracking-wider text-[#8B1E22] hover:text-[#5E1215] transition-colors cursor-pointer"
+                >
+                  <span>Xem Toàn Bộ Thiệp Cưới</span>
+                  <ChevronDown className="h-3.5 w-3.5 animate-bounce" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

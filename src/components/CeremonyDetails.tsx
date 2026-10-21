@@ -60,8 +60,9 @@ export const CeremonyDetails: React.FC<CeremonyDetailsProps> = ({ weddingInfo })
         <h2 className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-display font-bold text-[#8B1E22] tracking-wide">
           Lễ Cưới & Tiệc Mừng
         </h2>
-        <p className="mt-2 text-sm sm:text-base font-display text-stone-600">
-          Thứ Bảy, 19/12/2026 · {weddingInfo.lunarDate}
+        <p className="mt-2 text-sm sm:text-base font-display text-stone-600 leading-relaxed">
+          Thứ Bảy, 19/12/2026<br />
+          Nhằm ngày 11 tháng 11 năm Bính Ngọ
         </p>
       </div>
 
@@ -75,7 +76,9 @@ export const CeremonyDetails: React.FC<CeremonyDetailsProps> = ({ weddingInfo })
             </div>
 
             <h3 className="text-2xl sm:text-3xl font-display font-bold text-[#8B1E22] leading-snug">
-              {weddingInfo.receptionVenue.name}
+              Trung Tâm Hội Nghị<br />
+              Tiệc Cưới Asiana Plaza<br />
+              Tân Phú
             </h3>
             <p className="text-sm sm:text-base font-caps uppercase tracking-wider text-[#C5A059] font-bold mt-1.5">
               {weddingInfo.receptionVenue.hall}
@@ -157,8 +160,11 @@ export const CeremonyDetails: React.FC<CeremonyDetailsProps> = ({ weddingInfo })
             {/* PHẦN 1: GIỜ TRƯA - HÔN LỄ TẠI TƯ GIA */}
             <div className="rounded-xl border border-[#C5A059]/30 bg-[#FAF6EE] p-4">
               <div className="flex items-center gap-2 text-[#8B1E22] font-caps font-bold text-xs uppercase tracking-wider mb-3">
-                <Sun className="h-4 w-4 text-amber-600" />
-                <span>Buổi Sáng & Trưa: Hôn Lễ Tại Tư Gia</span>
+                <Sun className="h-4 w-4 text-amber-600 shrink-0" />
+                <span className="leading-snug">
+                  Buổi Sáng & Buổi Trưa:<br />
+                  Hôn Lễ Tại Tư Gia
+                </span>
               </div>
               <div className="relative border-l-2 border-[#C5A059]/40 ml-2.5 space-y-3.5 pl-4">
                 {homeCeremonyTimeline.map((item, idx) => (
@@ -185,8 +191,11 @@ export const CeremonyDetails: React.FC<CeremonyDetailsProps> = ({ weddingInfo })
             {/* PHẦN 2: BUỔI TỐI - TIỆC CƯỚI CHÍNH TẠI NHÀ HÀNG ASIANA PLAZA */}
             <div className="rounded-xl border border-[#8B1E22]/20 bg-[#FAF5E8] p-4">
               <div className="flex items-center gap-2 text-[#8B1E22] font-caps font-bold text-xs uppercase tracking-wider mb-3">
-                <Moon className="h-4 w-4 text-[#8B1E22]" />
-                <span>Buổi Tối: Tiệc Cưới Tại Nhà Hàng Asiana Plaza</span>
+                <Moon className="h-4 w-4 text-[#8B1E22] shrink-0" />
+                <span className="leading-snug">
+                  Buổi Tối:<br />
+                  Tiệc Cưới Tại Nhà Hàng Asiana Plaza
+                </span>
               </div>
               <div className="relative border-l-2 border-[#8B1E22]/30 ml-2.5 space-y-3.5 pl-4">
                 {eveningBanquetTimeline.map((item, idx) => (
@@ -212,9 +221,12 @@ export const CeremonyDetails: React.FC<CeremonyDetailsProps> = ({ weddingInfo })
           </div>
 
           <div className="mt-5 pt-4 border-t border-[#C5A059]/20 text-center">
-            <p className="text-xs sm:text-sm font-display text-stone-600 italic flex items-center justify-center gap-1.5">
-              <Heart className="h-3.5 w-3.5 text-[#8B1E22] fill-[#8B1E22]" />
-              <span>Sự hiện diện của quý khách là niềm vinh hạnh cho gia đình chúng tôi!</span>
+            <p className="text-xs sm:text-sm font-display text-stone-600 italic flex items-center justify-center gap-1.5 leading-relaxed">
+              <Heart className="h-3.5 w-3.5 text-[#8B1E22] fill-[#8B1E22] shrink-0" />
+              <span>
+                Sự hiện diện của quý khách<br />
+                là niềm vinh hạnh cho gia đình chúng tôi!
+              </span>
             </p>
           </div>
         </div>

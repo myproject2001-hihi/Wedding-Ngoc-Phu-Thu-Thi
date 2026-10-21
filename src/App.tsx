@@ -16,7 +16,7 @@ import { WishingWell } from './components/WishingWell';
 import { RsvpModal } from './components/RsvpModal';
 import { AdminGuestModal } from './components/AdminGuestModal';
 import { ToastNotification, ToastData } from './components/ToastNotification';
-import { FloatingMusicPlayer } from './components/FloatingMusicPlayer';
+import { ScrollToTop } from './components/FloatingMusicPlayer';
 import { PetalsCanvas } from './components/PetalsCanvas';
 import { Heart, FileSpreadsheet } from 'lucide-react';
 
@@ -70,8 +70,8 @@ export default function App() {
       {/* Floating ambient particles (Golden dust & rose petals) */}
       <PetalsCanvas enabled={true} />
 
-      {/* Clean floating music player without text pill */}
-      <FloatingMusicPlayer autoStarted={isEnvelopeOpen} />
+      {/* Scroll to Top Button */}
+      <ScrollToTop />
 
       {/* Top Bar Navigation */}
       <TopBar
@@ -129,19 +129,20 @@ export default function App() {
       {/* Footer */}
       <footer className="border-t border-[#C5A059]/30 bg-[#FAF5E8] py-12 text-center text-stone-600">
         <div className="max-w-2xl mx-auto px-4 space-y-3">
-          {/* Hình 4: Tên cô dâu chú rể ở footer viết bằng font chữ viết tay */}
+          {/* Hình 4 & Hình 1: Tên cô dâu chú rể ở footer viết bằng font chữ viết tay, ngắt 2 chữ trên mobile */}
           <div className="flex items-center justify-center gap-3 text-2xl sm:text-3xl font-wedding-names text-[#8B1E22] font-bold">
-            <span>{weddingInfo.groomName}</span>
+            <span>Huỳnh Lê <br className="block sm:hidden" /> Ngọc Phú</span>
             <Heart className="h-4 w-4 fill-[#8B1E22] text-[#8B1E22]" />
-            <span>{weddingInfo.brideName}</span>
+            <span>Huỳnh Thị <br className="block sm:hidden" /> Thu Thi</span>
           </div>
 
           <p className="font-display text-sm italic text-stone-700">
             "Sự hiện diện của bạn là niềm hạnh phúc lớn nhất của chúng tôi"
           </p>
 
-          <p className="text-xs font-display text-stone-500">
-            Trân trọng cảm ơn quý quan khách đã cùng chia vui trong ngày trọng đại
+          <p className="text-xs font-display text-stone-500 leading-relaxed">
+            Trân trọng cảm ơn quý vị quan khách<br />
+            đã cùng chia vui trong ngày trọng đại
           </p>
 
           {/* Discreet Admin Management Link for Bride & Groom */}

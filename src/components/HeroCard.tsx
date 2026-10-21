@@ -151,18 +151,19 @@ export const HeroCard: React.FC<HeroCardProps> = ({
 
         {/* Couple Section */}
         <div className="mt-8 text-center max-w-2xl mx-auto">
-          <p className="text-xs sm:text-sm font-display uppercase tracking-widest text-stone-600 mb-4 font-semibold">
-            TRÂN TRỌNG BÁO TIN LỄ TÂN HÔN CỦA CON CHÚNG TÔI
+          <p className="text-xs sm:text-sm font-display uppercase tracking-widest text-stone-600 mb-4 font-semibold text-center leading-relaxed">
+            TRÂN TRỌNG BÁO TIN<br />
+            LỄ TÂN HÔN CỦA CON CHÚNG TÔI
           </p>
 
           <div className="relative rounded-2xl border border-[#C5A059]/50 bg-gradient-to-b from-[#FAF5E8]/90 to-[#FFFDF9] p-6 sm:p-8 shadow-xs">
-            {/* Groom Row with handwriting font */}
+            {/* Groom Row with handwriting font (Hình 1: Ngắt 2 chữ trên mobile, chữ to hơn, ko in nghiêng) */}
             <div className="flex flex-col items-center justify-center gap-1">
               <span className="text-[11px] sm:text-xs font-caps tracking-[0.2em] uppercase text-[#8B1E22] font-semibold bg-[#FAF0DC] px-2.5 py-0.5 rounded border border-[#C5A059]/30">
                 {weddingInfo.groomTitle}
               </span>
-              <h2 className="text-3xl sm:text-5xl lg:text-6xl font-wedding-names font-bold text-[#8B1E22] tracking-wide break-words text-center py-1 select-none">
-                {weddingInfo.groomName}
+              <h2 className="text-4xl sm:text-6xl lg:text-7xl font-wedding-names text-[#8B1E22] tracking-wide text-center py-1 select-none leading-tight font-normal">
+                Huỳnh Lê <br className="block sm:hidden" /> Ngọc Phú
               </h2>
             </div>
 
@@ -175,23 +176,23 @@ export const HeroCard: React.FC<HeroCardProps> = ({
               <span className="h-[1px] w-16 sm:w-24 bg-gradient-to-l from-transparent to-[#C5A059]" />
             </div>
 
-            {/* Bride Row with handwriting font */}
+            {/* Bride Row with handwriting font (Hình 1: Ngắt 2 chữ trên mobile, chữ to hơn, ko in nghiêng) */}
             <div className="flex flex-col items-center justify-center gap-1">
               <span className="text-[11px] sm:text-xs font-caps tracking-[0.2em] uppercase text-[#8B1E22] font-semibold bg-[#FAF0DC] px-2.5 py-0.5 rounded border border-[#C5A059]/30">
                 {weddingInfo.brideTitle}
               </span>
-              <h2 className="text-3xl sm:text-5xl lg:text-6xl font-wedding-names font-bold text-[#8B1E22] tracking-wide break-words text-center py-1 select-none">
-                {weddingInfo.brideName}
+              <h2 className="text-4xl sm:text-6xl lg:text-7xl font-wedding-names text-[#8B1E22] tracking-wide text-center py-1 select-none leading-tight font-normal">
+                Huỳnh Thị <br className="block sm:hidden" /> Thu Thi
               </h2>
             </div>
 
             {/* Ceremony at Home Highlights (10h00 Thứ Bảy 19/12/2026) - Ngắt dòng sau chữ Tư gia */}
             <div className="mt-5 pt-4 border-t border-[#C5A059]/30 text-stone-700 text-xs sm:text-sm font-display">
-              <p className="font-semibold text-stone-800">
-                Hôn lễ được cử hành tại tư gia<br />
-                vào lúc 10H00 – Thứ Bảy
+              <p className="font-semibold text-stone-800 leading-relaxed">
+                Đến dự tiệc mừng ngày thành hôn<br />
+                của hai con chúng tôi
               </p>
-              <p className="text-[#8B1E22] font-bold text-base mt-1 tracking-wider">
+              <p className="text-[#8B1E22] font-bold text-base mt-2 tracking-wider">
                 19 | 12 | 2026
               </p>
               <p className="text-stone-500 text-xs italic">
@@ -213,8 +214,9 @@ export const HeroCard: React.FC<HeroCardProps> = ({
             />
             {/* Scrim gradient overlay */}
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent p-4 text-center z-10">
-              <p className="text-white font-display text-sm tracking-wider">
-                "Sự hiện diện của quý khách là niềm vinh hạnh cho gia đình chúng tôi"
+              <p className="text-white font-display text-sm tracking-wider leading-relaxed">
+                "Sự hiện diện của bạn<br />
+                là niềm hạnh phúc lớn nhất của chúng tôi"
               </p>
             </div>
           </div>
@@ -231,8 +233,9 @@ export const HeroCard: React.FC<HeroCardProps> = ({
           <p className="mt-3 text-sm sm:text-base font-display text-stone-700 leading-relaxed max-w-lg mx-auto">
             Đến dự buổi tiệc chung vui cùng gia đình chúng tôi tại:
             <br />
-            <strong className="text-[#8B1E22] font-bold text-base sm:text-lg block mt-1.5">
-              TRUNG TÂM HỘI NGHỊ TIỆC CƯỚI ASIANA PLAZA
+            <strong className="text-[#8B1E22] font-bold text-base sm:text-lg block mt-1.5 leading-snug">
+              TRUNG TÂM HỘI NGHỊ<br />
+              TIỆC CƯỚI ASIANA PLAZA
             </strong>
             <span className="text-[#8B1E22] font-bold block text-sm sm:text-base">
               TÂN PHÚ - SẢNH AKINA (TẦNG 8)

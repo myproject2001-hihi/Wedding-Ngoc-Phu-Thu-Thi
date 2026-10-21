@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, Send, MessageCircle, User, CheckCircle } from 'lucide-react';
+import { Send, MessageCircle, User, CheckCircle } from 'lucide-react';
 import { GuestWish } from '../types';
 import { initialWishes, quickWishesPresets } from '../data/weddingData';
 
@@ -39,7 +39,7 @@ export const WishingWell: React.FC<WishingWellProps> = ({ onOpenRsvp }) => {
       relation,
       message: message.trim(),
       createdAt: 'Vừa xong',
-      likes: 1,
+      likes: 0,
     };
 
     setWishes([newWish, ...wishes]);
@@ -47,12 +47,6 @@ export const WishingWell: React.FC<WishingWellProps> = ({ onOpenRsvp }) => {
     setMessage('');
     setIsSubmitted(true);
     setTimeout(() => setIsSubmitted(false), 4000);
-  };
-
-  const handleLike = (id: string) => {
-    setWishes((prev) =>
-      prev.map((w) => (w.id === id ? { ...w, likes: w.likes + 1 } : w))
-    );
   };
 
   return (
@@ -200,15 +194,6 @@ export const WishingWell: React.FC<WishingWellProps> = ({ onOpenRsvp }) => {
                     </div>
                   </div>
                 </div>
-
-                <button
-                  onClick={() => handleLike(item.id)}
-                  className="flex items-center gap-1 rounded-full border border-[#C5A059]/30 bg-[#FAF6EE] px-2.5 py-1 text-xs font-display text-[#8B1E22] hover:bg-[#8B1E22] hover:text-white transition-colors"
-                  title="Thả tim lời chúc"
-                >
-                  <Heart className="h-3.5 w-3.5 fill-current" />
-                  <span className="tabular-nums font-semibold">{item.likes}</span>
-                </button>
               </div>
 
               <p className="mt-3 text-xs sm:text-sm font-display text-stone-800 leading-relaxed pl-11">
