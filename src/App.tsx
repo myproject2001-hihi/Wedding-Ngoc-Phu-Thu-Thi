@@ -129,9 +129,10 @@ export default function App() {
       {/* Footer */}
       <footer className="border-t border-[#C5A059]/30 bg-[#FAF5E8] py-12 text-center text-stone-600">
         <div className="max-w-2xl mx-auto px-4 space-y-3">
-          <div className="flex items-center justify-center gap-2 text-xs font-caps tracking-[0.2em] uppercase text-[#8B1E22] font-semibold">
+          {/* Hình 4: Tên cô dâu chú rể ở footer viết bằng font chữ viết tay */}
+          <div className="flex items-center justify-center gap-3 text-2xl sm:text-3xl font-wedding-names text-[#8B1E22] font-bold">
             <span>{weddingInfo.groomName}</span>
-            <Heart className="h-3.5 w-3.5 fill-[#8B1E22] text-[#8B1E22]" />
+            <Heart className="h-4 w-4 fill-[#8B1E22] text-[#8B1E22]" />
             <span>{weddingInfo.brideName}</span>
           </div>
 

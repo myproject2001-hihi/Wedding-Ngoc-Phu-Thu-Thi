@@ -185,10 +185,11 @@ export const HeroCard: React.FC<HeroCardProps> = ({
               </h2>
             </div>
 
-            {/* Ceremony at Home Highlights (10h00 Thứ Bảy 19/12/2026) */}
+            {/* Ceremony at Home Highlights (10h00 Thứ Bảy 19/12/2026) - Ngắt dòng sau chữ Tư gia */}
             <div className="mt-5 pt-4 border-t border-[#C5A059]/30 text-stone-700 text-xs sm:text-sm font-display">
               <p className="font-semibold text-stone-800">
-                Hôn lễ được cử hành tại tư gia vào lúc 10H00 – Thứ Bảy
+                Hôn lễ được cử hành tại tư gia<br />
+                vào lúc 10H00 – Thứ Bảy
               </p>
               <p className="text-[#8B1E22] font-bold text-base mt-1 tracking-wider">
                 19 | 12 | 2026

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, CheckCircle, Users, User, MessageSquare, Heart } from 'lucide-react';
+import { X, CheckCircle, Users, User, Heart, MessageSquare } from 'lucide-react';
 
 interface RsvpModalProps {
   isOpen: boolean;
@@ -44,6 +44,20 @@ export const RsvpModal: React.FC<RsvpModalProps> = ({
     existing.push(rsvpItem);
     localStorage.setItem('wedding_rsvps', JSON.stringify(existing));
 
+    // Also push to wishes if wishes provided
+    if (wishes.trim()) {
+      const existingWishes = JSON.parse(localStorage.getItem('wedding_wishes') || '[]');
+      existingWishes.unshift({
+        id: 'wish-' + Date.now(),
+        name: name.trim(),
+        relation: relationship,
+        message: wishes.trim(),
+        createdAt: 'Vừa xong',
+        likes: 0,
+      });
+      localStorage.setItem('wedding_wishes', JSON.stringify(existingWishes));
+    }
+
     // Trigger toast notification callback
     if (onSubmitted) {
       onSubmitted({
@@ -68,7 +82,7 @@ export const RsvpModal: React.FC<RsvpModalProps> = ({
       className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/70 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-200"
     >
       <div className="relative w-full max-w-lg max-h-[92vh] sm:max-h-[88vh] flex flex-col rounded-2xl sm:rounded-3xl bg-[#FFFDF9] border border-[#C5A059]/60 shadow-2xl overflow-hidden my-auto">
-        {/* Modal Top Header (Fixed for clarity across all screen sizes) */}
+        {/* Modal Top Header */}
         <div className="relative bg-[#FAF4E6] border-b border-[#C5A059]/40 px-4 sm:px-6 py-3.5 sm:py-4 flex items-center justify-between shrink-0">
           <div className="pr-8">
             <span className="text-[10px] sm:text-[11px] font-caps tracking-[0.25em] text-[#8B1E22] uppercase font-bold block">
@@ -82,7 +96,6 @@ export const RsvpModal: React.FC<RsvpModalProps> = ({
             </p>
           </div>
 
-          {/* Close Button with high touch target */}
           <button
             onClick={onClose}
             className="absolute top-3 right-3 sm:top-4 sm:right-4 rounded-full p-2 text-stone-500 hover:bg-[#FAF0DC] hover:text-[#8B1E22] transition-colors"
@@ -92,11 +105,10 @@ export const RsvpModal: React.FC<RsvpModalProps> = ({
           </button>
         </div>
 
-        {/* Modal Scrollable Body with Custom Luxury Scrollbar */}
+        {/* Modal Scrollable Body */}
         <div className="overflow-y-auto flex-1 p-4 sm:p-6 space-y-4 sm:space-y-5 custom-scrollbar">
           {!isSuccess ? (
             <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
-              {/* Note banner */}
               <div className="rounded-xl bg-[#FAF5E8] border border-[#C5A059]/30 p-3 text-xs font-display text-stone-600 flex items-center gap-2">
                 <Heart className="h-4 w-4 text-[#8B1E22] fill-[#8B1E22] shrink-0" />
                 <span>
@@ -122,7 +134,7 @@ export const RsvpModal: React.FC<RsvpModalProps> = ({
                 </div>
               </div>
 
-              {/* Relationship with bride and groom */}
+              {/* Relationship */}
               <div>
                 <label className="block text-xs font-caps uppercase tracking-wider text-stone-700 mb-1.5 font-bold">
                   Mối quan hệ với cô dâu chú rể *
@@ -182,7 +194,7 @@ export const RsvpModal: React.FC<RsvpModalProps> = ({
                 </div>
               </div>
 
-              {/* Input for number of guests */}
+              {/* Number of Guests */}
               {attending === 'yes' && (
                 <div className="rounded-xl border border-[#C5A059]/40 bg-[#FFFDF9] p-3.5 space-y-2">
                   <label className="block text-xs font-caps uppercase tracking-wider text-stone-700 font-bold">
@@ -205,7 +217,6 @@ export const RsvpModal: React.FC<RsvpModalProps> = ({
                         className="w-full rounded-lg border border-stone-300 bg-white pl-10 pr-3.5 py-2.5 text-sm sm:text-base font-display font-semibold text-stone-900 focus:border-[#8B1E22] focus:outline-none"
                       />
                     </div>
-                    {/* Quick Stepper Buttons with good mobile touch targets */}
                     <div className="flex items-center gap-1 border border-stone-300 rounded-lg bg-white p-1">
                       <button
                         type="button"
@@ -225,24 +236,21 @@ export const RsvpModal: React.FC<RsvpModalProps> = ({
                       </button>
                     </div>
                   </div>
-                  <p className="text-[11px] font-display text-stone-500 italic">
-                    Bạn có thể bấm số trực tiếp hoặc dùng nút +/- để tăng giảm số lượng.
-                  </p>
                 </div>
               )}
 
-              {/* Notes / Wishes */}
+              {/* Lời chúc riêng đến cô dâu chú rể (Khớp yêu cầu đổi từ chế độ ăn uống sang lời chúc riêng) */}
               <div>
                 <label className="block text-xs font-caps uppercase tracking-wider text-stone-700 mb-1.5 font-bold">
-                  Ghi chú hoặc lời nhắn gửi thêm
+                  Lời chúc riêng đến cô dâu chú rể
                 </label>
                 <div className="relative">
                   <MessageSquare className="absolute left-3.5 top-3 h-4 w-4 text-stone-400" />
                   <textarea
-                    rows={2}
+                    rows={3}
                     value={wishes}
                     onChange={(e) => setWishes(e.target.value)}
-                    placeholder="Ghi chú chế độ ăn uống chay / kiêng..."
+                    placeholder="Gửi lời chúc phúc ngọt ngào đến Ngọc Phú & Thu Thi..."
                     className="w-full rounded-xl border border-stone-300 bg-white pl-10 pr-3.5 py-2.5 text-sm sm:text-base font-display text-stone-900 focus:border-[#8B1E22] focus:outline-none focus:ring-1 focus:ring-[#8B1E22] transition-colors"
                   />
                 </div>
@@ -268,11 +276,11 @@ export const RsvpModal: React.FC<RsvpModalProps> = ({
                 Xác Nhận Thành Công!
               </h3>
               <p className="text-xs sm:text-sm font-display text-stone-700 max-w-sm mx-auto leading-relaxed">
-                Cảm ơn <strong>{name}</strong>! Phản hồi ({attending === 'yes' ? `${guestCount} người tham dự` : 'gửi lời chúc từ xa'}) đã được chuyển đến cô dâu & chú rể.
+                Cảm ơn <strong>{name}</strong>! Phản hồi của bạn đã được chuyển đến cô dâu & chú rể.
               </p>
               <button
                 onClick={handleReset}
-                className="mt-4 rounded-xl bg-[#8B1E22] px-6 py-2.5 text-xs font-caps font-semibold uppercase tracking-wider text-[#FAF4E6] hover:bg-[#6E1418] transition-colors"
+                className="mt-4 rounded-xl bg-[#8B1E22] px-6 py-2.5 text-xs font-caps font-semibold uppercase tracking-wider text-[#FAF4E6] hover:bg-[#6E1418] transition-colors cursor-pointer"
               >
                 Đóng Cửa Sổ
               </button>

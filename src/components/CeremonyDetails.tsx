@@ -111,12 +111,13 @@ export const CeremonyDetails: React.FC<CeremonyDetailsProps> = ({ weddingInfo })
                 </div>
               </div>
 
-              {/* Lễ gia tiên tại tư gia (10h00 Trưa Thứ Bảy) - Đã bỏ chữ "Gia Tộc" */}
+              {/* Lễ gia tiên tại tư gia (10h00 Trưa Thứ Bảy) - Ngắt dòng sau chữ Tư gia */}
               <div className="pt-4 border-t border-[#C5A059]/25 flex items-start gap-3.5">
                 <Calendar className="h-6 w-6 text-[#C5A059] shrink-0 mt-0.5" />
                 <div>
                   <p className="font-display text-base sm:text-lg font-bold text-stone-900 leading-snug">
-                    Hôn Lễ Cử Hành Tại Tư Gia (Giờ Trưa): 10H00 – Thứ Bảy
+                    Hôn Lễ Cử Hành Tại Tư Gia<br />
+                    (Giờ Trưa): 10H00 – Thứ Bảy
                   </p>
                   <p className="text-sm sm:text-base font-display text-[#8B1E22] font-semibold mt-1">
                     19 | 12 | 2026 ({weddingInfo.lunarDate})
