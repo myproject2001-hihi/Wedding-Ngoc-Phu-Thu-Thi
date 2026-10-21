@@ -7,20 +7,20 @@ interface TopBarProps {
 }
 
 export const TopBar: React.FC<TopBarProps> = ({
+  groomName,
+  brideName,
   onOpenRsvp,
 }) => {
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between gap-3 sm:gap-6 border-b border-[#C5A059]/30 bg-[#FAF6EE]/95 px-3.5 sm:px-6 py-2.5 sm:py-3.5 backdrop-blur-md">
-      {/* Zone 1: P&T in handwriting font (Hình 1: Đổi thành font chữ viết tay) */}
+      {/* Zone 1: Tên cô dâu chú rể ở thanh TopBar đổi thành font chữ viết tay và tăng size (Khớp ảnh mẫu) */}
       <a
         href="#"
-        className="font-wedding-names text-2xl sm:text-3xl font-bold tracking-wider text-[#8B1E22] whitespace-nowrap shrink-0 hover:opacity-90 transition-opacity flex items-center select-none"
+        className="font-wedding-names text-lg sm:text-2xl font-bold text-[#8B1E22] whitespace-nowrap shrink-0 hover:opacity-90 transition-opacity flex items-center gap-2 select-none"
       >
-        <span>P</span>
-        <span className="font-calligraphy text-xl sm:text-2xl text-[#C5A059] mx-1 leading-none font-bold">
-          &
-        </span>
-        <span>T</span>
+        <span>{groomName}</span>
+        <span className="text-xs sm:text-sm text-[#8B1E22]">♥</span>
+        <span>{brideName}</span>
       </a>
 
       {/* Zone 2: Navigation links */}
