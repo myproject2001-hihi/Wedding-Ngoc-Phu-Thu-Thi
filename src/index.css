@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-serif: 'Cormorant Garamond', Georgia, serif;
+    --font-display: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+    --font-script: 'Great Vibes', cursive;
+    --font-wedding: 'Alex Brush', 'Beau Rivage', 'Dancing Script', cursive;
+    --font-caps: 'Montserrat', 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: #FAF6EE;
+    color: #2D2319;
+    overflow-x: hidden;
+  }
+}
+
+.font-display {
+  font-family: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+}
+
+.font-serif-luxury {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+.font-calligraphy {
+  font-family: 'Great Vibes', cursive;
+}
+
+/* Luxurious handwriting font for names */
+.font-wedding-names {
+  font-family: 'Alex Brush', 'Beau Rivage', 'Dancing Script', cursive;
+}
+
+.font-caps {
+  font-family: 'Montserrat', 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+/* Gold shimmer gradient */
+.text-gold-gradient {
+  background: linear-gradient(135deg, #A87932 0%, #D8B26E 40%, #BF9146 70%, #F5DEB3 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.bg-gold-gradient {
+  background: linear-gradient(135deg, #C5A059 0%, #E6C887 50%, #B88D44 100%);
+}
+
+.bg-parchment {
+  background-color: #FAF6EE;
+  background-image: radial-gradient(#E8DFC9 0.75px, transparent 0.75px), radial-gradient(#E8DFC9 0.75px, #FAF6EE 0.75px);
+  background-size: 30px 30px;
+  background-position: 0 0, 15px 15px;
+}
+
+/* 3D Envelope Styles */
+.perspective-1200 {
+  perspective: 1200px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+/* Global scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F4EEDF;
+}
+::-webkit-scrollbar-thumb {
+  background: #C5A059;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #8B1E22;
+}
+
+/* Custom dedicated luxury scrollbar for modals & panels */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #C5A059 #FAF4E6;
+}
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #FAF4E6;
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #C5A059;
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #8B1E22;
+}

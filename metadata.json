@@ -1,0 +1,6 @@
+{
+  "name": "Thiệp Cưới Online Hoàng Gia",
+  "description": "Thiệp cưới online cao cấp phong cách hoàng gia tông vàng be, chữ đỏ nhung sang trọng với hiệu ứng mở phong bì 3D tinh tế.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
