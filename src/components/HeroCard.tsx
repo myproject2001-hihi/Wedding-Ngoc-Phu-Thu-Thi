@@ -246,7 +246,7 @@ export const HeroCard: React.FC<HeroCardProps> = ({
           </p>
 
           <div className="mt-4 pt-3 border-t border-[#C5A059]/30 flex flex-wrap items-center justify-center gap-4 text-xs sm:text-sm font-caps text-[#8B1E22] font-bold">
-            <span>🍸 Đón Khách: 17H30</span>
+            <span>🍸 Đón Khách: 18H30</span>
             <span className="text-[#C5A059]">✦</span>
             <span>🍴 Khai Tiệc: 19H00</span>
           </div>

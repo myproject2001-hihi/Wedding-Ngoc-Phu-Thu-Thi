@@ -22,7 +22,7 @@ export const CeremonyDetails: React.FC<CeremonyDetailsProps> = ({ weddingInfo })
 
   const eveningBanquetTimeline = [
     {
-      time: '17:30',
+      time: '18:00',
       title: 'Đón Tiếp Quan Khách',
       desc: 'Check-in, đón tiếp người thân và chụp ảnh lưu niệm cùng cô dâu chú rể tại photobooth Sảnh Akina (Tầng 8).',
     },
@@ -90,7 +90,7 @@ export const CeremonyDetails: React.FC<CeremonyDetailsProps> = ({ weddingInfo })
                 <Clock className="h-6 w-6 text-[#C5A059] shrink-0 mt-0.5" />
                 <div>
                   <p className="font-display text-base sm:text-lg font-bold text-stone-900 leading-snug">
-                    Thời gian tiệc tối: Đón Khách: 17H30 · Khai Tiệc: 19H00
+                    Thời gian tiệc tối: Đón Khách: 18H00 · Khai Tiệc: 19H00
                   </p>
                   <p className="text-sm sm:text-base font-display text-[#8B1E22] font-semibold mt-1">
                     Thứ Bảy, ngày 19 tháng 12 năm 2026
@@ -153,7 +153,7 @@ export const CeremonyDetails: React.FC<CeremonyDetailsProps> = ({ weddingInfo })
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div className="inline-block rounded-md border border-[#8B1E22]/30 bg-[#FAF4E6] px-4 py-1.5 text-xs font-caps font-bold uppercase tracking-wider text-[#8B1E22]">
-                TIMELINE CHƯƠNG TRÌNH NGÀY CƯỚI
+                TIMELINE CHƯƠNG TRÌNH ĐÁM CƯỚI
               </div>
             </div>
 

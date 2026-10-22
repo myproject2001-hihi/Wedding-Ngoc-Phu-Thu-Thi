@@ -16,7 +16,7 @@ export const initialWeddingInfo: WeddingInfo = {
   brideName: 'Huỳnh Thị Thu Thi',
   brideTitle: 'Thứ Nữ',
   brideFather: 'Huỳnh Lượm',
-  brideMother: 'Lê Thị Liễu',
+  brideMother: 'Lê Thị Liếu',
   brideHometown: 'Tỉnh Đắk Lắk',
   bridePhone: '0908 987 654',
   brideBank: {
@@ -26,7 +26,7 @@ export const initialWeddingInfo: WeddingInfo = {
   },
 
   weddingDate: '2026-12-19',
-  weddingTime: '17:30',
+  weddingTime: '18:00',
   weddingDayOfWeek: 'Thứ Bảy',
   lunarDate: 'Nhằm ngày 11 tháng 11 năm Bính Ngọ',
 
@@ -43,7 +43,7 @@ export const initialWeddingInfo: WeddingInfo = {
     title: 'TIỆC CƯỚI CHÍNH',
     name: 'Trung Tâm Hội Nghị Tiệc Cưới Asiana Plaza Tân Phú',
     address: '284-286 Vườn Lài, Phường Phú Thọ Hòa, Quận Tân Phú, TP. Hồ Chí Minh',
-    time: 'Đón Khách: 17H30 · Khai Tiệc: 19H00',
+    time: 'Đón Khách: 18H00 · Khai Tiệc: 19H00',
     date: 'Thứ Bảy, ngày 19 tháng 12 năm 2026',
     hall: 'Sảnh Akina (Tầng 8)',
     mapUrl: 'https://www.google.com/maps/search/?api=1&query=Asiana+Plaza+Tan+Phu+284+Vuon+Lai+Phu+Tho+Hoa+Tan+Phu',
