@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle, Sparkles } from 'lucide-react';
 import { WeddingInfo } from '../types';
+import { ScrollReveal } from './ScrollReveal';
 
 interface HeroCardProps {
   weddingInfo: WeddingInfo;
@@ -47,8 +48,9 @@ export const HeroCard: React.FC<HeroCardProps> = ({
 
   return (
     <section id="thiep-moi" className="relative py-8 sm:py-12 px-3 sm:px-6 lg:px-8 max-w-5xl mx-auto">
-      {/* Outer Card Frame with double gold hairline border */}
-      <div className="relative rounded-2xl sm:rounded-3xl bg-[#FFFDF9] border-2 border-[#C5A059]/60 p-4 sm:p-8 lg:p-12 shadow-2xl overflow-hidden">
+      {/* Outer Card Frame with double gold hairline border & ScrollReveal */}
+      <ScrollReveal direction="up" duration={900} threshold={0.08}>
+        <div className="relative rounded-2xl sm:rounded-3xl bg-[#FFFDF9] border-2 border-[#C5A059]/60 p-4 sm:p-8 lg:p-12 shadow-2xl overflow-hidden">
         {/* Vintage ornate corner ornaments */}
         <div className="absolute top-3 left-3 text-[#C5A059] opacity-80 select-none text-base">✦</div>
         <div className="absolute top-3 right-3 text-[#C5A059] opacity-80 select-none text-base">✦</div>
@@ -231,7 +233,7 @@ export const HeroCard: React.FC<HeroCardProps> = ({
             {guestName || 'Quý Khách & Gia Đình'}
           </p>
           <p className="mt-3 text-sm sm:text-base font-display text-stone-700 leading-relaxed max-w-lg mx-auto">
-            Đến dự buổi tiệc chung vui cùng gia đình chúng tôi tại:
+            Đến dự buổi tiệc chung vui<br className="sm:hidden" /> cùng gia đình chúng tôi tại:
             <br />
             <strong className="text-[#8B1E22] font-bold text-base sm:text-lg block mt-1.5 leading-snug">
               TRUNG TÂM HỘI NGHỊ<br />
@@ -245,9 +247,9 @@ export const HeroCard: React.FC<HeroCardProps> = ({
             </span>
           </p>
 
-          <div className="mt-4 pt-3 border-t border-[#C5A059]/30 flex flex-wrap items-center justify-center gap-4 text-xs sm:text-sm font-caps text-[#8B1E22] font-bold">
+          <div className="mt-4 pt-3 border-t border-[#C5A059]/30 flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-4 text-xs sm:text-sm font-caps text-[#8B1E22] font-bold">
             <span>🍸 Đón Khách: 18H00</span>
-            <span className="text-[#C5A059]">✦</span>
+            <span className="hidden sm:inline text-[#C5A059]">✦</span>
             <span>🍴 Khai Tiệc: 19H00</span>
           </div>
         </div>
@@ -256,7 +258,7 @@ export const HeroCard: React.FC<HeroCardProps> = ({
         <div className="mt-10 pt-6 border-t border-[#C5A059]/30 text-center">
           <p className="text-xs font-caps tracking-[0.25em] uppercase text-stone-500 mb-4 font-semibold flex items-center justify-center gap-1.5">
             <Sparkles className="h-3.5 w-3.5 text-[#C5A059]" />
-            <span>ĐẾM NGƯỢC ĐẾN NGÀY THÀNH HÔN (19/12/2026)</span>
+            <span className="text-center">ĐẾM NGƯỢC ĐẾN<br className="sm:hidden" /> NGÀY THÀNH HÔN (19/12/2026)</span>
             <Sparkles className="h-3.5 w-3.5 text-[#C5A059]" />
           </p>
           <div className="grid grid-cols-4 gap-1.5 sm:gap-3 max-w-md mx-auto">
@@ -306,6 +308,7 @@ export const HeroCard: React.FC<HeroCardProps> = ({
           </button>
         </div>
       </div>
+      </ScrollReveal>
     </section>
   );
 };

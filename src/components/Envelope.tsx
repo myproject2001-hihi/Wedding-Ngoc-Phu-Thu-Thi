@@ -45,9 +45,9 @@ export const Envelope: React.FC<EnvelopeProps> = ({
       {/* Hero Welcome Header (Hình 2: Chuyển toàn bộ tên cô dâu chú rể thành font chữ viết tay mượt mà) */}
       <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
         <div className="flex items-center justify-center gap-2 text-xs font-caps tracking-[0.3em] uppercase text-[#8B1E22] font-semibold">
-          <span>THƯ MỜI CƯỚI</span>
+          <span>THƯ<br className="sm:hidden" /> MỜI CƯỚI</span>
           <span className="text-[#C5A059]">✦</span>
-          <span>WEDDING INVITATION</span>
+          <span>WEDDING<br className="sm:hidden" /> INVITATION</span>
         </div>
 
         <div className="mt-4 flex flex-col items-center justify-center space-y-0.5 sm:space-y-1">
@@ -212,7 +212,7 @@ export const Envelope: React.FC<EnvelopeProps> = ({
             </div>
 
             <p className="text-xs sm:text-sm font-display text-stone-700 leading-relaxed max-w-sm mx-auto">
-              Đến dự tiệc mừng ngày thành hôn của hai con chúng tôi
+              Đến dự tiệc mừng ngày thành hôn<br className="sm:hidden" /> của hai con chúng tôi
             </p>
 
             <div className="mt-2.5 inline-block rounded-md border border-[#8B1E22]/30 bg-[#FAF4E6] px-4 py-1.5 text-xs font-caps tracking-[0.15em] text-[#8B1E22] font-semibold">

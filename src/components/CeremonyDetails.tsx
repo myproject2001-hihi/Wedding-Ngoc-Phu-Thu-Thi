@@ -1,6 +1,7 @@
 import React from 'react';
 import { Calendar, Clock, MapPin, ExternalLink, Heart, Sun, Moon } from 'lucide-react';
 import { WeddingInfo } from '../types';
+import { ScrollReveal } from './ScrollReveal';
 
 interface CeremonyDetailsProps {
   weddingInfo: WeddingInfo;
@@ -50,26 +51,29 @@ export const CeremonyDetails: React.FC<CeremonyDetailsProps> = ({ weddingInfo })
 
   return (
     <section id="lich-trinh" className="py-12 sm:py-16 px-3 sm:px-6 lg:px-8 max-w-6xl mx-auto">
-      {/* Section Header */}
-      <div className="text-center mb-8 sm:mb-12">
-        <div className="flex items-center justify-center gap-2 text-xs font-caps tracking-[0.25em] uppercase text-[#8B1E22] font-semibold">
-          <span>THỜI GIAN & ĐỊA ĐIỂM</span>
-          <span className="text-[#C5A059]">✦</span>
-          <span>PROGRAM & VENUES</span>
+      {/* Section Header with smooth ScrollReveal */}
+      <ScrollReveal direction="up" duration={800} threshold={0.1}>
+        <div className="text-center mb-8 sm:mb-12">
+          <div className="flex items-center justify-center gap-2 text-xs font-caps tracking-[0.25em] uppercase text-[#8B1E22] font-semibold text-center">
+            <span>THỜI GIAN<br className="sm:hidden" /> & ĐỊA ĐIỂM</span>
+            <span className="text-[#C5A059]">✦</span>
+            <span>PROGRAM<br className="sm:hidden" /> & VENUES</span>
+          </div>
+          <h2 className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-display font-bold text-[#8B1E22] tracking-wide">
+            Lễ Cưới & Tiệc Mừng
+          </h2>
+          <p className="mt-2 text-sm sm:text-base font-display text-stone-600 leading-relaxed">
+            Thứ Bảy, 19/12/2026<br />
+            Nhằm ngày 11 tháng 11 năm Bính Ngọ
+          </p>
         </div>
-        <h2 className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-display font-bold text-[#8B1E22] tracking-wide">
-          Lễ Cưới & Tiệc Mừng
-        </h2>
-        <p className="mt-2 text-sm sm:text-base font-display text-stone-600 leading-relaxed">
-          Thứ Bảy, 19/12/2026<br />
-          Nhằm ngày 11 tháng 11 năm Bính Ngọ
-        </p>
-      </div>
+      </ScrollReveal>
 
       {/* 2-Column Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-stretch">
         {/* CỘT 1 (Left 6/12): THÔNG TIN TỔ CHỨC TIỆC CƯỚI */}
-        <div className="lg:col-span-6 rounded-2xl bg-[#FFFDF9] border border-[#C5A059]/50 p-5 sm:p-7 lg:p-8 shadow-lg flex flex-col justify-between">
+        <ScrollReveal direction="up" delay={120} duration={850} className="lg:col-span-6 flex flex-col">
+          <div className="w-full h-full rounded-2xl bg-[#FFFDF9] border border-[#C5A059]/50 p-5 sm:p-7 lg:p-8 shadow-lg flex flex-col justify-between">
           <div>
             <div className="inline-block rounded-md border border-[#8B1E22]/30 bg-[#FAF4E6] px-4 py-1.5 text-xs font-caps font-bold uppercase tracking-wider text-[#8B1E22] mb-5">
               THÔNG TIN TỔ CHỨC TIỆC CƯỚI
@@ -91,7 +95,8 @@ export const CeremonyDetails: React.FC<CeremonyDetailsProps> = ({ weddingInfo })
                 <div>
                   <p className="font-display text-base sm:text-lg font-bold text-stone-900 leading-snug">
                     Thời gian tiệc tối: <br/>
-                    Đón Khách: 18H00 · Khai Tiệc: 19H00
+                    Đón Khách: 18H00 <br className="sm:hidden" />
+                    Khai Tiệc: 19H00
                   </p>
                   <p className="text-sm sm:text-base font-display text-[#8B1E22] font-semibold mt-1">
                     Thứ Bảy, ngày 19 tháng 12 năm 2026
@@ -124,7 +129,7 @@ export const CeremonyDetails: React.FC<CeremonyDetailsProps> = ({ weddingInfo })
                     (Giờ Trưa): 10H00 – Thứ Bảy
                   </p>
                   <p className="text-sm sm:text-base font-display text-[#8B1E22] font-semibold mt-1">
-                    19 | 12 | 2026 ({weddingInfo.lunarDate})
+                    19 | 12 | 2026 <br className="sm:hidden" />({weddingInfo.lunarDate})
                   </p>
                   <p className="text-xs sm:text-sm font-display text-stone-600 italic mt-0.5">
                     Nghi thức thành hôn tại tư gia gia đình nhà trai
@@ -148,9 +153,11 @@ export const CeremonyDetails: React.FC<CeremonyDetailsProps> = ({ weddingInfo })
             </a>
           </div>
         </div>
+      </ScrollReveal>
 
-        {/* CỘT 2 (Right 6/12): TIMELINE (Đã bỏ chữ "Gia Tộc") */}
-        <div className="lg:col-span-6 rounded-2xl bg-[#FFFDF9] border border-[#C5A059]/50 p-5 sm:p-7 lg:p-8 shadow-lg flex flex-col justify-between">
+      {/* CỘT 2 (Right 6/12): TIMELINE */}
+      <ScrollReveal direction="up" delay={260} duration={850} className="lg:col-span-6 flex flex-col">
+        <div className="w-full h-full rounded-2xl bg-[#FFFDF9] border border-[#C5A059]/50 p-5 sm:p-7 lg:p-8 shadow-lg flex flex-col justify-between">
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div className="inline-block rounded-md border border-[#8B1E22]/30 bg-[#FAF4E6] px-4 py-1.5 text-xs font-caps font-bold uppercase tracking-wider text-[#8B1E22]">
@@ -177,8 +184,16 @@ export const CeremonyDetails: React.FC<CeremonyDetailsProps> = ({ weddingInfo })
                       <span className="font-caps font-bold text-xs text-[#8B1E22] tabular-nums bg-[#FAF0DC] px-2 py-0.5 rounded border border-[#C5A059]/30">
                         {item.time}
                       </span>
-                      <h4 className="font-display font-bold text-sm text-stone-900">
-                        {item.title}
+                      <h4 className="font-display font-bold text-sm text-stone-900 leading-snug">
+                        {item.title.includes('&') ? (
+                          <>
+                            {item.title.split('&')[0].trim()}
+                            <br className="sm:hidden" />
+                            &amp; {item.title.split('&')[1].trim()}
+                          </>
+                        ) : (
+                          item.title
+                        )}
                       </h4>
                     </div>
                     <p className="mt-0.5 text-xs font-display text-stone-600">
@@ -195,7 +210,7 @@ export const CeremonyDetails: React.FC<CeremonyDetailsProps> = ({ weddingInfo })
                 <Moon className="h-4 w-4 text-[#8B1E22] shrink-0" />
                 <span className="leading-snug">
                   Buổi Tối:<br />
-                  Tiệc Cưới Tại Nhà Hàng Asiana Plaza
+                  Tiệc Cưới Tại<br className="sm:hidden" /> Nhà Hàng Asiana Plaza
                 </span>
               </div>
               <div className="relative border-l-2 border-[#8B1E22]/30 ml-2.5 space-y-3.5 pl-4">
@@ -208,8 +223,16 @@ export const CeremonyDetails: React.FC<CeremonyDetailsProps> = ({ weddingInfo })
                       <span className="font-caps font-bold text-xs text-[#8B1E22] tabular-nums bg-white px-2 py-0.5 rounded border border-[#8B1E22]/30">
                         {item.time}
                       </span>
-                      <h4 className="font-display font-bold text-sm text-stone-900">
-                        {item.title}
+                      <h4 className="font-display font-bold text-sm text-stone-900 leading-snug">
+                        {item.title.includes('&') ? (
+                          <>
+                            {item.title.split('&')[0].trim()}
+                            <br className="sm:hidden" />
+                            &amp; {item.title.split('&')[1].trim()}
+                          </>
+                        ) : (
+                          item.title
+                        )}
                       </h4>
                     </div>
                     <p className="mt-0.5 text-xs font-display text-stone-600">
@@ -231,6 +254,7 @@ export const CeremonyDetails: React.FC<CeremonyDetailsProps> = ({ weddingInfo })
             </p>
           </div>
         </div>
+      </ScrollReveal>
       </div>
     </section>
   );

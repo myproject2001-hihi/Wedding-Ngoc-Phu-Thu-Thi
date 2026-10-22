@@ -136,8 +136,8 @@ export default function App() {
             <span>Huỳnh Thị <br className="block sm:hidden" /> Thu Thi</span>
           </div>
 
-          <p className="font-display text-sm italic text-stone-700">
-            "Sự hiện diện của bạn là niềm hạnh phúc lớn nhất của chúng tôi"
+          <p className="font-display text-sm italic text-stone-700 leading-relaxed">
+            "Sự hiện diện của bạn<br className="sm:hidden" /> là niềm hạnh phúc lớn nhất của chúng tôi"
           </p>
 
           <p className="text-xs font-display text-stone-500 leading-relaxed">

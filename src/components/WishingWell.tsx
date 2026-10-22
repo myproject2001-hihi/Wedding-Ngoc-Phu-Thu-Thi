@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Send, MessageCircle, User, CheckCircle } from 'lucide-react';
 import { GuestWish } from '../types';
 import { initialWishes, quickWishesPresets } from '../data/weddingData';
+import { ScrollReveal } from './ScrollReveal';
 
 interface WishingWellProps {
   onOpenRsvp?: () => void;
@@ -51,24 +52,27 @@ export const WishingWell: React.FC<WishingWellProps> = ({ onOpenRsvp }) => {
 
   return (
     <section id="so-luu-but" className="py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
-      {/* Header */}
-      <div className="text-center mb-12">
-        <div className="flex items-center justify-center gap-2 text-xs font-caps tracking-[0.25em] uppercase text-[#8B1E22] font-semibold">
-          <span>GỬI TRỌN YÊU THƯƠNG</span>
-          <span className="text-[#C5A059]">✦</span>
-          <span>GUESTBOOK & WISHES</span>
+      {/* Header with smooth ScrollReveal */}
+      <ScrollReveal direction="up" duration={800} threshold={0.1}>
+        <div className="text-center mb-12">
+          <div className="flex items-center justify-center gap-2 text-xs font-caps tracking-[0.25em] uppercase text-[#8B1E22] font-semibold text-center">
+            <span>GỬI TRỌN<br className="sm:hidden" /> YÊU THƯƠNG</span>
+            <span className="text-[#C5A059]">✦</span>
+            <span>GUESTBOOK<br className="sm:hidden" /> & WISHES</span>
+          </div>
+          <h2 className="mt-2 text-3xl sm:text-4xl font-display font-bold text-[#8B1E22] tracking-wide">
+            Sổ Lưu Bút Chúc Phúc
+          </h2>
+          <p className="mt-2 text-xs sm:text-sm font-display text-stone-600 max-w-lg mx-auto">
+            Mỗi lời chúc thân thương của bạn là món quà vô giá đồng hành cùng khởi đầu mới của cô dâu chú rể.
+          </p>
         </div>
-        <h2 className="mt-2 text-3xl sm:text-4xl font-display font-bold text-[#8B1E22] tracking-wide">
-          Sổ Lưu Bút Chúc Phúc
-        </h2>
-        <p className="mt-2 text-xs sm:text-sm font-display text-stone-600 max-w-lg mx-auto">
-          Mỗi lời chúc thân thương của bạn là món quà vô giá đồng hành cùng khởi đầu mới của cô dâu chú rể.
-        </p>
-      </div>
+      </ScrollReveal>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Wish Form (Left 5 cols) */}
-        <div className="lg:col-span-5 rounded-2xl bg-[#FFFDF9] border border-[#C5A059]/40 p-6 sm:p-8 shadow-md">
+        {/* Wish Form (Left 5 cols) with ScrollReveal */}
+        <ScrollReveal direction="up" delay={120} duration={850} className="lg:col-span-5">
+          <div className="rounded-2xl bg-[#FFFDF9] border border-[#C5A059]/40 p-6 sm:p-8 shadow-md">
           <h3 className="text-xl font-display font-bold text-[#8B1E22] flex items-center gap-2">
             <MessageCircle className="h-5 w-5 text-[#C5A059]" />
             <span>Gửi Lời Chúc Mừng</span>
@@ -170,9 +174,11 @@ export const WishingWell: React.FC<WishingWellProps> = ({ onOpenRsvp }) => {
             </div>
           </form>
         </div>
+      </ScrollReveal>
 
-        {/* Wishes List (Right 7 cols) */}
-        <div className="lg:col-span-7 space-y-4 max-h-[560px] overflow-y-auto pr-1">
+      {/* Wishes List (Right 7 cols) with ScrollReveal */}
+      <ScrollReveal direction="up" delay={240} duration={850} className="lg:col-span-7">
+        <div className="space-y-4 max-h-[560px] overflow-y-auto pr-1">
           {wishes.map((item) => (
             <div
               key={item.id}
@@ -202,6 +208,7 @@ export const WishingWell: React.FC<WishingWellProps> = ({ onOpenRsvp }) => {
             </div>
           ))}
         </div>
+      </ScrollReveal>
       </div>
     </section>
   );
