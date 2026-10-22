@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Send, MessageCircle, User, CheckCircle } from 'lucide-react';
 import { GuestWish } from '../types';
 import { initialWishes, quickWishesPresets } from '../data/weddingData';
-import { ScrollReveal } from './ScrollReveal';
 
 interface WishingWellProps {
   onOpenRsvp?: () => void;
@@ -13,12 +12,16 @@ export const WishingWell: React.FC<WishingWellProps> = ({ onOpenRsvp }) => {
     const saved = localStorage.getItem('wedding_wishes');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          // Remove virtual demo wishes so application starts completely clean
+          return parsed.filter((w: GuestWish) => !['wish-1', 'wish-2', 'wish-3'].includes(w.id));
+        }
       } catch {
-        return initialWishes;
+        return [];
       }
     }
-    return initialWishes;
+    return [];
   });
 
   const [name, setName] = useState('');
@@ -52,26 +55,33 @@ export const WishingWell: React.FC<WishingWellProps> = ({ onOpenRsvp }) => {
 
   return (
     <section id="so-luu-but" className="py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
-      {/* Header with smooth ScrollReveal */}
-      <ScrollReveal direction="up" duration={800} threshold={0.1}>
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center gap-2 text-xs font-caps tracking-[0.25em] uppercase text-[#8B1E22] font-semibold text-center">
-            <span>GỬI TRỌN<br className="sm:hidden" /> YÊU THƯƠNG</span>
-            <span className="text-[#C5A059]">✦</span>
-            <span>GUESTBOOK<br className="sm:hidden" /> & WISHES</span>
-          </div>
-          <h2 className="mt-2 text-3xl sm:text-4xl font-display font-bold text-[#8B1E22] tracking-wide">
-            Sổ Lưu Bút Chúc Phúc
-          </h2>
-          <p className="mt-2 text-xs sm:text-sm font-display text-stone-600 max-w-lg mx-auto">
-            Mỗi lời chúc thân thương của bạn là món quà vô giá đồng hành cùng khởi đầu mới của cô dâu chú rể.
-          </p>
+      {/* Header with AOS */}
+      <div
+        data-aos="fade-up"
+        data-aos-duration="800"
+        className="text-center mb-12"
+      >
+        <div className="flex items-center justify-center gap-2 text-xs font-caps tracking-[0.25em] uppercase text-[#8B1E22] font-semibold text-center">
+          <span>GỬI TRỌN<br className="sm:hidden" /> YÊU THƯƠNG</span>
+          <span className="text-[#C5A059]">✦</span>
+          <span>GUESTBOOK<br className="sm:hidden" /> & WISHES</span>
         </div>
-      </ScrollReveal>
+        <h2 className="mt-2 text-3xl sm:text-4xl font-display font-bold text-[#8B1E22] tracking-wide">
+          Sổ Lưu Bút Chúc Phúc
+        </h2>
+        <p className="mt-2 text-xs sm:text-sm font-display text-stone-600 max-w-lg mx-auto">
+          Mỗi lời chúc thân thương của bạn là món quà vô giá đồng hành cùng khởi đầu mới của cô dâu chú rể.
+        </p>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Wish Form (Left 5 cols) with ScrollReveal */}
-        <ScrollReveal direction="up" delay={120} duration={850} className="lg:col-span-5">
+        {/* Wish Form (Left 5 cols) with AOS */}
+        <div
+          data-aos="fade-up"
+          data-aos-delay="100"
+          data-aos-duration="800"
+          className="lg:col-span-5"
+        >
           <div className="rounded-2xl bg-[#FFFDF9] border border-[#C5A059]/40 p-6 sm:p-8 shadow-md">
           <h3 className="text-xl font-display font-bold text-[#8B1E22] flex items-center gap-2">
             <MessageCircle className="h-5 w-5 text-[#C5A059]" />
@@ -174,41 +184,60 @@ export const WishingWell: React.FC<WishingWellProps> = ({ onOpenRsvp }) => {
             </div>
           </form>
         </div>
-      </ScrollReveal>
+      </div>
 
-      {/* Wishes List (Right 7 cols) with ScrollReveal */}
-      <ScrollReveal direction="up" delay={240} duration={850} className="lg:col-span-7">
+      {/* Wishes List (Right 7 cols) with AOS */}
+      <div
+        data-aos="fade-up"
+        data-aos-delay="200"
+        data-aos-duration="800"
+        className="lg:col-span-7"
+      >
         <div className="space-y-4 max-h-[560px] overflow-y-auto pr-1">
-          {wishes.map((item) => (
-            <div
-              key={item.id}
-              className="rounded-xl border border-[#C5A059]/30 bg-[#FFFDF9] p-5 shadow-xs hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FAF4E6] border border-[#C5A059]/40 text-[#8B1E22]">
-                    <User className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <h4 className="font-display text-base font-bold text-[#8B1E22]">
-                      {item.name}
-                    </h4>
-                    <div className="flex items-center gap-2 text-xs font-display text-stone-500">
-                      <span>{item.relation}</span>
-                      <span aria-hidden="true">·</span>
-                      <span>{item.createdAt}</span>
+          {wishes.length > 0 ? (
+            wishes.map((item) => (
+              <div
+                key={item.id}
+                className="rounded-xl border border-[#C5A059]/30 bg-[#FFFDF9] p-5 shadow-xs hover:shadow-md transition-shadow"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FAF4E6] border border-[#C5A059]/40 text-[#8B1E22]">
+                      <User className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <h4 className="font-display text-base font-bold text-[#8B1E22]">
+                        {item.name}
+                      </h4>
+                      <div className="flex items-center gap-2 text-xs font-display text-stone-500">
+                        <span>{item.relation}</span>
+                        <span aria-hidden="true">·</span>
+                        <span>{item.createdAt}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <p className="mt-3 text-xs sm:text-sm font-display text-stone-800 leading-relaxed pl-11">
-                "{item.message}"
+                <p className="mt-3 text-xs sm:text-sm font-display text-stone-800 leading-relaxed pl-11">
+                  "{item.message}"
+                </p>
+              </div>
+            ))
+          ) : (
+            <div className="rounded-2xl border-2 border-dashed border-[#C5A059]/40 bg-[#FFFDF9]/90 p-8 sm:p-10 text-center flex flex-col items-center justify-center min-h-[260px]">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#FAF5E8] border border-[#C5A059]/50 text-[#8B1E22] mb-3">
+                <MessageCircle className="h-7 w-7 text-[#C5A059]" />
+              </div>
+              <h4 className="font-display text-lg font-bold text-[#8B1E22]">
+                Sổ Lưu Bút Chưa Có Lời Chúc Nào
+              </h4>
+              <p className="mt-2 text-xs sm:text-sm font-display text-stone-600 max-w-sm leading-relaxed">
+                Hãy là người đầu tiên gửi những lời chúc phúc tốt đẹp và ý nghĩa nhất tới đôi uyên ương Ngọc Phú &amp; Thu Thi!
               </p>
             </div>
-          ))}
+          )}
         </div>
-      </ScrollReveal>
+      </div>
       </div>
     </section>
   );

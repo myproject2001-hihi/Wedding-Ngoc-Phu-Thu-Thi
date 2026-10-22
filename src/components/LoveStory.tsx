@@ -1,37 +1,37 @@
 import React from 'react';
 import { Heart, Sparkles, Calendar } from 'lucide-react';
 import { loveStoryMilestones } from '../data/weddingData';
-import { ScrollReveal } from './ScrollReveal';
 
 export const LoveStory: React.FC = () => {
   return (
     <section id="chuyen-tinh-yeu" className="py-12 sm:py-16 px-3 sm:px-6 lg:px-8 max-w-4xl mx-auto">
-      {/* Section Header with smooth ScrollReveal */}
-      <ScrollReveal direction="up" duration={800} threshold={0.1}>
-        <div className="text-center mb-10 sm:mb-14">
-          <div className="flex items-center justify-center gap-2 text-xs font-caps tracking-[0.25em] uppercase text-[#8B1E22] font-semibold text-center">
-            <span>HÀNH TRÌNH<br className="sm:hidden" /> YÊU THƯƠNG</span>
-            <span className="text-[#C5A059]">✦</span>
-            <span>OUR<br className="sm:hidden" /> LOVE STORY</span>
-          </div>
-          <h2 className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-display font-bold text-[#8B1E22] tracking-wide">
-            Chuyện Tình Chúng Mình
-          </h2>
-          <p className="mt-2 text-xs sm:text-sm font-display text-stone-600 max-w-lg mx-auto italic">
-            "Mỗi khoảnh khắc bên nhau đều là một viên gạch quý giá xây đắp nên mái ấm hôm nay"
-          </p>
+      {/* Section Header with AOS */}
+      <div
+        data-aos="fade-up"
+        data-aos-duration="800"
+        className="text-center mb-10 sm:mb-14"
+      >
+        <div className="flex items-center justify-center gap-2 text-xs font-caps tracking-[0.25em] uppercase text-[#8B1E22] font-semibold text-center">
+          <span>HÀNH TRÌNH<br className="sm:hidden" /> YÊU THƯƠNG</span>
+          <span className="text-[#C5A059]">✦</span>
+          <span>OUR<br className="sm:hidden" /> LOVE STORY</span>
         </div>
-      </ScrollReveal>
+        <h2 className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-display font-bold text-[#8B1E22] tracking-wide">
+          Chuyện Tình Chúng Mình
+        </h2>
+        <p className="mt-2 text-xs sm:text-sm font-display text-stone-600 max-w-lg mx-auto italic">
+          "Mỗi khoảnh khắc bên nhau đều là một viên gạch quý giá xây đắp nên mái ấm hôm nay"
+        </p>
+      </div>
 
-      {/* Redesigned Luxury Editorial Storyline (Không bị đè chữ, tương thích 100% điện thoại & máy tính) */}
+      {/* Redesigned Luxury Editorial Storyline */}
       <div className="relative pl-6 sm:pl-10 space-y-6 sm:space-y-8 before:absolute before:left-2 sm:before:left-3 before:top-3 before:bottom-3 before:w-[2px] before:bg-gradient-to-b before:from-[#C5A059] before:via-[#8B1E22]/60 before:to-[#C5A059]">
         {loveStoryMilestones.map((item, index) => (
-          <ScrollReveal
+          <div
             key={index}
-            direction="up"
-            delay={index * 90}
-            duration={750}
-            distance={24}
+            data-aos="fade-up"
+            data-aos-delay={index * 100}
+            data-aos-duration="750"
             className="relative group"
           >
             {/* Timeline node - perfectly positioned on the left rail without colliding */}
@@ -64,7 +64,7 @@ export const LoveStory: React.FC = () => {
                 </p>
               </div>
             </div>
-          </ScrollReveal>
+          </div>
         ))}
       </div>
     </section>

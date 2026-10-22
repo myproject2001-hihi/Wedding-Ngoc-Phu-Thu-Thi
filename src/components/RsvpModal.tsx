@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { X, CheckCircle, Users, User, Heart, MessageSquare, Sparkles } from 'lucide-react';
 import { triggerFireworks } from '../utils/fireworks';
+import { saveGuestRsvp } from '../utils/guestStorage';
+import { RsvpData } from '../types';
 
 interface RsvpModalProps {
   isOpen: boolean;
@@ -35,7 +37,7 @@ export const RsvpModal: React.FC<RsvpModalProps> = ({
 
     const guestNameValue = name.trim();
 
-    const rsvpItem = {
+    const rsvpItem: RsvpData = {
       id: String(Date.now()),
       name: guestNameValue,
       relationship,
@@ -45,10 +47,8 @@ export const RsvpModal: React.FC<RsvpModalProps> = ({
       submittedAt: new Date().toLocaleString('vi-VN'),
     };
 
-    // Save to local storage for bride and groom's organizer dashboard
-    const existing = JSON.parse(localStorage.getItem('wedding_rsvps') || '[]');
-    existing.push(rsvpItem);
-    localStorage.setItem('wedding_rsvps', JSON.stringify(existing));
+    // Save to high-capacity persistent storage (IndexedDB + localStorage, supporting 1000+ guests)
+    saveGuestRsvp(rsvpItem);
 
     // Also push to wishes if wishes provided
     if (wishes.trim()) {

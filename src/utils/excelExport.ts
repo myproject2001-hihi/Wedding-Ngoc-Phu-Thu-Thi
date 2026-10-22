@@ -3,12 +3,7 @@ import { RsvpData } from '../types';
 /**
  * Xuất danh sách khách mời ra file Excel (định dạng CSV UTF-8 BOM chuẩn cho Microsoft Excel & Google Sheets)
  */
-export const exportRsvpsToExcelCsv = (rsvps: RsvpData[], fileName = 'Danh-Sach-Khach-Moi-Dam-Cuoi.csv') => {
-  if (!rsvps || rsvps.length === 0) {
-    alert('Chưa có dữ liệu phản hồi nào để xuất file.');
-    return;
-  }
-
+export const exportRsvpsToExcelCsv = (rsvps: RsvpData[] = [], fileName = 'Danh-Sach-Khach-Moi-Dam-Cuoi.csv') => {
   // Tiêu đề cột chuẩn tiếng Việt
   const headers = [
     'STT',

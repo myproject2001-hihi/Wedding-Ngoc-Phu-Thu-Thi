@@ -4,6 +4,8 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 import { initialWeddingInfo } from './data/weddingData';
 import { WeddingInfo } from './types';
 import { TopBar } from './components/TopBar';
@@ -16,7 +18,8 @@ import { WishingWell } from './components/WishingWell';
 import { RsvpModal } from './components/RsvpModal';
 import { AdminGuestModal } from './components/AdminGuestModal';
 import { ToastNotification, ToastData } from './components/ToastNotification';
-import { ScrollToTop } from './components/FloatingMusicPlayer';
+import { FloatingMusicPlayer } from './components/FloatingMusicPlayer';
+import { ScrollToTop } from './components/ScrollToTop';
 import { PetalsCanvas } from './components/PetalsCanvas';
 import { Heart, FileSpreadsheet } from 'lucide-react';
 
@@ -27,6 +30,32 @@ export default function App() {
   const [isRsvpOpen, setIsRsvpOpen] = useState<boolean>(false);
   const [isAdminOpen, setIsAdminOpen] = useState<boolean>(false);
   const [toast, setToast] = useState<ToastData | null>(null);
+
+  // Initialize AOS (Animate on Scroll)
+  useEffect(() => {
+    AOS.init({
+      duration: 800,
+      easing: 'ease-out-cubic',
+      once: false, // Allows re-animating when user scrolls back down
+      offset: 60,
+      delay: 50,
+      mirror: true,
+    });
+
+    const timer = setTimeout(() => {
+      AOS.refresh();
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Refresh AOS coordinates when envelope is opened/closed
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      AOS.refresh();
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [isEnvelopeOpen]);
 
   // Check URL params for guest name or admin mode
   useEffect(() => {
@@ -69,6 +98,9 @@ export default function App() {
 
       {/* Floating ambient particles (Golden dust & rose petals) */}
       <PetalsCanvas enabled={true} />
+
+      {/* Floating Ambient Wedding Piano Music Player */}
+      <FloatingMusicPlayer autoPlayTrigger={isEnvelopeOpen} />
 
       {/* Scroll to Top Button */}
       <ScrollToTop />

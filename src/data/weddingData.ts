@@ -57,32 +57,8 @@ export const initialWeddingInfo: WeddingInfo = {
   outdoorImage: '/assets/wedding_couple_outdoor_1792588726499.jpg',
 };
 
-export const initialWishes: GuestWish[] = [
-  {
-    id: 'wish-1',
-    name: 'Gia đình Bác Hai',
-    relation: 'Người thân nhà trai',
-    message: 'Chúc hai cháu Ngọc Phú & Thu Thi trăm năm hạnh phúc, thuận hòa êm ấm, cùng nhau xây đắp tổ ấm viên mãn!',
-    createdAt: 'Hôm nay',
-    likes: 12,
-  },
-  {
-    id: 'wish-2',
-    name: 'Hội Bạn Thân',
-    relation: 'Bạn của cô dâu chú rể',
-    message: 'Chúc mừng Phú & Thi đã chính thức về chung một nhà! Chúc đôi bạn trẻ mãi mãi mặn nồng son sắt và luôn hạnh phúc rạng ngời!',
-    createdAt: 'Hôm qua',
-    likes: 19,
-  },
-  {
-    id: 'wish-3',
-    name: 'Cô Chú Út',
-    relation: 'Người thân nhà gái',
-    message: 'Mừng ngày vui của hai cháu! Chúc hai cháu khởi đầu hành trình mới ngập tràn tiếng cười, gia đạo an khang!',
-    createdAt: '2 ngày trước',
-    likes: 8,
-  },
-];
+export const initialWishes: GuestWish[] = [];
+
 
 export const loveStoryMilestones = [
   {

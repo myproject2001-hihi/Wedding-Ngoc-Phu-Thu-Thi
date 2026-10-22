@@ -14,7 +14,19 @@ export const TopBar: React.FC<TopBarProps> = ({
       {/* Zone 1: P & T as requested in Hình 1 */}
       <a
         href="#"
-        className="font-display text-xl sm:text-2xl font-bold tracking-wider text-[#8B1E22] whitespace-nowrap shrink-0 hover:opacity-90 transition-opacity flex items-center select-none"
+        onClick={(e) => {
+          e.preventDefault();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          window.dispatchEvent(new CustomEvent('reset-scroll-reveal'));
+          setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('reset-scroll-reveal'));
+          }, 400);
+          setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('reset-scroll-reveal'));
+          }, 800);
+        }}
+        className="font-display text-xl sm:text-2xl font-bold tracking-wider text-[#8B1E22] whitespace-nowrap shrink-0 hover:opacity-90 transition-opacity flex items-center select-none cursor-pointer"
+        title="Lên đầu trang"
       >
         <span>P</span>
         <span className="font-calligraphy text-2xl sm:text-3xl text-[#C5A059] mx-1 leading-none font-bold">

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { X, ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
 import { WeddingInfo } from '../types';
-import { ScrollReveal } from './ScrollReveal';
 
 interface PhotoGalleryProps {
   weddingInfo: WeddingInfo;
@@ -51,32 +50,33 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = ({ weddingInfo }) => {
 
   return (
     <section id="album-anh" className="py-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
-      {/* Header with smooth ScrollReveal */}
-      <ScrollReveal direction="up" duration={800} threshold={0.1}>
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center gap-2 text-xs font-caps tracking-[0.25em] uppercase text-[#8B1E22] font-semibold leading-relaxed text-center">
-            <span>KHOẢNH KHẮC<br />KỶ NIỆM</span>
-            <span className="text-[#C5A059]">✦</span>
-            <span>GỬI TRỌN<br />YÊU THƯƠNG</span>
-          </div>
-          <h2 className="mt-2 text-3xl sm:text-4xl font-display font-bold text-[#8B1E22] tracking-wide">
-            Album Ảnh Cưới
-          </h2>
-          <p className="mt-2 text-xs sm:text-sm font-display text-stone-600 leading-relaxed">
-            Chạm vào từng bức ảnh<br className="sm:hidden" /> để chiêm ngưỡng trọn vẹn từng khoảnh khắc
-          </p>
+      {/* Header with AOS */}
+      <div
+        data-aos="fade-up"
+        data-aos-duration="800"
+        className="text-center mb-12"
+      >
+        <div className="flex items-center justify-center gap-2 text-xs font-caps tracking-[0.25em] uppercase text-[#8B1E22] font-semibold leading-relaxed text-center">
+          <span>KHOẢNH KHẮC<br />KỶ NIỆM</span>
+          <span className="text-[#C5A059]">✦</span>
+          <span>GỬI TRỌN<br />YÊU THƯƠNG</span>
         </div>
-      </ScrollReveal>
+        <h2 className="mt-2 text-3xl sm:text-4xl font-display font-bold text-[#8B1E22] tracking-wide">
+          Album Ảnh Cưới
+        </h2>
+        <p className="mt-2 text-xs sm:text-sm font-display text-stone-600 leading-relaxed">
+          Chạm vào từng bức ảnh<br className="sm:hidden" /> để chiêm ngưỡng trọn vẹn từng khoảnh khắc
+        </p>
+      </div>
 
-      {/* Grid of Photos with ScrollReveal */}
+      {/* Grid of Photos with AOS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-6">
         {photos.map((item, idx) => (
-          <ScrollReveal
+          <div
             key={idx}
-            direction="up"
-            delay={idx * 110}
-            duration={800}
-            distance={24}
+            data-aos="fade-up"
+            data-aos-delay={idx * 120}
+            data-aos-duration="750"
             className={`${
               idx === 0
                 ? 'sm:col-span-2 sm:row-span-2'
@@ -119,7 +119,7 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = ({ weddingInfo }) => {
                 </div>
               </div>
             </div>
-          </ScrollReveal>
+          </div>
         ))}
       </div>
 

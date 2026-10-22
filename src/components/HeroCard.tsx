@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle, Sparkles } from 'lucide-react';
 import { WeddingInfo } from '../types';
-import { ScrollReveal } from './ScrollReveal';
 
 interface HeroCardProps {
   weddingInfo: WeddingInfo;
@@ -48,8 +47,8 @@ export const HeroCard: React.FC<HeroCardProps> = ({
 
   return (
     <section id="thiep-moi" className="relative py-8 sm:py-12 px-3 sm:px-6 lg:px-8 max-w-5xl mx-auto">
-      {/* Outer Card Frame with double gold hairline border & ScrollReveal */}
-      <ScrollReveal direction="up" duration={900} threshold={0.08}>
+      {/* Outer Card Frame with double gold hairline border & AOS */}
+      <div data-aos="fade-up" data-aos-duration="900">
         <div className="relative rounded-2xl sm:rounded-3xl bg-[#FFFDF9] border-2 border-[#C5A059]/60 p-4 sm:p-8 lg:p-12 shadow-2xl overflow-hidden">
         {/* Vintage ornate corner ornaments */}
         <div className="absolute top-3 left-3 text-[#C5A059] opacity-80 select-none text-base">✦</div>
@@ -159,12 +158,12 @@ export const HeroCard: React.FC<HeroCardProps> = ({
           </p>
 
           <div className="relative rounded-2xl border border-[#C5A059]/50 bg-gradient-to-b from-[#FAF5E8]/90 to-[#FFFDF9] p-6 sm:p-8 shadow-xs">
-            {/* Groom Row with handwriting font (Hình 1: Ngắt 2 chữ trên mobile, chữ to hơn, ko in nghiêng) */}
+            {/* Groom Row with handwriting font (Hình 1: Ngắt 2 chữ trên mobile, chữ to hơn, in đậm) */}
             <div className="flex flex-col items-center justify-center gap-1">
               <span className="text-[11px] sm:text-xs font-caps tracking-[0.2em] uppercase text-[#8B1E22] font-semibold bg-[#FAF0DC] px-2.5 py-0.5 rounded border border-[#C5A059]/30">
                 {weddingInfo.groomTitle}
               </span>
-              <h2 className="text-4xl sm:text-6xl lg:text-7xl font-wedding-names text-[#8B1E22] tracking-wide text-center py-1 select-none leading-tight font-normal">
+              <h2 className="text-4xl sm:text-6xl lg:text-7xl font-wedding-names font-bold text-[#8B1E22] tracking-wide text-center py-1 select-none leading-tight">
                 Huỳnh Lê <br className="block sm:hidden" /> Ngọc Phú
               </h2>
             </div>
@@ -172,18 +171,18 @@ export const HeroCard: React.FC<HeroCardProps> = ({
             {/* Golden Ampersand Divider */}
             <div className="my-2 sm:my-2.5 flex items-center justify-center gap-3">
               <span className="h-[1px] w-16 sm:w-24 bg-gradient-to-r from-transparent to-[#C5A059]" />
-              <span className="font-calligraphy text-3xl sm:text-4xl text-[#C5A059] leading-none select-none">
+              <span className="font-calligraphy text-3xl sm:text-4xl text-[#C5A059] leading-none select-none font-bold">
                 &
               </span>
               <span className="h-[1px] w-16 sm:w-24 bg-gradient-to-l from-transparent to-[#C5A059]" />
             </div>
 
-            {/* Bride Row with handwriting font (Hình 1: Ngắt 2 chữ trên mobile, chữ to hơn, ko in nghiêng) */}
+            {/* Bride Row with handwriting font (Hình 1: Ngắt 2 chữ trên mobile, chữ to hơn, in đậm) */}
             <div className="flex flex-col items-center justify-center gap-1">
               <span className="text-[11px] sm:text-xs font-caps tracking-[0.2em] uppercase text-[#8B1E22] font-semibold bg-[#FAF0DC] px-2.5 py-0.5 rounded border border-[#C5A059]/30">
                 {weddingInfo.brideTitle}
               </span>
-              <h2 className="text-4xl sm:text-6xl lg:text-7xl font-wedding-names text-[#8B1E22] tracking-wide text-center py-1 select-none leading-tight font-normal">
+              <h2 className="text-4xl sm:text-6xl lg:text-7xl font-wedding-names font-bold text-[#8B1E22] tracking-wide text-center py-1 select-none leading-tight">
                 Huỳnh Thị <br className="block sm:hidden" /> Thu Thi
               </h2>
             </div>
@@ -308,7 +307,7 @@ export const HeroCard: React.FC<HeroCardProps> = ({
           </button>
         </div>
       </div>
-      </ScrollReveal>
+      </div>
     </section>
   );
 };

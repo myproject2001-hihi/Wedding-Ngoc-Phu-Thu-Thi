@@ -29,6 +29,7 @@ export const Envelope: React.FC<EnvelopeProps> = ({
     if (isOpen) {
       onClose();
     } else {
+      window.dispatchEvent(new CustomEvent('wedding-play-music'));
       onOpen();
     }
   };
