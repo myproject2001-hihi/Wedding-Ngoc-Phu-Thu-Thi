@@ -51,10 +51,10 @@ export const initialWeddingInfo: WeddingInfo = {
 
   invitationMessage:
     'Sự hiện diện của Quý khách là niềm vinh hạnh cho gia đình chúng tôi.',
-  coverImage: '/src/assets/images/wedding_couple_portrait_1792588726340.jpg',
-  receptionImage: '/src/assets/images/wedding_reception_venue_1792588726487.jpg',
-  ringsImage: '/src/assets/images/wedding_ring_exchange_1792588727038.jpg',
-  outdoorImage: '/src/assets/images/wedding_couple_outdoor_1792588726499.jpg',
+  coverImage: '/assets/wedding_couple_portrait_1792588726340.jpg',
+  receptionImage: '/assets/wedding_reception_venue_1792588726487.jpg',
+  ringsImage: '/assets/wedding_ring_exchange_1792588727038.jpg',
+  outdoorImage: '/assets/wedding_couple_outdoor_1792588726499.jpg',
 };
 
 export const initialWishes: GuestWish[] = [
