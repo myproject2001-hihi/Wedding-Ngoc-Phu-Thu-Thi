@@ -13,16 +13,8 @@ export const DEFAULT_TRACK = {
   id: 'xung-doi-cuoi-thoi',
   title: 'Nhạc Đám Cưới',
   subtitle: 'Xứng đôi cưới thôi, Ta là của nhau...',
-  youtubeId: 'XcfBnQFe4zM',
-  fallbackSrc: '/audio/canon_in_d_piano.mp3',
+  src: '/audio/canon_in_d_piano.mp3',
 };
-
-declare global {
-  interface Window {
-    YT: any;
-    onYouTubeIframeAPIReady?: () => void;
-  }
-}
 
 interface FloatingMusicPlayerProps {
   autoPlayTrigger?: boolean;
@@ -35,154 +27,62 @@ export const FloatingMusicPlayer: React.FC<FloatingMusicPlayerProps> = ({
   const [volume, setVolume] = useState<number>(0.75);
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
-  const [hasUserInteracted, setHasUserInteracted] = useState<boolean>(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const ytPlayerRef = useRef<any>(null);
+  const clickTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Initialize YouTube Player API in background for the single YouTube track
-  useEffect(() => {
-    let isMounted = true;
+  // Play audio safely
+  const startPlayback = useCallback(() => {
+    if (!audioRef.current) return;
+    audioRef.current.volume = isMuted ? 0 : volume;
+    audioRef.current.play().then(() => {
+      setIsPlaying(true);
+    }).catch((err) => {
+      console.warn('Audio play request handled:', err);
+    });
+  }, [isMuted, volume]);
 
-    const initYt = () => {
-      if (!window.YT || !window.YT.Player || ytPlayerRef.current) return;
-      try {
-        ytPlayerRef.current = new window.YT.Player('yt-player-wedding-bg', {
-          height: '1',
-          width: '1',
-          videoId: DEFAULT_TRACK.youtubeId,
-          playerVars: {
-            autoplay: 0,
-            controls: 0,
-            disablekb: 1,
-            fs: 0,
-            loop: 1,
-            playlist: DEFAULT_TRACK.youtubeId,
-            playsinline: 1,
-            rel: 0,
-            modestbranding: 1,
-            origin: window.location.origin,
-          },
-          events: {
-            onReady: (event: any) => {
-              if (!isMounted) return;
-              try {
-                event.target.setVolume(Math.round(volume * 100));
-                if (isMuted) event.target.mute();
-              } catch {}
-            },
-            onStateChange: (event: any) => {
-              if (!isMounted) return;
-              if (event.data === 1) {
-                // Playing
-                setIsPlaying(true);
-                if (audioRef.current) {
-                  audioRef.current.pause();
-                }
-              } else if (event.data === 2) {
-                // Paused
-                setIsPlaying(false);
-              } else if (event.data === 0) {
-                // Loop single track
-                try {
-                  event.target.playVideo();
-                } catch {}
-              }
-            },
-            onError: () => {
-              // fallback handled automatically
-            },
-          },
-        });
-      } catch (e) {
-        console.warn('YT init note:', e);
-      }
-    };
-
-    if (window.YT && window.YT.Player) {
-      initYt();
-    } else {
-      const prevCallback = window.onYouTubeIframeAPIReady;
-      window.onYouTubeIframeAPIReady = () => {
-        if (typeof prevCallback === 'function') prevCallback();
-        initYt();
-      };
-
-      if (!document.getElementById('yt-script-tag')) {
-        const script = document.createElement('script');
-        script.id = 'yt-script-tag';
-        script.src = 'https://www.youtube.com/iframe_api';
-        const firstScript = document.getElementsByTagName('script')[0];
-        firstScript?.parentNode?.insertBefore(script, firstScript);
-      }
-    }
-
-    return () => {
-      isMounted = false;
-    };
+  // Pause audio safely
+  const pausePlayback = useCallback(() => {
+    if (!audioRef.current) return;
+    audioRef.current.pause();
+    setIsPlaying(false);
   }, []);
 
-  // Safe playback start
-  const startPlayback = useCallback(() => {
-    setHasUserInteracted(true);
-    setIsPlaying(true);
-
-    let ytStarted = false;
-    if (ytPlayerRef.current && typeof ytPlayerRef.current.playVideo === 'function') {
-      try {
-        ytPlayerRef.current.playVideo();
-        ytStarted = true;
-      } catch {
-        ytStarted = false;
-      }
-    }
-
-    if (!ytStarted && audioRef.current) {
+  // Toggle playback directly testing the native audio element's paused status
+  const togglePlay = useCallback(() => {
+    if (!audioRef.current) return;
+    if (audioRef.current.paused) {
       audioRef.current.volume = isMuted ? 0 : volume;
-      audioRef.current.play().catch(() => {});
+      audioRef.current.play().then(() => {
+        setIsPlaying(true);
+      }).catch((err) => {
+        console.warn('Toggle play error:', err);
+      });
+    } else {
+      audioRef.current.pause();
+      setIsPlaying(false);
     }
   }, [isMuted, volume]);
 
-  // Safe playback pause
-  const pausePlayback = useCallback(() => {
-    setIsPlaying(false);
-    if (ytPlayerRef.current && typeof ytPlayerRef.current.pauseVideo === 'function') {
-      try {
-        ytPlayerRef.current.pauseVideo();
-      } catch {}
-    }
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
-  }, []);
-
-  const togglePlay = () => {
-    if (isPlaying) {
-      pausePlayback();
-    } else {
-      startPlayback();
-    }
-  };
-
-  const clickTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Nhấn 1 lần: tắt / mở nhạc. Nhấn 2 lần: mở / đóng bảng điều khiển
-  const handleDiscClick = () => {
+  // Handle single-click (toggle play/pause) and double-click (toggle control panel)
+  const handleDiscClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (clickTimeoutRef.current) {
-      // Nhấn lần 2 trong 280ms -> Mở / đóng bảng điều khiển
+      // 2nd click within 260ms -> Double click: Toggle bảng điều khiển
       clearTimeout(clickTimeoutRef.current);
       clickTimeoutRef.current = null;
       setIsExpanded((prev) => !prev);
     } else {
-      // Nhấn lần 1 -> chờ xem có nhấn lần 2 không, nếu không thì tắt / mở nhạc
+      // 1st click -> Wait 260ms. If no 2nd click, toggle play/pause
       clickTimeoutRef.current = setTimeout(() => {
         clickTimeoutRef.current = null;
         togglePlay();
-      }, 280);
+      }, 260);
     }
   };
 
-  // Dọn dẹp timer khi unmount
+  // Clean up click timer on unmount
   useEffect(() => {
     return () => {
       if (clickTimeoutRef.current) {
@@ -194,17 +94,9 @@ export const FloatingMusicPlayer: React.FC<FloatingMusicPlayerProps> = ({
   // Handle Volume Change
   const handleVolumeChange = (newVol: number) => {
     setVolume(newVol);
-    if (isMuted && newVol > 0) setIsMuted(false);
-
-    if (ytPlayerRef.current) {
-      try {
-        ytPlayerRef.current.setVolume(Math.round(newVol * 100));
-        if (newVol > 0 && typeof ytPlayerRef.current.unMute === 'function') {
-          ytPlayerRef.current.unMute();
-        }
-      } catch {}
+    if (isMuted && newVol > 0) {
+      setIsMuted(false);
     }
-
     if (audioRef.current) {
       audioRef.current.volume = isMuted ? 0 : newVol;
     }
@@ -214,34 +106,22 @@ export const FloatingMusicPlayer: React.FC<FloatingMusicPlayerProps> = ({
   const toggleMute = () => {
     const nextMuted = !isMuted;
     setIsMuted(nextMuted);
-
-    if (ytPlayerRef.current) {
-      try {
-        if (nextMuted && typeof ytPlayerRef.current.mute === 'function') {
-          ytPlayerRef.current.mute();
-        } else if (!nextMuted && typeof ytPlayerRef.current.unMute === 'function') {
-          ytPlayerRef.current.unMute();
-          ytPlayerRef.current.setVolume(Math.round(volume * 100));
-        }
-      } catch {}
-    }
-
     if (audioRef.current) {
       audioRef.current.volume = nextMuted ? 0 : volume;
     }
   };
 
-  // 1. Tự động phát khi khách mở phong bì thiệp mời cưới
+  // 1. Tự động phát khi khách mở phong bì thư mời cưới
   useEffect(() => {
-    if (autoPlayTrigger && !isPlaying) {
+    if (autoPlayTrigger && audioRef.current && audioRef.current.paused) {
       startPlayback();
     }
-  }, [autoPlayTrigger, isPlaying, startPlayback]);
+  }, [autoPlayTrigger, startPlayback]);
 
-  // 2. Lắng nghe sự kiện mở thiệp cưới từ component Envelope
+  // 2. Lắng nghe sự kiện mở thiệp từ component Envelope
   useEffect(() => {
     const handleMusicEvent = () => {
-      if (!isPlaying) {
+      if (audioRef.current && audioRef.current.paused) {
         startPlayback();
       }
     };
@@ -250,12 +130,12 @@ export const FloatingMusicPlayer: React.FC<FloatingMusicPlayerProps> = ({
     return () => {
       window.removeEventListener('wedding-play-music', handleMusicEvent);
     };
-  }, [isPlaying, startPlayback]);
+  }, [startPlayback]);
 
   // 3. Tự động phát nhạc khi khách tương tác lần đầu (chạm / click bất kỳ đâu trên trang)
   useEffect(() => {
     const handleFirstGesture = () => {
-      if (!isPlaying) {
+      if (audioRef.current && audioRef.current.paused) {
         startPlayback();
       }
     };
@@ -269,23 +149,20 @@ export const FloatingMusicPlayer: React.FC<FloatingMusicPlayerProps> = ({
       window.removeEventListener('touchstart', handleFirstGesture);
       window.removeEventListener('pointerdown', handleFirstGesture);
     };
-  }, [isPlaying, startPlayback]);
+  }, [startPlayback]);
 
   return (
     <>
-      {/* Hidden YouTube Background Audio Element */}
-      <div
-        id="yt-player-wedding-bg"
-        className="w-[1px] h-[1px] opacity-0 overflow-hidden absolute pointer-events-none -left-[9999px]"
-        aria-hidden="true"
-      />
-
-      {/* Hidden Native Audio Element Fallback */}
+      {/* Native Audio Element with Direct State Binding */}
       <audio
         ref={audioRef}
-        src={DEFAULT_TRACK.fallbackSrc}
+        src={DEFAULT_TRACK.src}
         preload="auto"
         loop
+        onPlay={() => setIsPlaying(true)}
+        onPlaying={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+        onEnded={() => setIsPlaying(false)}
       />
 
       {/* Floating Music Player Controls at bottom-left corner */}
@@ -321,9 +198,8 @@ export const FloatingMusicPlayer: React.FC<FloatingMusicPlayerProps> = ({
                 {/* Mini Vinyl Record Visual */}
                 <div
                   className={`relative flex-shrink-0 h-11 w-11 rounded-full border-2 border-[#C5A059] bg-[#1a1412] flex items-center justify-center shadow-md transition-all ${
-                    isPlaying ? 'animate-spin' : ''
+                    isPlaying ? 'vinyl-spin' : 'vinyl-spin-paused'
                   }`}
-                  style={{ animationDuration: '4.5s' }}
                 >
                   <div className="absolute inset-1 rounded-full border border-stone-600/40 pointer-events-none" />
                   <div className="h-3.5 w-3.5 rounded-full bg-[#FAF6EE] border border-[#8B1E22] flex items-center justify-center">
@@ -389,7 +265,7 @@ export const FloatingMusicPlayer: React.FC<FloatingMusicPlayerProps> = ({
           </div>
         )}
 
-        {/* Floating Vinyl Button: ONLY 1 round vinyl disc button (integrates control panel) */}
+        {/* Floating Vinyl Button: ONLY 1 round vinyl disc button */}
         <div className="relative group">
           <button
             onClick={handleDiscClick}
@@ -405,9 +281,8 @@ export const FloatingMusicPlayer: React.FC<FloatingMusicPlayerProps> = ({
             {/* Vinyl Disc Rotating Layer */}
             <div
               className={`absolute inset-1 rounded-full bg-gradient-to-tr from-[#1a1412] via-[#3d2e24] to-[#1a1412] flex items-center justify-center overflow-hidden transition-transform ${
-                isPlaying ? 'animate-spin' : ''
+                isPlaying ? 'vinyl-spin' : 'vinyl-spin-paused'
               }`}
-              style={{ animationDuration: '4.5s' }}
             >
               {/* Vinyl Grooves concentric rings */}
               <div className="absolute inset-1.5 rounded-full border border-stone-600/40 pointer-events-none" />

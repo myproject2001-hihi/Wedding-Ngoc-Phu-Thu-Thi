@@ -100,9 +100,6 @@ export const AdminGuestModal: React.FC<AdminGuestModalProps> = ({ isOpen, onClos
                   Sức chứa 1.000+ khách
                 </span>
               </div>
-              <p className="text-xs font-display text-stone-600">
-                Tự động lưu từ biểu mẫu xác nhận & xuất file Excel phục vụ đặt tiệc nhà hàng
-              </p>
             </div>
           </div>
           <button

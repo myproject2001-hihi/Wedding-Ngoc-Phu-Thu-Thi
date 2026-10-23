@@ -112,3 +112,22 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #8B1E22;
 }
+
+/* Vinyl Record Continuous Spin Animations */
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.vinyl-spin {
+  animation: spinSlow 5s linear infinite;
+}
+
+.vinyl-spin-paused {
+  animation: spinSlow 5s linear infinite;
+  animation-play-state: paused;
+}
