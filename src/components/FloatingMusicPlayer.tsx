@@ -10,21 +10,14 @@ import {
 export { ScrollToTop } from './ScrollToTop';
 
 export const DEFAULT_TRACK = {
-  id: 'youtube-XcfBnQFe4zM',
-  title: 'Nhạc Lễ Cưới',
-  subtitle: 'Giai điệu ngày cưới',
-  youtubeId: 'XcfBnQFe4zM',
+  id: 'canon-in-d',
+  title: 'Nhạc Lễ Cưới: Canon in D',
+  subtitle: 'Giai điệu lãng mạn ngày cưới',
+  src: '/audio/canon_in_d_piano.mp3',
 };
 
 interface FloatingMusicPlayerProps {
   autoPlayTrigger?: boolean;
-}
-
-declare global {
-  interface Window {
-    YT?: any;
-    onYouTubeIframeAPIReady?: () => void;
-  }
 }
 
 export const FloatingMusicPlayer: React.FC<FloatingMusicPlayerProps> = ({
@@ -35,124 +28,38 @@ export const FloatingMusicPlayer: React.FC<FloatingMusicPlayerProps> = ({
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
-  const playerRef = useRef<any>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const clickTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const isInitializedRef = useRef<boolean>(false);
-
-  // Initialize YouTube IFrame API
-  useEffect(() => {
-    let isMounted = true;
-
-    const initPlayer = () => {
-      if (!isMounted) return;
-      if (window.YT && window.YT.Player) {
-        if (isInitializedRef.current) return;
-        isInitializedRef.current = true;
-
-        try {
-          playerRef.current = new window.YT.Player('youtube-player-container', {
-            height: '1',
-            width: '1',
-            videoId: DEFAULT_TRACK.youtubeId,
-            playerVars: {
-              autoplay: 0,
-              controls: 0,
-              loop: 1,
-              playlist: DEFAULT_TRACK.youtubeId,
-              modestbranding: 1,
-              playsinline: 1,
-            },
-            events: {
-              onReady: (event: any) => {
-                event.target.setVolume(isMuted ? 0 : volume);
-              },
-              onStateChange: (event: any) => {
-                if (event.data === window.YT.PlayerState.PLAYING) {
-                  setIsPlaying(true);
-                } else if (
-                  event.data === window.YT.PlayerState.PAUSED ||
-                  event.data === window.YT.PlayerState.ENDED
-                ) {
-                  setIsPlaying(false);
-                }
-              },
-            },
-          });
-        } catch (e) {
-          console.warn('YT Player init error:', e);
-        }
-      }
-    };
-
-    if (!window.YT) {
-      const tag = document.createElement('script');
-      tag.src = 'https://www.youtube.com/iframe_api';
-      window.onYouTubeIframeAPIReady = initPlayer;
-      const firstScriptTag = document.getElementsByTagName('script')[0];
-      firstScriptTag?.parentNode?.insertBefore(tag, firstScriptTag);
-    } else {
-      initPlayer();
-    }
-
-    return () => {
-      isMounted = false;
-      if (playerRef.current && typeof playerRef.current.destroy === 'function') {
-        try {
-          playerRef.current.destroy();
-        } catch (e) {
-          // ignore
-        }
-      }
-    };
-  }, []);
 
   // Play audio safely
   const startPlayback = useCallback(() => {
-    if (playerRef.current && typeof playerRef.current.playVideo === 'function') {
-      try {
-        playerRef.current.setVolume(isMuted ? 0 : volume);
-        playerRef.current.playVideo();
+    if (audioRef.current) {
+      audioRef.current.volume = isMuted ? 0 : volume / 100;
+      audioRef.current.play().then(() => {
         setIsPlaying(true);
-      } catch (err) {
-        console.warn('Play video error:', err);
-      }
+      }).catch((err) => {
+        console.warn('Audio play exception:', err);
+      });
     }
   }, [isMuted, volume]);
 
   // Pause audio safely
   const pausePlayback = useCallback(() => {
-    if (playerRef.current && typeof playerRef.current.pauseVideo === 'function') {
-      try {
-        playerRef.current.pauseVideo();
-        setIsPlaying(false);
-      } catch (err) {
-        console.warn('Pause video error:', err);
-      }
+    if (audioRef.current) {
+      audioRef.current.pause();
+      setIsPlaying(false);
     }
   }, []);
 
   // Toggle playback
   const togglePlay = useCallback(() => {
-    if (!playerRef.current) return;
-    try {
-      const state = playerRef.current.getPlayerState ? playerRef.current.getPlayerState() : -1;
-      if (state === 1) { // Playing
-        playerRef.current.pauseVideo();
-        setIsPlaying(false);
-      } else {
-        playerRef.current.setVolume(isMuted ? 0 : volume);
-        playerRef.current.playVideo();
-        setIsPlaying(true);
-      }
-    } catch (err) {
-      console.warn('Toggle play error:', err);
-      if (isPlaying) {
-        pausePlayback();
-      } else {
-        startPlayback();
-      }
+    if (!audioRef.current) return;
+    if (isPlaying) {
+      pausePlayback();
+    } else {
+      startPlayback();
     }
-  }, [isPlaying, isMuted, volume, pausePlayback, startPlayback]);
+  }, [isPlaying, pausePlayback, startPlayback]);
 
   // Handle single-click (toggle play/pause) and double-click (toggle control panel)
   const handleDiscClick = (e: React.MouseEvent) => {
@@ -183,12 +90,8 @@ export const FloatingMusicPlayer: React.FC<FloatingMusicPlayerProps> = ({
     if (isMuted && newVol > 0) {
       setIsMuted(false);
     }
-    if (playerRef.current && typeof playerRef.current.setVolume === 'function') {
-      try {
-        playerRef.current.setVolume(isMuted ? 0 : newVol);
-      } catch (e) {
-        // ignore
-      }
+    if (audioRef.current) {
+      audioRef.current.volume = isMuted ? 0 : newVol / 100;
     }
   };
 
@@ -196,17 +99,9 @@ export const FloatingMusicPlayer: React.FC<FloatingMusicPlayerProps> = ({
   const toggleMute = () => {
     const nextMuted = !isMuted;
     setIsMuted(nextMuted);
-    if (playerRef.current) {
-      try {
-        if (nextMuted) {
-          playerRef.current.mute();
-        } else {
-          playerRef.current.unMute();
-          playerRef.current.setVolume(volume);
-        }
-      } catch (e) {
-        // ignore
-      }
+    if (audioRef.current) {
+      audioRef.current.muted = nextMuted;
+      audioRef.current.volume = nextMuted ? 0 : volume / 100;
     }
   };
 
@@ -248,10 +143,16 @@ export const FloatingMusicPlayer: React.FC<FloatingMusicPlayerProps> = ({
 
   return (
     <>
-      {/* Hidden YouTube IFrame Player Container */}
-      <div className="absolute opacity-0 pointer-events-none -z-50 overflow-hidden h-0 w-0">
-        <div id="youtube-player-container"></div>
-      </div>
+      {/* HTML5 Audio element with local mp3 */}
+      <audio
+        ref={audioRef}
+        src={DEFAULT_TRACK.src}
+        preload="auto"
+        loop
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+        onEnded={() => setIsPlaying(false)}
+      />
 
       {/* Floating Music Player Controls at bottom-left corner */}
       <div className="fixed bottom-6 left-6 z-40 flex flex-col items-start select-none font-display">
