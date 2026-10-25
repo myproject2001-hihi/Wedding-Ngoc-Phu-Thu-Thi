@@ -6,222 +6,155 @@ import {
   Pause,
   Music,
   X,
-  ExternalLink,
 } from 'lucide-react';
 export { ScrollToTop } from './ScrollToTop';
 
 export const DEFAULT_TRACK = {
-  id: 'xung-doi-cuoi-thoi',
-  title: 'Nhạc Đám Cưới',
-  subtitle: 'Xứng đôi cưới thôi, Ta là của nhau...',
+  id: 'youtube-XcfBnQFe4zM',
+  title: 'Nhạc Lễ Cưới',
+  subtitle: 'Giai điệu ngày cưới',
   youtubeId: 'XcfBnQFe4zM',
-  youtubeUrl: 'https://youtu.be/XcfBnQFe4zM?si=HTMVO53XJ_CNlRp4',
-  fallbackSrc: '/audio/canon_in_d_piano.mp3',
 };
-
-declare global {
-  interface Window {
-    YT: any;
-    onYouTubeIframeAPIReady?: () => void;
-  }
-}
 
 interface FloatingMusicPlayerProps {
   autoPlayTrigger?: boolean;
+}
+
+declare global {
+  interface Window {
+    YT?: any;
+    onYouTubeIframeAPIReady?: () => void;
+  }
 }
 
 export const FloatingMusicPlayer: React.FC<FloatingMusicPlayerProps> = ({
   autoPlayTrigger,
 }) => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [volume, setVolume] = useState<number>(0.8);
+  const [volume, setVolume] = useState<number>(75);
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
-  const ytPlayerRef = useRef<any>(null);
-  const isYtReadyRef = useRef<boolean>(false);
-  const pendingPlayRef = useRef<boolean>(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const playerRef = useRef<any>(null);
   const clickTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isInitializedRef = useRef<boolean>(false);
 
-  // Initialize YouTube IFrame Player for the exact requested YouTube track
+  // Initialize YouTube IFrame API
   useEffect(() => {
     let isMounted = true;
 
-    const initYt = () => {
-      if (!window.YT || !window.YT.Player || ytPlayerRef.current) return;
-      try {
-        ytPlayerRef.current = new window.YT.Player('youtube-wedding-player', {
-          height: '120',
-          width: '200',
-          videoId: DEFAULT_TRACK.youtubeId,
-          playerVars: {
-            autoplay: 0,
-            controls: 0,
-            disablekb: 1,
-            fs: 0,
-            loop: 1,
-            playlist: DEFAULT_TRACK.youtubeId,
-            playsinline: 1,
-            rel: 0,
-            modestbranding: 1,
-            start: 0,
-            enablejsapi: 1,
-            origin: window.location.origin,
-          },
-          events: {
-            onReady: (event: any) => {
-              if (!isMounted) return;
-              isYtReadyRef.current = true;
-              try {
-                event.target.setVolume(Math.round(volume * 100));
-                if (isMuted) event.target.mute();
-                // Ensure strictly starting from 0:00
-                event.target.seekTo(0, true);
-              } catch {}
+    const initPlayer = () => {
+      if (!isMounted) return;
+      if (window.YT && window.YT.Player) {
+        if (isInitializedRef.current) return;
+        isInitializedRef.current = true;
 
-              // If playback was triggered before player finished loading, start immediately from 0:00
-              if (pendingPlayRef.current) {
-                pendingPlayRef.current = false;
-                try {
-                  if (audioRef.current) audioRef.current.pause();
-                  event.target.seekTo(0, true);
-                  event.target.playVideo();
+        try {
+          playerRef.current = new window.YT.Player('youtube-player-container', {
+            height: '1',
+            width: '1',
+            videoId: DEFAULT_TRACK.youtubeId,
+            playerVars: {
+              autoplay: 0,
+              controls: 0,
+              loop: 1,
+              playlist: DEFAULT_TRACK.youtubeId,
+              modestbranding: 1,
+              playsinline: 1,
+            },
+            events: {
+              onReady: (event: any) => {
+                event.target.setVolume(isMuted ? 0 : volume);
+              },
+              onStateChange: (event: any) => {
+                if (event.data === window.YT.PlayerState.PLAYING) {
                   setIsPlaying(true);
-                } catch {}
-              }
-            },
-            onStateChange: (event: any) => {
-              if (!isMounted) return;
-              // 1 = PLAYING
-              if (event.data === 1) {
-                setIsPlaying(true);
-                if (audioRef.current) {
-                  audioRef.current.pause();
+                } else if (
+                  event.data === window.YT.PlayerState.PAUSED ||
+                  event.data === window.YT.PlayerState.ENDED
+                ) {
+                  setIsPlaying(false);
                 }
-              } else if (event.data === 2) {
-                // 2 = PAUSED
-                setIsPlaying(false);
-              } else if (event.data === 0) {
-                // 0 = ENDED -> loop back from beginning (0:00)
-                try {
-                  event.target.seekTo(0, true);
-                  event.target.playVideo();
-                } catch {}
-              }
+              },
             },
-            onError: () => {
-              // If YouTube fails (e.g. adblocker), fallback audio can play
-            },
-          },
-        });
-      } catch (err) {
-        console.warn('YouTube init warning:', err);
+          });
+        } catch (e) {
+          console.warn('YT Player init error:', e);
+        }
       }
     };
 
-    if (window.YT && window.YT.Player) {
-      initYt();
+    if (!window.YT) {
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      window.onYouTubeIframeAPIReady = initPlayer;
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag?.parentNode?.insertBefore(tag, firstScriptTag);
     } else {
-      const prevCallback = window.onYouTubeIframeAPIReady;
-      window.onYouTubeIframeAPIReady = () => {
-        if (typeof prevCallback === 'function') prevCallback();
-        initYt();
-      };
-
-      if (!document.getElementById('youtube-iframe-api-tag')) {
-        const tag = document.createElement('script');
-        tag.id = 'youtube-iframe-api-tag';
-        tag.src = 'https://www.youtube.com/iframe_api';
-        const firstScript = document.getElementsByTagName('script')[0];
-        firstScript?.parentNode?.insertBefore(tag, firstScript);
-      }
+      initPlayer();
     }
 
     return () => {
       isMounted = false;
-    };
-  }, [volume, isMuted]);
-
-  // Start playback fixed strictly to 0:00
-  const startPlayback = useCallback((fromBeginning: boolean = true) => {
-    if (ytPlayerRef.current && isYtReadyRef.current) {
-      try {
-        if (fromBeginning) {
-          ytPlayerRef.current.seekTo(0, true);
-        }
-        ytPlayerRef.current.setVolume(isMuted ? 0 : Math.round(volume * 100));
-        ytPlayerRef.current.playVideo();
-        setIsPlaying(true);
-        if (audioRef.current) audioRef.current.pause();
-        return;
-      } catch (err) {
-        console.warn('YT play error:', err);
-      }
-    } else {
-      // Mark as pending so onReady starts playing immediately
-      pendingPlayRef.current = true;
-    }
-
-    // Instant backup audio if YouTube script is still loading
-    if (audioRef.current && !isYtReadyRef.current) {
-      if (fromBeginning) {
+      if (playerRef.current && typeof playerRef.current.destroy === 'function') {
         try {
-          audioRef.current.currentTime = 0;
-        } catch {}
+          playerRef.current.destroy();
+        } catch (e) {
+          // ignore
+        }
       }
-      audioRef.current.volume = isMuted ? 0 : volume;
-      audioRef.current
-        .play()
-        .then(() => setIsPlaying(true))
-        .catch(() => {});
+    };
+  }, []);
+
+  // Play audio safely
+  const startPlayback = useCallback(() => {
+    if (playerRef.current && typeof playerRef.current.playVideo === 'function') {
+      try {
+        playerRef.current.setVolume(isMuted ? 0 : volume);
+        playerRef.current.playVideo();
+        setIsPlaying(true);
+      } catch (err) {
+        console.warn('Play video error:', err);
+      }
     }
   }, [isMuted, volume]);
 
-  // Pause playback
+  // Pause audio safely
   const pausePlayback = useCallback(() => {
-    setIsPlaying(false);
-    pendingPlayRef.current = false;
-    if (ytPlayerRef.current && isYtReadyRef.current) {
+    if (playerRef.current && typeof playerRef.current.pauseVideo === 'function') {
       try {
-        ytPlayerRef.current.pauseVideo();
-      } catch {}
-    }
-    if (audioRef.current) {
-      audioRef.current.pause();
+        playerRef.current.pauseVideo();
+        setIsPlaying(false);
+      } catch (err) {
+        console.warn('Pause video error:', err);
+      }
     }
   }, []);
 
   // Toggle playback
   const togglePlay = useCallback(() => {
-    if (ytPlayerRef.current && isYtReadyRef.current) {
-      try {
-        const state = ytPlayerRef.current.getPlayerState();
-        if (state === 1) {
-          // If playing -> pause
-          ytPlayerRef.current.pauseVideo();
-          setIsPlaying(false);
-        } else {
-          // If paused -> play
-          ytPlayerRef.current.playVideo();
-          setIsPlaying(true);
-        }
-        return;
-      } catch {}
-    }
-
-    if (audioRef.current) {
-      if (audioRef.current.paused) {
-        audioRef.current.volume = isMuted ? 0 : volume;
-        audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
-      } else {
-        audioRef.current.pause();
+    if (!playerRef.current) return;
+    try {
+      const state = playerRef.current.getPlayerState ? playerRef.current.getPlayerState() : -1;
+      if (state === 1) { // Playing
+        playerRef.current.pauseVideo();
         setIsPlaying(false);
+      } else {
+        playerRef.current.setVolume(isMuted ? 0 : volume);
+        playerRef.current.playVideo();
+        setIsPlaying(true);
+      }
+    } catch (err) {
+      console.warn('Toggle play error:', err);
+      if (isPlaying) {
+        pausePlayback();
+      } else {
+        startPlayback();
       }
     }
-  }, [volume, isMuted]);
+  }, [isPlaying, isMuted, volume, pausePlayback, startPlayback]);
 
-  // Single-click: toggle play/pause. Double-click: toggle control panel
+  // Handle single-click (toggle play/pause) and double-click (toggle control panel)
   const handleDiscClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (clickTimeoutRef.current) {
@@ -247,19 +180,15 @@ export const FloatingMusicPlayer: React.FC<FloatingMusicPlayerProps> = ({
   // Handle Volume Change
   const handleVolumeChange = (newVol: number) => {
     setVolume(newVol);
-    if (isMuted && newVol > 0) setIsMuted(false);
-
-    if (ytPlayerRef.current && isYtReadyRef.current) {
-      try {
-        ytPlayerRef.current.setVolume(Math.round(newVol * 100));
-        if (newVol > 0 && typeof ytPlayerRef.current.unMute === 'function') {
-          ytPlayerRef.current.unMute();
-        }
-      } catch {}
+    if (isMuted && newVol > 0) {
+      setIsMuted(false);
     }
-
-    if (audioRef.current) {
-      audioRef.current.volume = isMuted ? 0 : newVol;
+    if (playerRef.current && typeof playerRef.current.setVolume === 'function') {
+      try {
+        playerRef.current.setVolume(isMuted ? 0 : newVol);
+      } catch (e) {
+        // ignore
+      }
     }
   };
 
@@ -267,50 +196,43 @@ export const FloatingMusicPlayer: React.FC<FloatingMusicPlayerProps> = ({
   const toggleMute = () => {
     const nextMuted = !isMuted;
     setIsMuted(nextMuted);
-
-    if (ytPlayerRef.current && isYtReadyRef.current) {
+    if (playerRef.current) {
       try {
         if (nextMuted) {
-          ytPlayerRef.current.mute();
+          playerRef.current.mute();
         } else {
-          ytPlayerRef.current.unMute();
-          ytPlayerRef.current.setVolume(Math.round(volume * 100));
+          playerRef.current.unMute();
+          playerRef.current.setVolume(volume);
         }
-      } catch {}
-    }
-
-    if (audioRef.current) {
-      audioRef.current.volume = nextMuted ? 0 : volume;
+      } catch (e) {
+        // ignore
+      }
     }
   };
 
-  // 1. Tự động phát khi khách mở phong bì thiệp mời cưới (cố định luôn mở từ đầu bài 0:00)
+  // 1. Tự động phát khi khách mở phong bì thư mời cưới
   useEffect(() => {
-    if (autoPlayTrigger && !isPlaying) {
-      startPlayback(true);
+    if (autoPlayTrigger) {
+      startPlayback();
     }
-  }, [autoPlayTrigger, isPlaying, startPlayback]);
+  }, [autoPlayTrigger, startPlayback]);
 
   // 2. Lắng nghe sự kiện mở thiệp từ component Envelope
   useEffect(() => {
     const handleMusicEvent = () => {
-      if (!isPlaying) {
-        startPlayback(true);
-      }
+      startPlayback();
     };
 
     window.addEventListener('wedding-play-music', handleMusicEvent);
     return () => {
       window.removeEventListener('wedding-play-music', handleMusicEvent);
     };
-  }, [isPlaying, startPlayback]);
+  }, [startPlayback]);
 
-  // 3. Tự động phát nhạc khi khách tương tác lần đầu (cố định mở từ đầu bài 0:00)
+  // 3. Tự động phát nhạc khi khách tương tác lần đầu
   useEffect(() => {
     const handleFirstGesture = () => {
-      if (!isPlaying) {
-        startPlayback(true);
-      }
+      startPlayback();
     };
 
     window.addEventListener('click', handleFirstGesture, { once: true });
@@ -322,36 +244,14 @@ export const FloatingMusicPlayer: React.FC<FloatingMusicPlayerProps> = ({
       window.removeEventListener('touchstart', handleFirstGesture);
       window.removeEventListener('pointerdown', handleFirstGesture);
     };
-  }, [isPlaying, startPlayback]);
+  }, [startPlayback]);
 
   return (
     <>
-      {/* Active YouTube IFrame Player (contained within viewport coordinates so browser does not suspend audio) */}
-      <div
-        className="fixed bottom-0 left-0 w-[200px] h-[120px] pointer-events-none z-[-1] opacity-[0.001] overflow-hidden"
-        aria-hidden="true"
-      >
-        <div id="youtube-wedding-player" />
+      {/* Hidden YouTube IFrame Player Container */}
+      <div className="absolute opacity-0 pointer-events-none -z-50 overflow-hidden h-0 w-0">
+        <div id="youtube-player-container"></div>
       </div>
-
-      {/* Backup Native Audio Element with Guaranteed 0:00 Start */}
-      <audio
-        ref={audioRef}
-        src={DEFAULT_TRACK.fallbackSrc}
-        preload="auto"
-        loop
-        onLoadedMetadata={() => {
-          if (audioRef.current) {
-            audioRef.current.currentTime = 0;
-          }
-        }}
-        onEnded={() => {
-          if (audioRef.current) {
-            audioRef.current.currentTime = 0;
-          }
-          setIsPlaying(false);
-        }}
-      />
 
       {/* Floating Music Player Controls at bottom-left corner */}
       <div className="fixed bottom-6 left-6 z-40 flex flex-col items-start select-none font-display">
@@ -402,21 +302,11 @@ export const FloatingMusicPlayer: React.FC<FloatingMusicPlayerProps> = ({
                   <p className="text-xs text-stone-600 truncate">
                     {DEFAULT_TRACK.subtitle}
                   </p>
-                  <a
-                    href={DEFAULT_TRACK.youtubeUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[10px] text-red-700 hover:underline mt-0.5"
-                    title="Mở nghe trực tiếp trên YouTube"
-                  >
-                    <span>Mở link gốc YouTube</span>
-                    <ExternalLink className="h-2.5 w-2.5" />
-                  </a>
                 </div>
               </div>
             </div>
 
-            {/* Play / Pause Toggle Button (Chỉ để biểu tượng, không kèm chữ) */}
+            {/* Play / Pause Toggle Button */}
             <div className="flex items-center justify-center py-2 border-t border-[#C5A059]/15">
               <button
                 onClick={togglePlay}
@@ -449,21 +339,21 @@ export const FloatingMusicPlayer: React.FC<FloatingMusicPlayerProps> = ({
               <input
                 type="range"
                 min="0"
-                max="1"
-                step="0.05"
+                max="100"
+                step="1"
                 value={isMuted ? 0 : volume}
-                onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
+                onChange={(e) => handleVolumeChange(parseInt(e.target.value, 10))}
                 className="h-1.5 flex-1 appearance-none rounded-lg bg-stone-300 accent-[#8B1E22] cursor-pointer"
                 aria-label="Thanh điều chỉnh âm lượng"
               />
               <span className="text-[10px] font-mono text-stone-500 w-7 text-right">
-                {Math.round((isMuted ? 0 : volume) * 100)}%
+                {isMuted ? 0 : volume}%
               </span>
             </div>
           </div>
         )}
 
-        {/* Floating Vinyl Button: ONLY 1 round vinyl disc button */}
+        {/* Floating Vinyl Button */}
         <div className="relative group">
           <button
             onClick={handleDiscClick}
@@ -482,11 +372,9 @@ export const FloatingMusicPlayer: React.FC<FloatingMusicPlayerProps> = ({
                 isPlaying ? 'vinyl-spin' : 'vinyl-spin-paused'
               }`}
             >
-              {/* Vinyl Grooves concentric rings */}
               <div className="absolute inset-1.5 rounded-full border border-stone-600/40 pointer-events-none" />
               <div className="absolute inset-3 rounded-full border border-stone-600/30 pointer-events-none" />
 
-              {/* Center Golden Label */}
               <div className="h-4.5 w-4.5 rounded-full bg-[#FAF6EE] border border-[#C5A059] flex items-center justify-center shadow-inner">
                 <div className="h-1.5 w-1.5 rounded-full bg-[#8B1E22]" />
               </div>
@@ -516,7 +404,6 @@ export const FloatingMusicPlayer: React.FC<FloatingMusicPlayerProps> = ({
               )}
             </div>
 
-            {/* Pulsing Aura Ring when Playing */}
             {isPlaying && (
               <span className="absolute -inset-1 rounded-full border border-[#C5A059]/60 animate-ping pointer-events-none opacity-40" />
             )}
