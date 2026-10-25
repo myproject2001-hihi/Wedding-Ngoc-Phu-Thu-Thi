@@ -100,14 +100,14 @@ export const CeremonyDetails: React.FC<CeremonyDetailsProps> = ({ weddingInfo })
                 <Clock className="h-6 w-6 text-[#C5A059] shrink-0 mt-0.5" />
                 <div>
                   <p className="font-display text-base sm:text-lg font-bold text-stone-900 leading-snug">
-                    Thời gian tiệc tối: <br/>
+                    <span className="text-[#8B1E22]">Thời gian tiệc tối:</span> <br/>
                     Đón Khách: 18H00 <br className="sm:hidden" />
                     Khai Tiệc: 19H00
                   </p>
-                  <p className="text-sm sm:text-base font-display text-[#8B1E22] font-semibold mt-1">
+                  <p className="text-sm sm:text-base font-display text-[#B8860B] font-semibold mt-1">
                     Thứ Bảy, ngày 19 tháng 12 năm 2026
                   </p>
-                  <p className="text-xs sm:text-sm font-display text-stone-600 italic">
+                  <p className="text-xs sm:text-sm font-display text-[#B8860B] font-medium">
                     ({weddingInfo.lunarDate})
                   </p>
                 </div>
@@ -118,10 +118,11 @@ export const CeremonyDetails: React.FC<CeremonyDetailsProps> = ({ weddingInfo })
                 <MapPin className="h-6 w-6 text-[#C5A059] shrink-0 mt-0.5" />
                 <div>
                   <p className="font-display text-base sm:text-lg font-bold text-stone-900 leading-snug">
-                    Địa chỉ nhà hàng:
+                    <span className="text-[#8B1E22]">Địa chỉ nhà hàng:</span>
                   </p>
                   <p className="text-sm sm:text-base font-display text-stone-800 leading-relaxed mt-1">
-                    {weddingInfo.receptionVenue.address}
+                    284-286 Vườn Lài, Phường Phú Thọ Hòa,<br />
+                    TP. Hồ Chí Minh
                   </p>
                 </div>
               </div>
@@ -131,14 +132,14 @@ export const CeremonyDetails: React.FC<CeremonyDetailsProps> = ({ weddingInfo })
                 <Calendar className="h-6 w-6 text-[#C5A059] shrink-0 mt-0.5" />
                 <div>
                   <p className="font-display text-base sm:text-lg font-bold text-stone-900 leading-snug">
-                    Hôn Lễ Cử Hành Tại Tư Gia<br />
+                    <span className="text-[#8B1E22]">Hôn Lễ Cử Hành Tại Tư Gia</span><br />
                     (Giờ Trưa): 10H00 – Thứ Bảy
                   </p>
-                  <p className="text-sm sm:text-base font-display text-[#8B1E22] font-semibold mt-1">
-                    19 | 12 | 2026 <br className="sm:hidden" />({weddingInfo.lunarDate})
+                  <p className="text-sm sm:text-base font-display text-[#B8860B] font-semibold mt-1">
+                    Thứ Bảy, ngày 19 tháng 12 năm 2026
                   </p>
-                  <p className="text-xs sm:text-sm font-display text-stone-600 italic mt-0.5">
-                    Nghi thức thành hôn tại tư gia gia đình nhà trai
+                  <p className="text-xs sm:text-sm font-display text-[#B8860B] font-medium mt-0.5">
+                    ({weddingInfo.lunarDate})
                   </p>
                 </div>
               </div>
