@@ -42,7 +42,7 @@ export const initialWeddingInfo: WeddingInfo = {
   receptionVenue: {
     title: 'TIỆC CƯỚI CHÍNH',
     name: 'Trung Tâm Hội Nghị Tiệc Cưới Asiana Plaza Tân Phú',
-    address: '284-286 Vườn Lài, Phường Phú Thọ Hòa, Quận Tân Phú, TP. Hồ Chí Minh',
+    address: '284-286 Vườn Lài, Phường Phú Thọ Hòa, TP. Hồ Chí Minh',
     time: 'Đón Khách: 18H00 · Khai Tiệc: 19H00',
     date: 'Thứ Bảy, ngày 19 tháng 12 năm 2026',
     hall: 'Sảnh Akina (Tầng 8)',

@@ -244,11 +244,7 @@ export const Envelope: React.FC<EnvelopeProps> = ({
           <Sparkles className="h-4 w-4 text-[#C5A059] group-hover:text-[#F6D799]" />
           <span>{isOpen ? 'Gập lại phong bì' : 'Chạm vào dấu sáp để mở thiệp'}</span>
         </button>
-        {!isOpen && (
-          <p className="mt-2 text-xs font-display text-stone-500 italic">
-            (Chạm vào con dấu sáp để mở phong bì thiệp cưới)
-          </p>
-        )}
+
       </div>
     </section>
   );

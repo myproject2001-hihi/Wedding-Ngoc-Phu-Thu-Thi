@@ -229,7 +229,8 @@ export const WishingWell: React.FC<WishingWellProps> = ({ onOpenRsvp }) => {
                 <MessageCircle className="h-7 w-7 text-[#C5A059]" />
               </div>
               <h4 className="font-display text-lg font-bold text-[#8B1E22]">
-                Sổ Lưu Bút Chưa Có Lời Chúc Nào
+                Sổ Lưu Bút <br className="sm:hidden" />
+                Chưa Có Lời Chúc Nào
               </h4>
               <p className="mt-2 text-xs sm:text-sm font-display text-stone-600 max-w-sm leading-relaxed">
                 Hãy là người đầu tiên gửi những lời chúc phúc tốt đẹp và ý nghĩa nhất tới đôi uyên ương Ngọc Phú &amp; Thu Thi!
