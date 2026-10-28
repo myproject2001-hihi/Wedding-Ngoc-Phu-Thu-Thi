@@ -1,40 +1,40 @@
-import React, { useState } from 'react';
-import { X, ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, ChevronLeft, ChevronRight, Maximize2, Sparkles, Heart } from 'lucide-react';
 import { WeddingInfo } from '../types';
+import { getActiveGalleryPhotos, GalleryPhoto } from '../data/mediaConfig';
 
 interface PhotoGalleryProps {
   weddingInfo: WeddingInfo;
 }
 
-export const PhotoGallery: React.FC<PhotoGalleryProps> = ({ weddingInfo }) => {
+export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
+  const [photos, setPhotos] = useState<GalleryPhoto[]>(() => getActiveGalleryPhotos());
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
-  const photos = [
-    {
-      src: weddingInfo.coverImage,
-      title: 'Tình Yêu Viên Mãn',
-      caption: 'Khoảnh khắc thiêng liêng khi hai trái tim hòa cùng một nhịp đập',
-      aspect: 'col-span-1 md:col-span-2 row-span-2',
-    },
-    {
-      src: weddingInfo.receptionImage,
-      title: 'Sảnh Tiệc Hoàng Gia',
-      caption: 'Không gian lộng lẫy ngập tràn ánh nến và hoa tươi đón chào quý quan khách',
-      aspect: 'col-span-1 md:col-span-2',
-    },
-    {
-      src: weddingInfo.ringsImage,
-      title: 'Nhẫn Cưới Đính Ước',
-      caption: 'Kỷ vật thiêng liêng khắc ghi lời hẹn thề trọn đời son sắt',
-      aspect: 'col-span-1',
-    },
-    {
-      src: weddingInfo.outdoorImage,
-      title: 'Hạnh Phúc Bình Yên',
-      caption: 'Nắm tay nhau đi qua bốn mùa mưa nắng, trọn vẹn yêu thương',
-      aspect: 'col-span-1',
-    },
-  ];
+  // Listen for media update events
+  useEffect(() => {
+    const handleMediaUpdate = () => {
+      setPhotos(getActiveGalleryPhotos());
+    };
+    window.addEventListener('wedding_media_updated', handleMediaUpdate);
+    return () => window.removeEventListener('wedding_media_updated', handleMediaUpdate);
+  }, []);
+
+  // Keyboard navigation for Lightbox
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (selectedImageIndex === null) return;
+      if (e.key === 'ArrowRight') {
+        handleNext();
+      } else if (e.key === 'ArrowLeft') {
+        handlePrev();
+      } else if (e.key === 'Escape') {
+        setSelectedImageIndex(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedImageIndex, photos.length]);
 
   const handleNext = () => {
     if (selectedImageIndex !== null) {
@@ -57,78 +57,88 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = ({ weddingInfo }) => {
         className="text-center mb-12"
       >
         <div className="flex items-center justify-center gap-2 text-xs font-caps tracking-[0.25em] uppercase text-[#8B1E22] font-semibold leading-relaxed text-center">
-          <span>KHOẢNH KHẮC<br />KỶ NIỆM</span>
+          <span>KHOẢNH KHẮC</span>
           <span className="text-[#C5A059]">✦</span>
-          <span>GỬI TRỌN<br />YÊU THƯƠNG</span>
+          <span>GỬI TRỌN YÊU THƯƠNG</span>
         </div>
         <h2 className="mt-2 text-3xl sm:text-4xl font-display font-bold text-[#8B1E22] tracking-wide">
           Album Ảnh Cưới
         </h2>
-        <p className="mt-2 text-xs sm:text-sm font-display text-stone-600 leading-relaxed">
-          Chạm vào từng bức ảnh<br className="sm:hidden" /> để chiêm ngưỡng trọn vẹn từng khoảnh khắc
+        <div className="flex items-center justify-center gap-2 mt-2 text-xs font-display text-stone-600">
+          <Heart className="h-3.5 w-3.5 text-[#8B1E22] fill-[#8B1E22]" />
+          <span>{photos.length} Khoảnh khắc ngọt ngào của Phú & Thi</span>
+          <Heart className="h-3.5 w-3.5 text-[#8B1E22] fill-[#8B1E22]" />
+        </div>
+        <p className="mt-1 text-xs sm:text-sm font-display text-stone-500">
+          Chạm vào từng bức ảnh để phóng to chiêm ngưỡng trọn vẹn
         </p>
       </div>
 
-      {/* Grid of Photos with AOS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-6">
-        {photos.map((item, idx) => (
-          <div
-            key={idx}
-            data-aos="fade-up"
-            data-aos-delay={idx * 120}
-            data-aos-duration="750"
-            className={`${
-              idx === 0
-                ? 'sm:col-span-2 sm:row-span-2'
-                : idx === 1
-                ? 'sm:col-span-2 lg:col-span-2'
-                : ''
-            }`}
-          >
+      {/* Luxury Editorial Grid for 10 - 20 Photos */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
+        {photos.map((item, idx) => {
+          const isFeatured = idx === 0;
+
+          return (
             <div
-              onClick={() => setSelectedImageIndex(idx)}
-              className={`group relative overflow-hidden rounded-xl border border-[#C5A059]/40 bg-[#FAF4E6] cursor-pointer shadow-md hover:shadow-xl transition-all duration-300 w-full ${
-                idx === 0
-                  ? 'h-[320px] sm:h-[450px] lg:h-[500px]'
-                  : idx === 1
-                  ? 'h-[200px] sm:h-[220px] lg:h-[238px]'
-                  : 'h-[200px] sm:h-[220px] lg:h-[238px]'
+              key={item.id || idx}
+              data-aos="fade-up"
+              data-aos-delay={(idx % 4) * 100}
+              data-aos-duration="700"
+              className={`${
+                isFeatured
+                  ? 'col-span-2 row-span-2 sm:col-span-2 sm:row-span-2'
+                  : 'col-span-1'
               }`}
             >
-              <img
-                src={item.src}
-                alt={item.title}
-                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                referrerPolicy="no-referrer"
-              />
+              <div
+                onClick={() => setSelectedImageIndex(idx)}
+                className={`group relative overflow-hidden rounded-xl sm:rounded-2xl border-2 border-[#C5A059]/40 bg-[#FAF4E6] cursor-pointer shadow-md hover:shadow-2xl hover:border-[#8B1E22] transition-all duration-500 w-full ${
+                  isFeatured
+                    ? 'h-[280px] sm:h-[420px] md:h-[480px]'
+                    : 'h-[160px] sm:h-[200px] md:h-[230px]'
+                }`}
+              >
+                <img
+                  src={item.src}
+                  alt={item.title}
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-108"
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    // Fallback to sample if specific image not yet uploaded
+                    (e.target as HTMLImageElement).src = '/assets/anhbia.jpg';
+                  }}
+                />
 
-              {/* Hover Scrim Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4 sm:p-5 text-white">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-display text-base sm:text-lg font-bold tracking-wide">
-                      {item.title}
-                    </h4>
-                    <p className="text-xs font-display text-stone-200 mt-0.5 line-clamp-1">
-                      {item.caption}
-                    </p>
-                  </div>
-                  <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-xs">
-                    <Maximize2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" />
+                {/* Hover Scrim Overlay with Title & Zoom Icon */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3 sm:p-4 text-white">
+                  <div className="flex items-end justify-between gap-2">
+                    <div className="min-w-0">
+                      <h4 className="font-display text-xs sm:text-base font-bold tracking-wide text-[#F6E6C5] truncate">
+                        {item.title}
+                      </h4>
+                      <p className="text-[11px] sm:text-xs font-display text-stone-200 mt-0.5 line-clamp-1 opacity-90">
+                        {item.caption}
+                      </p>
+                    </div>
+                    <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-[#8B1E22]/80 border border-white/30 backdrop-blur-xs shrink-0 shadow-md">
+                      <Maximize2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" />
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      {/* Lightbox Modal */}
+      {/* Lightbox Modal (Phóng to xem từng ảnh với chuyển ảnh mượt mà) */}
       {selectedImageIndex !== null && (
         <div
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[#120d0b]/95 p-3 sm:p-6 backdrop-blur-md animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#120d0b]/96 p-2 sm:p-6 backdrop-blur-md animate-in fade-in duration-200"
           onClick={() => setSelectedImageIndex(null)}
         >
           {/* Always-visible Floating Close Button in Top-Right Corner */}
@@ -145,37 +155,25 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = ({ weddingInfo }) => {
           </button>
 
           <div
-            className="relative max-w-4xl w-full flex flex-col items-center pt-6 sm:pt-0"
+            className="relative max-w-4xl w-full flex flex-col items-center pt-8 sm:pt-0"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Image Viewer Container */}
-            <div className="relative overflow-hidden rounded-xl border border-[#C5A059]/60 shadow-2xl bg-black/90 max-h-[78vh] min-h-[300px] w-full flex items-center justify-center">
+            <div className="relative overflow-hidden rounded-2xl border border-[#C5A059]/60 shadow-2xl bg-black/90 max-h-[76vh] min-h-[280px] w-full flex items-center justify-center">
               <img
                 src={photos[selectedImageIndex].src}
                 alt={photos[selectedImageIndex].title}
-                className="max-h-[78vh] w-auto max-w-full object-contain mx-auto"
+                className="max-h-[76vh] w-auto max-w-full object-contain mx-auto"
                 referrerPolicy="no-referrer"
               />
 
-              {/* In-container Close Button */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedImageIndex(null);
-                }}
-                className="absolute top-3 right-3 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-black/75 hover:bg-[#8B1E22] text-white border border-white/40 transition-colors shadow-lg cursor-pointer"
-                aria-label="Đóng ảnh"
-              >
-                <X className="h-4 w-4" />
-              </button>
-
-              {/* Prev / Next controls */}
+              {/* Prev / Next navigation buttons */}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   handlePrev();
                 }}
-                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-black/80 text-white hover:bg-[#8B1E22] transition-colors border border-white/30 shadow-lg cursor-pointer z-20"
+                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-black/75 text-white hover:bg-[#8B1E22] transition-colors border border-white/30 shadow-lg cursor-pointer z-20 active:scale-95"
                 aria-label="Ảnh trước"
               >
                 <ChevronLeft className="h-6 w-6" />
@@ -185,24 +183,27 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = ({ weddingInfo }) => {
                   e.stopPropagation();
                   handleNext();
                 }}
-                className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-black/80 text-white hover:bg-[#8B1E22] transition-colors border border-white/30 shadow-lg cursor-pointer z-20"
+                className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-black/75 text-white hover:bg-[#8B1E22] transition-colors border border-white/30 shadow-lg cursor-pointer z-20 active:scale-95"
                 aria-label="Ảnh sau"
               >
                 <ChevronRight className="h-6 w-6" />
               </button>
             </div>
 
-            {/* Caption & Controls */}
+            {/* Caption & Counter */}
             <div className="mt-4 text-center text-white max-w-xl px-2">
-              <h3 className="font-display text-lg sm:text-xl font-bold text-[#EAD8B7] tracking-wide">
+              <h3 className="font-display text-base sm:text-xl font-bold text-[#EAD8B7] tracking-wide">
                 {photos[selectedImageIndex].title}
               </h3>
               <p className="mt-1 text-xs sm:text-sm font-display text-stone-300 leading-relaxed">
                 {photos[selectedImageIndex].caption}
               </p>
-              <p className="mt-2 text-xs font-caps text-[#C5A059] font-bold tracking-widest">
-                {selectedImageIndex + 1} / {photos.length}
-              </p>
+              <div className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-[#C5A059]/40 text-xs font-mono text-[#F6E6C5] font-semibold">
+                <Sparkles className="h-3 w-3 text-[#C5A059]" />
+                <span>
+                  Ảnh {selectedImageIndex + 1} / {photos.length}
+                </span>
+              </div>
             </div>
           </div>
         </div>

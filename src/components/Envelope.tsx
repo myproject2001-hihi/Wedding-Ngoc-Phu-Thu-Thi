@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Heart, Sparkles, ChevronDown } from 'lucide-react';
+import { playWeddingMusic } from '../utils/weddingAudio';
 
 interface EnvelopeProps {
   guestName: string;
@@ -26,10 +27,12 @@ export const Envelope: React.FC<EnvelopeProps> = ({
   }, []);
 
   const handleOpenEnvelope = () => {
+    // Synchronously trigger wedding music directly inside the user click gesture
+    playWeddingMusic().catch(() => {});
+    window.dispatchEvent(new CustomEvent('wedding-play-music'));
     if (isOpen) {
       onClose();
     } else {
-      window.dispatchEvent(new CustomEvent('wedding-play-music'));
       onOpen();
     }
   };
@@ -76,8 +79,9 @@ export const Envelope: React.FC<EnvelopeProps> = ({
       >
         {/* ENVELOPE BODY (Trượt xuống nhẹ nhàng khi mở để lá thư xuất hiện bên trên mà không che tiêu đề) */}
         <div
+          onClick={!isOpen ? handleOpenEnvelope : undefined}
           className={`relative w-full h-[240px] sm:h-[310px] md:h-[330px] transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-            isOpen ? 'translate-y-[170px] sm:translate-y-[180px]' : 'translate-y-0'
+            isOpen ? 'translate-y-[170px] sm:translate-y-[180px]' : 'translate-y-0 cursor-pointer'
           }`}
         >
           {/* BACK PANEL OF ENVELOPE */}
@@ -242,7 +246,7 @@ export const Envelope: React.FC<EnvelopeProps> = ({
           className="group inline-flex items-center gap-2 rounded-full border border-[#8B1E22]/30 bg-[#FAF4E6] px-6 py-2.5 text-xs sm:text-sm font-caps font-semibold tracking-wider text-[#8B1E22] shadow-sm hover:bg-[#8B1E22] hover:text-[#FAF4E6] transition-all duration-300 cursor-pointer"
         >
           <Sparkles className="h-4 w-4 text-[#C5A059] group-hover:text-[#F6D799]" />
-          <span>{isOpen ? 'Gập lại phong bì' : 'Chạm vào dấu sáp để mở thiệp'}</span>
+          <span>{isOpen ? 'Gập lại phong bì' : 'Mở Thiệp Mừng'}</span>
         </button>
 
       </div>

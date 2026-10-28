@@ -69,6 +69,14 @@ export default function App() {
     }
   }, []);
 
+  // Listen for media update events (custom images / audio changes)
+  const [, setMediaVersion] = useState(0);
+  useEffect(() => {
+    const handleMediaUpdate = () => setMediaVersion((v) => v + 1);
+    window.addEventListener('wedding_media_updated', handleMediaUpdate);
+    return () => window.removeEventListener('wedding_media_updated', handleMediaUpdate);
+  }, []);
+
   // Format date for display: "28 Tháng 11, 2026"
   const formattedDate = new Date(weddingInfo.weddingDate).toLocaleDateString('vi-VN', {
     day: 'numeric',

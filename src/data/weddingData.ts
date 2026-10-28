@@ -1,4 +1,5 @@
 import { WeddingInfo, GuestWish } from '../types';
+import { getActiveImages } from './mediaConfig';
 
 export const initialWeddingInfo: WeddingInfo = {
   groomName: 'Huỳnh Lê Ngọc Phú',
@@ -51,10 +52,18 @@ export const initialWeddingInfo: WeddingInfo = {
 
   invitationMessage:
     'Sự hiện diện của Quý khách là niềm vinh hạnh cho gia đình chúng tôi.',
-  coverImage: '/assets/wedding_couple_portrait_1792588726340.jpg',
-  receptionImage: '/assets/wedding_reception_venue_1792588726487.jpg',
-  ringsImage: '/assets/wedding_ring_exchange_1792588727038.jpg',
-  outdoorImage: '/assets/wedding_couple_outdoor_1792588726499.jpg',
+  get coverImage() {
+    return getActiveImages().coverImage;
+  },
+  get receptionImage() {
+    return getActiveImages().receptionImage;
+  },
+  get ringsImage() {
+    return getActiveImages().ringsImage;
+  },
+  get outdoorImage() {
+    return getActiveImages().outdoorImage;
+  },
 };
 
 export const initialWishes: GuestWish[] = [];
