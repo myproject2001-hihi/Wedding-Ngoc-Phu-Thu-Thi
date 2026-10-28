@@ -210,7 +210,7 @@ export const HeroCard: React.FC<HeroCardProps> = ({
             <img
               src={weddingInfo.coverImage}
               alt="Ảnh cưới Huỳnh Lê Ngọc Phú & Huỳnh Thị Thu Thi"
-              className="w-full h-[400px] sm:h-[460px] object-cover object-top hover:scale-105 transition-transform duration-700"
+              className="w-full aspect-[3/4] max-h-[520px] object-cover object-top hover:scale-105 transition-transform duration-700"
               referrerPolicy="no-referrer"
             />
             {/* Scrim gradient overlay */}
