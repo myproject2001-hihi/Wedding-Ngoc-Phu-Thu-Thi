@@ -177,7 +177,7 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
         <div className="flex items-center justify-center gap-2 text-xs font-caps tracking-[0.25em] uppercase text-[#8B1E22] font-semibold leading-relaxed text-center">
           <span>KHOẢNH KHẮC</span>
           <span className="text-[#C5A059]">✦</span>
-          <span>GỬI TRỌN YÊU THƯƠNG</span>
+          <span>GỬI TRỌN<br className="sm:hidden" /> YÊU THƯƠNG</span>
         </div>
         <h2 className="mt-2 text-3xl sm:text-4xl font-display font-bold text-[#8B1E22] tracking-wide">
           Album Ảnh Cưới
