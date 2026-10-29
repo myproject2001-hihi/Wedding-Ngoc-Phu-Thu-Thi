@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { X, ChevronLeft, ChevronRight, Maximize2, Heart } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Maximize2, Heart, Sparkles } from 'lucide-react';
 import { WeddingInfo } from '../types';
 import { getActiveGalleryPhotos, GalleryPhoto, getCandidateUrlsForFile } from '../data/mediaConfig';
 
@@ -193,49 +193,48 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
       </div>
 
       {/* Dynamic Gallery Grid: Only frames with valid images are shown */}
+      {/* Cấu trúc: Hình bìa lớn ở trên cùng (col-span-2), phía dưới là các hàng 2 hình nhỏ trên cả máy tính lẫn điện thoại */}
       {validPhotos.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
-          {validPhotos.map((item, idx) => {
-            const isFeatured = idx === 0;
+        <div className="max-w-4xl mx-auto">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-5">
+            {validPhotos.map((item, idx) => {
+              const isCover = idx === 0;
 
-            return (
-              <div
-                key={item.id || idx}
-                data-aos="fade-up"
-                data-aos-delay={(idx % 4) * 80}
-                data-aos-duration="700"
-                className={`${
-                  isFeatured
-                    ? 'col-span-2 row-span-2 sm:col-span-2 sm:row-span-2'
-                    : 'col-span-1'
-                }`}
-              >
+              return (
                 <div
-                  onClick={() => setSelectedImageIndex(idx)}
-                  className={`group relative overflow-hidden rounded-xl sm:rounded-2xl border-2 border-[#C5A059]/40 bg-[#FAF4E6] cursor-pointer shadow-md hover:shadow-2xl hover:border-[#8B1E22] transition-all duration-500 w-full ${
-                    isFeatured
-                      ? 'aspect-[4/5] sm:aspect-auto sm:h-full min-h-[260px] sm:min-h-[420px]'
-                      : 'aspect-[3/4]'
-                  }`}
+                  key={item.id || idx}
+                  data-aos="fade-up"
+                  data-aos-delay={(idx % 2) * 90}
+                  data-aos-duration="700"
+                  className={isCover ? 'col-span-2' : 'col-span-1'}
                 >
-                  <img
-                    src={item.resolvedSrc || item.src}
-                    alt="Ảnh cưới Ngọc Phú & Thu Thi"
-                    className="h-full w-full object-cover object-top sm:object-center transition-transform duration-700 group-hover:scale-108"
-                    loading="lazy"
-                    referrerPolicy="no-referrer"
-                  />
+                  <div
+                    onClick={() => setSelectedImageIndex(idx)}
+                    className={`group relative overflow-hidden rounded-xl sm:rounded-2xl border-2 border-[#C5A059]/40 bg-[#FAF4E6] cursor-pointer shadow-md hover:shadow-2xl hover:border-[#8B1E22] transition-all duration-500 w-full ${
+                      isCover
+                        ? 'aspect-[4/3] sm:aspect-[16/10] md:aspect-[16/9] max-h-[520px]'
+                        : 'aspect-[3/4]'
+                    }`}
+                  >
+                    <img
+                      src={item.resolvedSrc || item.src}
+                      alt="Ảnh cưới Ngọc Phú & Thu Thi"
+                      className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                      loading={idx < 3 ? 'eager' : 'lazy'}
+                      referrerPolicy="no-referrer"
+                    />
 
-                  {/* Clean Hover Overlay with Elegant Centered Zoom Icon - No text captions */}
-                  <div className="absolute inset-0 bg-black/35 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-3 text-white">
-                    <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-[#8B1E22]/90 border border-[#C5A059] shadow-xl transform scale-90 group-hover:scale-100 transition-transform duration-300">
-                      <Maximize2 className="h-5 w-5 text-white" />
+                    {/* Clean Hover Overlay with Elegant Centered Zoom Icon - No text captions */}
+                    <div className="absolute inset-0 bg-black/35 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-3 text-white">
+                      <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-[#8B1E22]/90 border border-[#C5A059] shadow-xl transform scale-90 group-hover:scale-100 transition-transform duration-300">
+                        <Maximize2 className="h-5 w-5 text-white" />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       )}
 
@@ -311,8 +310,13 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
               </button>
             </div>
 
-            {/* Bottom Spacer */}
-            <div className="shrink-0 h-2 w-full" />
+            {/* Bottom Bar: Clean, elegant image counter */}
+            <div className="shrink-0 flex items-center justify-center pb-2 z-20">
+              <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-black/60 border border-[#C5A059]/40 text-[#F5E6C8] text-xs font-caps tracking-wider backdrop-blur-sm shadow-md">
+                <Sparkles className="h-3.5 w-3.5 text-[#C5A059]" />
+                <span>Ảnh {selectedImageIndex + 1} / {validPhotos.length}</span>
+              </div>
+            </div>
           </div>,
           document.body
         )}

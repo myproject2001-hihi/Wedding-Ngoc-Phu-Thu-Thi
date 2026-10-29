@@ -48,19 +48,30 @@ export function getCandidateUrlsForFile(filename: string): string[] {
   ];
 }
 
-// 20 khung ảnh cưới sẵn sàng: khi có ảnh trên GitHub hoặc assets sẽ tự động hiện khung, khung nào chưa có ảnh thì ẩn đi
-export const initialGalleryPhotos: GalleryPhoto[] = Array.from({ length: 20 }, (_, idx) => {
-  const num = idx + 1;
-  const filename = `anh${num}.jpg`;
-  return {
-    id: `photo-${num}`,
-    filename,
-    src: `/assets/${filename}`,
-    candidateUrls: getCandidateUrlsForFile(filename),
+// 21 khung ảnh cưới sẵn sàng: Hình bìa (anhbia.jpg) lớn ở trên cùng + 20 ảnh chi tiết (anh1 -> anh20)
+// Khi có ảnh trên GitHub hoặc assets sẽ tự động hiện khung, khung nào chưa có ảnh thì ẩn đi
+export const initialGalleryPhotos: GalleryPhoto[] = [
+  {
+    id: 'cover',
+    filename: 'anhbia.jpg',
+    src: '/assets/anhbia.jpg',
+    candidateUrls: getCandidateUrlsForFile('anhbia.jpg'),
     title: '',
     caption: '',
-  };
-});
+  },
+  ...Array.from({ length: 20 }, (_, idx) => {
+    const num = idx + 1;
+    const filename = `anh${num}.jpg`;
+    return {
+      id: `photo-${num}`,
+      filename,
+      src: `/assets/${filename}`,
+      candidateUrls: getCandidateUrlsForFile(filename),
+      title: '',
+      caption: '',
+    };
+  }),
+];
 
 export const defaultMediaConfig: MediaConfig = {
   trackTitle: 'Nhạc Đám Cưới Việt Nam',
@@ -156,12 +167,13 @@ export function getActiveGalleryPhotos(): GalleryPhoto[] {
       try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          // If stored items have old deleted placeholders, clear and return default
+          // If stored items have old deleted placeholders or do not have anhbia as the first slot, clear and return default
+          const isUpdatedFormat = parsed[0]?.filename === 'anhbia.jpg';
           const hasOldSample = parsed.some(
             (p: { src?: string }) =>
               p.src && (p.src.includes('wedding_couple_portrait') || p.src.includes('wedding_reception'))
           );
-          if (!hasOldSample) {
+          if (isUpdatedFormat && !hasOldSample) {
             return parsed;
           }
           localStorage.removeItem('wedding_custom_gallery');
