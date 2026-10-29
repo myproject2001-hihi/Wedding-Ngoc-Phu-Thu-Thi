@@ -27,12 +27,12 @@ export const Envelope: React.FC<EnvelopeProps> = ({
   }, []);
 
   const handleOpenEnvelope = () => {
-    // Synchronously trigger wedding music directly inside the user click gesture
-    playWeddingMusic().catch(() => {});
-    window.dispatchEvent(new CustomEvent('wedding-play-music'));
     if (isOpen) {
       onClose();
     } else {
+      // Synchronously trigger wedding music directly inside the user click gesture when opening
+      playWeddingMusic().catch(() => {});
+      window.dispatchEvent(new CustomEvent('wedding-play-music'));
       onOpen();
     }
   };

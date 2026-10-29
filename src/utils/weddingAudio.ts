@@ -1,5 +1,5 @@
 // Centralized, bulletproof Wedding Audio Controller
-// Handles browser autoplay policies, synchronous user-gesture playback, GitHub CDN, and state synchronization
+// Handles browser autoplay policies, synchronous user-gesture playback, device-specific triggers, 5s fallback, and pause memory
 import { getActiveAudioUrl, defaultMediaConfig } from '../data/mediaConfig';
 
 export interface WeddingAudioState {
@@ -13,6 +13,8 @@ export interface WeddingAudioState {
   activeUrl: string;
 }
 
+const USER_PAUSED_STORAGE_KEY = 'wedding_user_paused_music';
+
 let audioInstance: HTMLAudioElement | null = null;
 let currentVolume = 80;
 let isMuted = false;
@@ -21,10 +23,25 @@ let currentTime = 0;
 let duration = 2233.75; // 37m 13s default
 let isBuffering = false;
 let hasError = false;
+
+// Check if user previously paused music in this session to respect their preference
 let userHasPaused = false;
+if (typeof window !== 'undefined') {
+  try {
+    userHasPaused = sessionStorage.getItem(USER_PAUSED_STORAGE_KEY) === 'true';
+  } catch {}
+}
+
 let currentSourceIndex = 0;
+let fiveSecondTimerId: ReturnType<typeof setTimeout> | null = null;
+let gestureListenerRegistered = false;
+let removeGestureListeners: (() => void) | null = null;
 
 const listeners: Set<(state: WeddingAudioState) => void> = new Set();
+
+export function isWeddingMusicUserPaused(): boolean {
+  return userHasPaused;
+}
 
 function getSourcesList(): string[] {
   const primary = getActiveAudioUrl();
@@ -51,6 +68,35 @@ function notifyListeners() {
       console.warn('Audio listener error:', e);
     }
   });
+}
+
+/**
+ * Primes the mobile audio subsystem (iOS Safari & Android WebViews)
+ * on direct user touch gesture so that media playback isn't blocked.
+ */
+function primeMobileAudioSubsystem() {
+  if (typeof window === 'undefined') return;
+  try {
+    const AudioCtx =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    if (AudioCtx) {
+      const tempCtx = new AudioCtx();
+      if (tempCtx.state === 'suspended') {
+        tempCtx.resume().catch(() => {});
+      }
+      const buffer = tempCtx.createBuffer(1, 1, 22050);
+      const source = tempCtx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(tempCtx.destination);
+      source.start(0);
+      setTimeout(() => {
+        if (tempCtx.state !== 'closed') {
+          tempCtx.close().catch(() => {});
+        }
+      }, 500);
+    }
+  } catch {}
 }
 
 /**
@@ -164,6 +210,16 @@ export function setCustomAudioUrl(newUrl: string): void {
 }
 
 /**
+ * Hủy bỏ bộ hẹn giờ phát nhạc sau 5 giây nếu người dùng đã tương tác trước đó
+ */
+function clearFiveSecondTimer(): void {
+  if (fiveSecondTimerId) {
+    clearTimeout(fiveSecondTimerId);
+    fiveSecondTimerId = null;
+  }
+}
+
+/**
  * Synchronously start playing wedding music.
  * Must be called directly on user gesture (click/touch/envelope open) for maximum browser compliance.
  */
@@ -171,8 +227,17 @@ export function playWeddingMusic(): Promise<void> {
   const audio = getAudioElement();
   if (!audio) return Promise.resolve();
 
+  // Reset user-paused flag since the user explicitly requested or authorized playback
   userHasPaused = false;
   hasError = false;
+  if (typeof window !== 'undefined') {
+    try {
+      sessionStorage.removeItem(USER_PAUSED_STORAGE_KEY);
+    } catch {}
+  }
+
+  // Clear 5s fallback timer since audio is now playing
+  clearFiveSecondTimer();
 
   try {
     audio.muted = isMuted;
@@ -191,20 +256,40 @@ export function playWeddingMusic(): Promise<void> {
       .catch((err) => {
         console.warn('Audio play request awaiting user gesture:', err);
         notifyListeners();
+        throw err;
       });
   }
 
+  isPlaying = true;
+  notifyListeners();
   return Promise.resolve();
 }
 
 /**
- * Pause wedding music
+ * Pause wedding music.
+ * Tôn trọng người dùng: Ghi nhớ trạng thái tạm dừng trong sessionStorage,
+ * ngăn hệ thống tự động bật lại khi khách tiếp tục lướt / vuốt trang.
  */
 export function pauseWeddingMusic(): void {
   const audio = getAudioElement();
-  if (!audio) return;
   userHasPaused = true;
-  audio.pause();
+  if (typeof window !== 'undefined') {
+    try {
+      sessionStorage.setItem(USER_PAUSED_STORAGE_KEY, 'true');
+    } catch {}
+  }
+
+  // Hủy hẹn giờ 5s nếu khách bấm tạm dừng sớm
+  clearFiveSecondTimer();
+
+  // Dọn dẹp listener tự động bật lại để tôn trọng quyết định của khách
+  if (removeGestureListeners) {
+    removeGestureListeners();
+  }
+
+  if (audio) {
+    audio.pause();
+  }
   isPlaying = false;
   notifyListeners();
 }
@@ -217,7 +302,7 @@ export function toggleWeddingMusic(): void {
   if (!audio) return;
 
   if (audio.paused || !isPlaying) {
-    playWeddingMusic();
+    playWeddingMusic().catch(() => {});
   } else {
     pauseWeddingMusic();
   }
@@ -311,14 +396,63 @@ export function subscribeWeddingAudio(
 }
 
 /**
- * Global unlock on any user interaction with the document (tap, click, scroll, touch)
+ * Kích hoạt logic tự động phát nhạc sau 5 giây nếu người dùng chưa có bất kỳ thao tác nào:
+ * - Sau 5s kể từ khi tải trang, hệ thống sẽ tự động gọi playWeddingMusic().
+ * - Nếu khách đã bấm Tạm dừng trước đó, sẽ KHÔNG phát (tôn trọng người dùng).
+ * - Nếu người dùng đã chạm/lăn chuột trước đó, bộ đếm đã được hủy và nhạc đã bật từ thao tác đó.
  */
-let gestureListenerRegistered = false;
-let removeGestureListeners: (() => void) | null = null;
-let fallbackTimerId: ReturnType<typeof setTimeout> | null = null;
+export function startFiveSecondAutoplayTimer(): void {
+  if (typeof window === 'undefined') return;
+  if (fiveSecondTimerId) return;
 
+  fiveSecondTimerId = setTimeout(() => {
+    fiveSecondTimerId = null;
+
+    // Tôn trọng người dùng: Nếu khách bấm Tạm dừng, không bật lại
+    if (userHasPaused) return;
+
+    // Nếu nhạc đã đang phát rồi thì không cần làm gì
+    if (isPlaying || (audioInstance && !audioInstance.paused)) return;
+
+    // Tự động phát nhạc sau 5 giây
+    playWeddingMusic()
+      .then(() => {
+        // Tự động phát thành công sau 5s
+        if (removeGestureListeners) {
+          removeGestureListeners();
+        }
+      })
+      .catch((err) => {
+        // Trong trường hợp trình duyệt chặn tuyệt đối autoplay khi chưa có user gesture,
+        // các listener thao tác vuốt/lăn chuột vẫn tiếp tục hoạt động để bật ngay khi khách chạm màn hình.
+        console.info('[WeddingAudio] 5s auto-play waiting for first touch/scroll gesture:', err?.message || err);
+      });
+  }, 5000);
+}
+
+/**
+ * Cơ chế kích hoạt trên từng thiết bị:
+ * 1. Trên điện thoại (iOS / Android):
+ *    - Khi vuốt ngón tay để lướt trang, thao tác chạm tay (touchstart / touchmove)
+ *      ngay lập tức mở khóa âm thanh theo tiêu chuẩn trình duyệt di động và nhạc vang lên ngay lập tức.
+ * 2. Trên máy tính (Desktop):
+ *    - Khi lăn chuột (wheel / scroll) hoặc bấm chạm bất kỳ điểm nào (click / pointerdown / mousedown),
+ *      nhạc sẽ tự động bật.
+ * 3. Tôn trọng người dùng:
+ *    - Nếu khách bấm Tạm dừng, hệ thống ghi nhớ (sessionStorage) và không tự bật lại khi tiếp tục lướt trang.
+ * 4. Tự động phát sau 5 giây nếu chưa nhận được tương tác kích hoạt.
+ */
 export function initFirstGestureAudioUnlock(): () => void {
   if (typeof window === 'undefined') {
+    return () => {};
+  }
+
+  // Khởi động bộ đếm 5 giây tự động phát nếu chưa chạy
+  startFiveSecondAutoplayTimer();
+
+  // Nếu người dùng đã bấm Tạm dừng từ trước trong phiên, không kích hoạt tự phát trên thao tác cuộn
+  if (userHasPaused) {
+    clearFiveSecondTimer();
     return () => {};
   }
 
@@ -328,96 +462,78 @@ export function initFirstGestureAudioUnlock(): () => void {
 
   gestureListenerRegistered = true;
 
-  const events = [
-    'click',
-    'touchstart',
-    'touchmove',
-    'touchend',
-    'pointerdown',
-    'scroll',
-    'wheel',
-    'mousemove',
-    'keydown',
-  ];
+  // Danh sách sự kiện đa thiết bị:
+  // - Mobile: touchstart, touchmove, touchend
+  // - Desktop: wheel, scroll, click, pointerdown, mousedown, keydown
+  const mobileEvents = ['touchstart', 'touchmove', 'touchend'];
+  const desktopEvents = ['wheel', 'scroll', 'click', 'pointerdown', 'mousedown', 'keydown'];
+  const allEvents = [...mobileEvents, ...desktopEvents];
 
   const cleanup = () => {
     const options: AddEventListenerOptions = { capture: true };
-    events.forEach((evt) => {
+    allEvents.forEach((evt) => {
       window.removeEventListener(evt, unlockHandler, options);
       document.removeEventListener(evt, unlockHandler, options);
     });
-    if (fallbackTimerId) {
-      clearTimeout(fallbackTimerId);
-      fallbackTimerId = null;
-    }
     gestureListenerRegistered = false;
     removeGestureListeners = null;
   };
 
-  const unlockHandler = () => {
-    // If user explicitly paused, don't auto-start
+  const unlockHandler = (evt: Event) => {
+    // 1. Tôn trọng người dùng: Nếu khách bấm Tạm dừng, không tự bật lại
     if (userHasPaused) {
+      clearFiveSecondTimer();
       cleanup();
       return;
     }
 
-    // Try playing if not already playing
+    // 2. Nếu là thao tác trên di động (touchstart / touchmove), mở khóa ngay AudioContext của di động
+    if (evt.type === 'touchstart' || evt.type === 'touchmove') {
+      primeMobileAudioSubsystem();
+    }
+
+    // 3. Nếu nhạc chưa phát, kích hoạt phát nhạc ngay lập tức
     if (!audioInstance || audioInstance.paused || !isPlaying) {
       playWeddingMusic()
         .then(() => {
+          clearFiveSecondTimer();
           if (isPlaying) {
             cleanup();
           }
         })
         .catch(() => {
-          // If browser blocked or media not ready, keep listening until next interaction
+          // Nếu trình duyệt còn chặn, giữ listener để lần tương tác kế tiếp thử lại
         });
     } else {
+      clearFiveSecondTimer();
       cleanup();
     }
   };
 
   const options: AddEventListenerOptions = { capture: true, passive: true };
 
-  events.forEach((evt) => {
+  allEvents.forEach((evt) => {
     window.addEventListener(evt, unlockHandler, options);
     document.addEventListener(evt, unlockHandler, options);
   });
-
-  // Hạn định 5 giây: Nếu sau 5s người dùng chưa tương tác, tự động thử phát nhạc
-  if (!fallbackTimerId) {
-    fallbackTimerId = setTimeout(() => {
-      if (!userHasPaused && (!audioInstance || audioInstance.paused || !isPlaying)) {
-        playWeddingMusic()
-          .then(() => {
-            if (isPlaying) {
-              cleanup();
-            }
-          })
-          .catch(() => {
-            // Nếu chính sách trình duyệt chặn tự động phát không qua cử chỉ, bộ lắng nghe vẫn chờ người dùng chạm/lướt
-          });
-      }
-    }, 5000);
-  }
 
   removeGestureListeners = cleanup;
   return cleanup;
 }
 
-// Automatically preload audio and arm scroll/interaction triggers on client load
+// Tự động nạp sẵn audio và cài đặt cơ chế kích hoạt ngay khi trang sẵn sàng
 if (typeof window !== 'undefined') {
-  if (document.readyState === 'loading') {
-    window.addEventListener('DOMContentLoaded', () => {
-      try {
-        getAudioElement();
-        initFirstGestureAudioUnlock();
-      } catch {}
-    }, { once: true });
-  } else {
+  const initAudio = () => {
     try {
       getAudioElement();
       initFirstGestureAudioUnlock();
     } catch {}
+  };
+
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', initAudio, { once: true });
+  } else {
+    initAudio();
   }
 }
+
