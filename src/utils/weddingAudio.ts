@@ -168,6 +168,7 @@ export function setCustomAudioUrl(newUrl: string): void {
  * Must be called directly on user gesture (click/touch/envelope open) for maximum browser compliance.
  */
 export function playWeddingMusic(): Promise<void> {
+  cancelAutoPlay5sTimer();
   const audio = getAudioElement();
   if (!audio) return Promise.resolve();
 
@@ -201,6 +202,7 @@ export function playWeddingMusic(): Promise<void> {
  * Pause wedding music
  */
 export function pauseWeddingMusic(): void {
+  cancelAutoPlay5sTimer();
   const audio = getAudioElement();
   if (!audio) return;
   userHasPaused = true;
@@ -310,6 +312,30 @@ export function subscribeWeddingAudio(
   };
 }
 
+let autoPlay5sTimer: ReturnType<typeof setTimeout> | null = null;
+
+export function cancelAutoPlay5sTimer(): void {
+  if (autoPlay5sTimer) {
+    clearTimeout(autoPlay5sTimer);
+    autoPlay5sTimer = null;
+  }
+}
+
+/**
+ * Tự động phát nhạc sau 5 giây nếu chưa nhận được tương tác vuốt/cuộn/chạm
+ */
+export function startAutoPlay5sTimer(): void {
+  if (typeof window === 'undefined' || autoPlay5sTimer) return;
+
+  autoPlay5sTimer = setTimeout(() => {
+    autoPlay5sTimer = null;
+    // Nếu sau 5 giây khách chưa cuộn/chạm và chưa chủ động bấm tạm dừng: tự động phát nhạc
+    if (!isPlaying && !userHasPaused) {
+      playWeddingMusic().catch(() => {});
+    }
+  }, 5000);
+}
+
 /**
  * Global unlock on any user interaction with the document (tap, click, scroll, touch)
  */
@@ -321,6 +347,9 @@ export function initFirstGestureAudioUnlock(): () => void {
     return () => {};
   }
 
+  // Khởi động đếm ngược 5 giây tự động phát nhạc nếu chưa có cử chỉ tương tác
+  startAutoPlay5sTimer();
+
   if (gestureListenerRegistered && removeGestureListeners) {
     return removeGestureListeners;
   }
@@ -330,6 +359,7 @@ export function initFirstGestureAudioUnlock(): () => void {
   const events = ['click', 'touchstart', 'touchmove', 'pointerdown', 'scroll', 'wheel'];
 
   const cleanup = () => {
+    cancelAutoPlay5sTimer();
     const options: AddEventListenerOptions = { capture: true };
     events.forEach((evt) => {
       window.removeEventListener(evt, unlockHandler, options);
@@ -380,12 +410,14 @@ if (typeof window !== 'undefined') {
       try {
         getAudioElement();
         initFirstGestureAudioUnlock();
+        startAutoPlay5sTimer();
       } catch {}
     }, { once: true });
   } else {
     try {
       getAudioElement();
       initFirstGestureAudioUnlock();
+      startAutoPlay5sTimer();
     } catch {}
   }
 }
