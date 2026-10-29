@@ -223,7 +223,8 @@ export const HeroCard: React.FC<HeroCardProps> = ({
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent p-4 text-center z-10">
               <p className="text-white font-display text-sm tracking-wider leading-relaxed">
                 "Sự hiện diện của bạn<br />
-                là niềm hạnh phúc lớn nhất của chúng tôi"
+                là niềm hạnh phúc lớn nhất<br className="sm:hidden" />{" "}
+                của chúng tôi"
               </p>
             </div>
           </div>

@@ -177,7 +177,8 @@ export default function App() {
           </div>
 
           <p className="font-display text-sm italic text-stone-700 leading-relaxed">
-            "Sự hiện diện của bạn<br className="sm:hidden" /> là niềm hạnh phúc lớn nhất của chúng tôi"
+            "Sự hiện diện của bạn<br className="sm:hidden" /> là niềm hạnh phúc lớn nhất<br className="sm:hidden" />{" "}
+            của chúng tôi"
           </p>
 
           <p className="text-xs font-display text-stone-500 leading-relaxed">
