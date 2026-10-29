@@ -314,33 +314,61 @@ export function subscribeWeddingAudio(
  * Global unlock on any user interaction with the document (tap, click, scroll, touch)
  */
 let gestureListenerRegistered = false;
+let removeGestureListeners: (() => void) | null = null;
+
 export function initFirstGestureAudioUnlock(): () => void {
-  if (typeof window === 'undefined' || gestureListenerRegistered) {
+  if (typeof window === 'undefined') {
     return () => {};
   }
+
+  if (gestureListenerRegistered && removeGestureListeners) {
+    return removeGestureListeners;
+  }
+
   gestureListenerRegistered = true;
 
+  const events = ['click', 'touchstart', 'touchmove', 'pointerdown', 'scroll', 'wheel'];
+
+  const cleanup = () => {
+    const options: AddEventListenerOptions = { capture: true };
+    events.forEach((evt) => {
+      window.removeEventListener(evt, unlockHandler, options);
+      document.removeEventListener(evt, unlockHandler, options);
+    });
+    gestureListenerRegistered = false;
+    removeGestureListeners = null;
+  };
+
   const unlockHandler = () => {
-    // Only auto-play on first gesture if user hasn't deliberately paused
-    if (!userHasPaused && (!audioInstance || audioInstance.paused)) {
-      playWeddingMusic().catch(() => {});
+    // If user explicitly paused, don't auto-start on scroll
+    if (userHasPaused) {
+      cleanup();
+      return;
+    }
+
+    // Try playing if not already playing
+    if (!audioInstance || audioInstance.paused || !isPlaying) {
+      playWeddingMusic()
+        .then(() => {
+          if (isPlaying) {
+            cleanup();
+          }
+        })
+        .catch(() => {
+          // If browser blocked or media not ready, keep listening until next interaction
+        });
+    } else {
+      cleanup();
     }
   };
 
-  const onceOptions: AddEventListenerOptions = { capture: true, once: true };
+  const options: AddEventListenerOptions = { capture: true, passive: true };
 
-  window.addEventListener('click', unlockHandler, onceOptions);
-  window.addEventListener('touchstart', unlockHandler, onceOptions);
-  window.addEventListener('pointerdown', unlockHandler, onceOptions);
-  document.addEventListener('click', unlockHandler, onceOptions);
-  document.addEventListener('touchstart', unlockHandler, onceOptions);
+  events.forEach((evt) => {
+    window.addEventListener(evt, unlockHandler, options);
+    document.addEventListener(evt, unlockHandler, options);
+  });
 
-  return () => {
-    const options: AddEventListenerOptions = { capture: true };
-    window.removeEventListener('click', unlockHandler, options);
-    window.removeEventListener('touchstart', unlockHandler, options);
-    window.removeEventListener('pointerdown', unlockHandler, options);
-    document.removeEventListener('click', unlockHandler, options);
-    document.removeEventListener('touchstart', unlockHandler, options);
-  };
+  removeGestureListeners = cleanup;
+  return cleanup;
 }

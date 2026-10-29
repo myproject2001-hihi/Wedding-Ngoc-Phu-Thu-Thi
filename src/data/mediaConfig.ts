@@ -102,7 +102,6 @@ export const defaultMediaConfig: MediaConfig = {
     'https://cdn.jsdelivr.net/gh/myproject2001-hihi/Wedding-Ngoc-Phu-Thu-Thi@main/audio/wedding_music.mp3',
     'https://raw.githubusercontent.com/myproject2001-hihi/Wedding-Ngoc-Phu-Thu-Thi/main/audio/wedding_music.mp3',
     '/audio/wedding_music.mp3',
-    '/assets/aistudio/Nh_c___m_C__i_Vi_t_Nam_-_X_ng___i_c__i_th_i__Ta_l__c_a_nhau_._Giao_H__ng_T_n_Th_i_256kbps_7aabcd04.mp3',
   ],
 };
 
