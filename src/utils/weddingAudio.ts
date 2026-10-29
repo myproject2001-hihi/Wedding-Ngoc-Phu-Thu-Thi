@@ -372,3 +372,20 @@ export function initFirstGestureAudioUnlock(): () => void {
   removeGestureListeners = cleanup;
   return cleanup;
 }
+
+// Automatically preload audio and arm scroll/interaction triggers on client load
+if (typeof window !== 'undefined') {
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', () => {
+      try {
+        getAudioElement();
+        initFirstGestureAudioUnlock();
+      } catch {}
+    }, { once: true });
+  } else {
+    try {
+      getAudioElement();
+      initFirstGestureAudioUnlock();
+    } catch {}
+  }
+}

@@ -97,11 +97,11 @@ export const defaultMediaConfig: MediaConfig = {
   },
 
   fallbackAudioUrls: [
-    'https://cdn.jsdelivr.net/gh/myproject2001-hihi/Wedding-Ngoc-Phu-Thu-Thi@main/public/audio/wedding_music.mp3',
-    'https://raw.githubusercontent.com/myproject2001-hihi/Wedding-Ngoc-Phu-Thu-Thi/main/public/audio/wedding_music.mp3',
-    'https://cdn.jsdelivr.net/gh/myproject2001-hihi/Wedding-Ngoc-Phu-Thu-Thi@main/audio/wedding_music.mp3',
-    'https://raw.githubusercontent.com/myproject2001-hihi/Wedding-Ngoc-Phu-Thu-Thi/main/audio/wedding_music.mp3',
     '/audio/wedding_music.mp3',
+    'https://raw.githubusercontent.com/myproject2001-hihi/Wedding-Ngoc-Phu-Thu-Thi/9ec957449973dd053a917d55d4dd32747be304da/public/audio/wedding_music.mp3',
+    'https://raw.githubusercontent.com/myproject2001-hihi/Wedding-Ngoc-Phu-Thu-Thi/main/public/audio/wedding_music.mp3',
+    'https://cdn.jsdelivr.net/gh/myproject2001-hihi/Wedding-Ngoc-Phu-Thu-Thi@main/public/audio/wedding_music.mp3',
+    'https://raw.githubusercontent.com/myproject2001-hihi/Wedding-Ngoc-Phu-Thu-Thi/main/audio/wedding_music.mp3',
   ],
 };
 
