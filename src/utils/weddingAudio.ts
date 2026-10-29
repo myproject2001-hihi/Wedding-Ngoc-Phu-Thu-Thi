@@ -168,7 +168,6 @@ export function setCustomAudioUrl(newUrl: string): void {
  * Must be called directly on user gesture (click/touch/envelope open) for maximum browser compliance.
  */
 export function playWeddingMusic(): Promise<void> {
-  cancelAutoPlay5sTimer();
   const audio = getAudioElement();
   if (!audio) return Promise.resolve();
 
@@ -202,7 +201,6 @@ export function playWeddingMusic(): Promise<void> {
  * Pause wedding music
  */
 export function pauseWeddingMusic(): void {
-  cancelAutoPlay5sTimer();
   const audio = getAudioElement();
   if (!audio) return;
   userHasPaused = true;
@@ -312,43 +310,17 @@ export function subscribeWeddingAudio(
   };
 }
 
-let autoPlay5sTimer: ReturnType<typeof setTimeout> | null = null;
-
-export function cancelAutoPlay5sTimer(): void {
-  if (autoPlay5sTimer) {
-    clearTimeout(autoPlay5sTimer);
-    autoPlay5sTimer = null;
-  }
-}
-
-/**
- * Tự động phát nhạc sau 5 giây nếu chưa nhận được tương tác vuốt/cuộn/chạm
- */
-export function startAutoPlay5sTimer(): void {
-  if (typeof window === 'undefined' || autoPlay5sTimer) return;
-
-  autoPlay5sTimer = setTimeout(() => {
-    autoPlay5sTimer = null;
-    // Nếu sau 5 giây khách chưa cuộn/chạm và chưa chủ động bấm tạm dừng: tự động phát nhạc
-    if (!isPlaying && !userHasPaused) {
-      playWeddingMusic().catch(() => {});
-    }
-  }, 5000);
-}
-
 /**
  * Global unlock on any user interaction with the document (tap, click, scroll, touch)
  */
 let gestureListenerRegistered = false;
 let removeGestureListeners: (() => void) | null = null;
+let fallbackTimerId: ReturnType<typeof setTimeout> | null = null;
 
 export function initFirstGestureAudioUnlock(): () => void {
   if (typeof window === 'undefined') {
     return () => {};
   }
-
-  // Khởi động đếm ngược 5 giây tự động phát nhạc nếu chưa có cử chỉ tương tác
-  startAutoPlay5sTimer();
 
   if (gestureListenerRegistered && removeGestureListeners) {
     return removeGestureListeners;
@@ -356,21 +328,34 @@ export function initFirstGestureAudioUnlock(): () => void {
 
   gestureListenerRegistered = true;
 
-  const events = ['click', 'touchstart', 'touchmove', 'pointerdown', 'scroll', 'wheel'];
+  const events = [
+    'click',
+    'touchstart',
+    'touchmove',
+    'touchend',
+    'pointerdown',
+    'scroll',
+    'wheel',
+    'mousemove',
+    'keydown',
+  ];
 
   const cleanup = () => {
-    cancelAutoPlay5sTimer();
     const options: AddEventListenerOptions = { capture: true };
     events.forEach((evt) => {
       window.removeEventListener(evt, unlockHandler, options);
       document.removeEventListener(evt, unlockHandler, options);
     });
+    if (fallbackTimerId) {
+      clearTimeout(fallbackTimerId);
+      fallbackTimerId = null;
+    }
     gestureListenerRegistered = false;
     removeGestureListeners = null;
   };
 
   const unlockHandler = () => {
-    // If user explicitly paused, don't auto-start on scroll
+    // If user explicitly paused, don't auto-start
     if (userHasPaused) {
       cleanup();
       return;
@@ -399,6 +384,23 @@ export function initFirstGestureAudioUnlock(): () => void {
     document.addEventListener(evt, unlockHandler, options);
   });
 
+  // Hạn định 5 giây: Nếu sau 5s người dùng chưa tương tác, tự động thử phát nhạc
+  if (!fallbackTimerId) {
+    fallbackTimerId = setTimeout(() => {
+      if (!userHasPaused && (!audioInstance || audioInstance.paused || !isPlaying)) {
+        playWeddingMusic()
+          .then(() => {
+            if (isPlaying) {
+              cleanup();
+            }
+          })
+          .catch(() => {
+            // Nếu chính sách trình duyệt chặn tự động phát không qua cử chỉ, bộ lắng nghe vẫn chờ người dùng chạm/lướt
+          });
+      }
+    }, 5000);
+  }
+
   removeGestureListeners = cleanup;
   return cleanup;
 }
@@ -410,14 +412,12 @@ if (typeof window !== 'undefined') {
       try {
         getAudioElement();
         initFirstGestureAudioUnlock();
-        startAutoPlay5sTimer();
       } catch {}
     }, { once: true });
   } else {
     try {
       getAudioElement();
       initFirstGestureAudioUnlock();
-      startAutoPlay5sTimer();
     } catch {}
   }
 }
