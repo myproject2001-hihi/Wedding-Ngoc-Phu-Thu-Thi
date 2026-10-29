@@ -212,6 +212,12 @@ export const HeroCard: React.FC<HeroCardProps> = ({
               alt="Ảnh cưới Huỳnh Lê Ngọc Phú & Huỳnh Thị Thu Thi"
               className="w-full aspect-[3/4] max-h-[520px] object-cover object-top hover:scale-105 transition-transform duration-700"
               referrerPolicy="no-referrer"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                if (!target.src.includes('anh1.jpg')) {
+                  target.src = '/assets/anh1.jpg';
+                }
+              }}
             />
             {/* Scrim gradient overlay */}
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent p-4 text-center z-10">

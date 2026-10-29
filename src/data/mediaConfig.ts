@@ -4,8 +4,9 @@ export interface GalleryPhoto {
   id: string;
   filename: string;
   src: string;
-  title: string;
-  caption: string;
+  candidateUrls?: string[];
+  title?: string;
+  caption?: string;
 }
 
 export interface MediaConfig {
@@ -14,10 +15,10 @@ export interface MediaConfig {
   audioUrl: string;
   fallbackAudioUrls: string[];
   images: {
-    coverImage: string;       // Ảnh bìa chân dung cô dâu chú rể: anhbia.jpg
-    receptionImage: string;   // Ảnh album 1: anh1.jpg (sảnh tiệc / không gian cưới)
-    ringsImage: string;       // Ảnh album 2: anh2.jpg (nhẫn cưới đính ước)
-    outdoorImage: string;     // Ảnh album 3: anh3.jpg (ngoại cảnh hạnh phúc)
+    coverImage: string;
+    receptionImage: string;
+    ringsImage: string;
+    outdoorImage: string;
   };
   galleryList: GalleryPhoto[];
   githubRepo: {
@@ -29,79 +30,37 @@ export interface MediaConfig {
   };
 }
 
-// 10 ảnh hiện tại bạn đã chọn: 1 ảnh bìa + 9 ảnh phụ (hỗ trợ sẵn sàng mở rộng đến 20 ảnh)
-export const initialGalleryPhotos: GalleryPhoto[] = [
-  {
-    id: 'cover',
-    filename: 'anhbia.jpg',
-    src: '/assets/anhbia.jpg',
-    title: 'Tình Yêu Viên Mãn',
-    caption: 'Khoảnh khắc thiêng liêng khi hai trái tim hòa cùng một nhịp đập',
-  },
-  {
-    id: 'photo-1',
-    filename: 'anh1.jpg',
-    src: '/assets/anh1.jpg',
-    title: 'Sảnh Tiệc Hoàng Gia',
-    caption: 'Không gian lộng lẫy ngập tràn ánh nến và hoa tươi đón chào quý quan khách',
-  },
-  {
-    id: 'photo-2',
-    filename: 'anh2.jpg',
-    src: '/assets/anh2.jpg',
-    title: 'Nhẫn Cưới Đính Ước',
-    caption: 'Kỷ vật thiêng liêng khắc ghi lời hẹn thề trọn đời son sắt',
-  },
-  {
-    id: 'photo-3',
-    filename: 'anh3.jpg',
-    src: '/assets/anh3.jpg',
-    title: 'Hạnh Phúc Bình Yên',
-    caption: 'Nắm tay nhau đi qua bốn mùa mưa nắng, trọn vẹn yêu thương',
-  },
-  {
-    id: 'photo-4',
-    filename: 'anh4.jpg',
-    src: '/assets/anh4.jpg',
-    title: 'Đang Cập Nhật',
-    caption: 'Hình ảnh đang được chuẩn bị...',
-  },
-  {
-    id: 'photo-5',
-    filename: 'anh5.jpg',
-    src: '/assets/anh5.jpg',
-    title: 'Nụ Cười Rạng Rỡ',
-    caption: 'Những giây phút thăng hoa bên người thương của cuộc đời',
-  },
-  {
-    id: 'photo-6',
-    filename: 'anh6.jpg',
-    src: '/assets/anh6.jpg',
-    title: 'Đang Cập Nhật',
-    caption: 'Hình ảnh đang được chuẩn bị...',
-  },
-  {
-    id: 'photo-7',
-    filename: 'anh7.jpg',
-    src: '/assets/anh7.jpg',
-    title: 'Hẹn Ước Trọn Đời',
-    caption: 'Lời thề nguyền son sắt dưới sự chứng kiến của hai họ và bạn bè',
-  },
-  {
-    id: 'photo-8',
-    filename: 'anh8.jpg',
-    src: '/assets/anh8.jpg',
-    title: 'Sánh Bước Chung Đôi',
-    caption: 'Cùng nhau bước đi trên con đường hạnh phúc ngập tràn hoa',
-  },
-  {
-    id: 'photo-9',
-    filename: 'anh9.jpg',
-    src: '/assets/anh9.jpg',
-    title: 'Khoảnh Khắc Vô Giá',
-    caption: 'Kỷ niệm ngọt ngào nhất trong ngày trọng đại của Phú & Thi',
-  },
-];
+export function getCandidateUrlsForFile(filename: string): string[] {
+  const baseName = filename.replace(/\.[^/.]+$/, '');
+  const repoOwner = 'myproject2001-hihi';
+  const repoName = 'Wedding-Ngoc-Phu-Thu-Thi';
+  const branch = 'main';
+
+  return [
+    `/assets/${baseName}.jpg`,
+    `/assets/${baseName}.png`,
+    `/assets/${baseName}.jpeg`,
+    `https://raw.githubusercontent.com/${repoOwner}/${repoName}/${branch}/public/assets/${baseName}.jpg`,
+    `https://raw.githubusercontent.com/${repoOwner}/${repoName}/${branch}/public/assets/${baseName}.png`,
+    `https://raw.githubusercontent.com/${repoOwner}/${repoName}/${branch}/public/assets/${baseName}.jpeg`,
+    `https://cdn.jsdelivr.net/gh/${repoOwner}/${repoName}@${branch}/public/assets/${baseName}.jpg`,
+    `https://cdn.jsdelivr.net/gh/${repoOwner}/${repoName}@${branch}/public/assets/${baseName}.png`,
+  ];
+}
+
+// 20 khung ảnh cưới sẵn sàng: khi có ảnh trên GitHub hoặc assets sẽ tự động hiện khung, khung nào chưa có ảnh thì ẩn đi
+export const initialGalleryPhotos: GalleryPhoto[] = Array.from({ length: 20 }, (_, idx) => {
+  const num = idx + 1;
+  const filename = `anh${num}.jpg`;
+  return {
+    id: `photo-${num}`,
+    filename,
+    src: `/assets/${filename}`,
+    candidateUrls: getCandidateUrlsForFile(filename),
+    title: '',
+    caption: '',
+  };
+});
 
 export const defaultMediaConfig: MediaConfig = {
   trackTitle: 'Nhạc Đám Cưới Việt Nam',

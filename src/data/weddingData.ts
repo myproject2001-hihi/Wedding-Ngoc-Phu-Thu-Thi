@@ -71,10 +71,10 @@ export const initialWishes: GuestWish[] = [];
 
 export const loveStoryMilestones = [
   {
-    year: '2021',
-    title: 'Gặp Nhau Mùa Thu',
-    date: '15 Tháng 10, 2021',
-    description: 'Một buổi chiều mùa thu dịu mát, ánh mắt vô tình chạm nhau bắt đầu cho một câu chuyện tình yêu ngọt ngào của Phú và Thi.',
+    year: '2020',
+    title: 'Lần Đầu Gặp Gỡ',
+    date: '23 Tháng 03, 2020',
+    description: 'Một ngày tháng Ba trong trẻo, ánh mắt vô tình chạm nhau bắt đầu cho câu chuyện tình yêu ngọt ngào của Phú và Thi.',
   },
   {
     year: '2023',

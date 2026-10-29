@@ -24,7 +24,7 @@ export const CeremonyDetails: React.FC<CeremonyDetailsProps> = ({ weddingInfo })
     {
       time: '18:00',
       title: 'Đón Tiếp Quan Khách',
-      desc: 'Check-in, đón tiếp người thân và chụp ảnh lưu niệm cùng cô dâu chú rể tại photobooth Sảnh Akina (Tầng 8).',
+      desc: 'Đón tiếp quý quan khách, người thân và bạn bè đến chung vui cùng gia đình tại Sảnh Akina (Tầng 8).',
     },
     {
       time: '19:00',
