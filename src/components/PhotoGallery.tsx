@@ -79,19 +79,42 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isGridExpanded, setIsGridExpanded] = useState<boolean>(false);
   const [selectedLightboxIndex, setSelectedLightboxIndex] = useState<number | null>(null);
-  const [isAutoplay, setIsAutoplay] = useState<boolean>(false);
+
+  // Default to autoplay in Lookbook Studio mode
+  const [isAutoplay, setIsAutoplay] = useState<boolean>(true);
   const [autoplayProgress, setAutoplayProgress] = useState<number>(0);
 
-  // Active filter category (Tất cả, Pre-wedding, Khoảnh khắc ngọt ngào)
-  const [activeCategory, setActiveCategory] = useState<'all' | 'portrait' | 'outdoor'>('all');
+  // Section reference and IntersectionObserver so album only activates when user scrolls to it
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const [isInView, setIsInView] = useState<boolean>(false);
 
   // Swipe gesture refs
   const touchStartXRef = useRef<number | null>(null);
   const touchEndXRef = useRef<number | null>(null);
 
-  // Filmstrip thumbnail container ref for auto-scrolling to active thumbnail
+  // Filmstrip thumbnail container refs
   const filmstripRef = useRef<HTMLDivElement | null>(null);
   const lightboxFilmstripRef = useRef<HTMLDivElement | null>(null);
+
+  // IntersectionObserver: Only activate album slideshow when user actually scrolls to the album section
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          setIsInView(entry.isIntersecting);
+        });
+      },
+      {
+        threshold: 0.15, // Activates when at least 15% of the album section enters view
+      }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   // Validate candidate photos
   useEffect(() => {
@@ -131,20 +154,11 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
     };
   }, []);
 
-  // Filtered photos based on active category
-  const displayedPhotos = React.useMemo(() => {
-    if (activeCategory === 'portrait') {
-      return validPhotos.filter((_, idx) => idx % 2 === 0);
-    }
-    if (activeCategory === 'outdoor') {
-      return validPhotos.filter((_, idx) => idx % 2 !== 0);
-    }
-    return validPhotos;
-  }, [validPhotos, activeCategory]);
+  const displayedPhotos = validPhotos;
 
   // Ensure current index is within bounds of displayedPhotos
   useEffect(() => {
-    if (currentIndex >= displayedPhotos.length) {
+    if (currentIndex >= displayedPhotos.length && displayedPhotos.length > 0) {
       setCurrentIndex(0);
     }
   }, [displayedPhotos.length, currentIndex]);
@@ -177,44 +191,51 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
     }
   }, [selectedLightboxIndex, displayedPhotos.length]);
 
-  // Smoothly scroll active thumbnail into view in filmstrip
+  // Pure container-level horizontal scrolling for active thumbnail (NEVER scrolls the window)
   useEffect(() => {
     if (!filmstripRef.current) return;
-    const activeEl = filmstripRef.current.querySelector<HTMLElement>(
-      `[data-thumb-index="${currentIndex}"]`
-    );
+    const container = filmstripRef.current;
+    const activeEl = container.querySelector<HTMLElement>(`[data-thumb-index="${currentIndex}"]`);
     if (activeEl) {
-      activeEl.scrollIntoView({
+      const elLeft = activeEl.offsetLeft;
+      const elWidth = activeEl.offsetWidth;
+      const containerWidth = container.offsetWidth;
+      const scrollTarget = elLeft - containerWidth / 2 + elWidth / 2;
+      container.scrollTo({
+        left: Math.max(0, scrollTarget),
         behavior: 'smooth',
-        block: 'nearest',
-        inline: 'center',
       });
     }
   }, [currentIndex]);
 
   useEffect(() => {
     if (selectedLightboxIndex === null || !lightboxFilmstripRef.current) return;
-    const activeEl = lightboxFilmstripRef.current.querySelector<HTMLElement>(
+    const container = lightboxFilmstripRef.current;
+    const activeEl = container.querySelector<HTMLElement>(
       `[data-lightbox-thumb="${selectedLightboxIndex}"]`
     );
     if (activeEl) {
-      activeEl.scrollIntoView({
+      const elLeft = activeEl.offsetLeft;
+      const elWidth = activeEl.offsetWidth;
+      const containerWidth = container.offsetWidth;
+      const scrollTarget = elLeft - containerWidth / 2 + elWidth / 2;
+      container.scrollTo({
+        left: Math.max(0, scrollTarget),
         behavior: 'smooth',
-        block: 'nearest',
-        inline: 'center',
       });
     }
   }, [selectedLightboxIndex]);
 
   // Autoplay timer for Slideshow
+  // Slower transition (6.5s per slide) & only runs when album is in viewport!
   useEffect(() => {
-    if (!isAutoplay || displayedPhotos.length <= 1) {
+    if (!isAutoplay || !isInView || viewMode !== 'lookbook' || displayedPhotos.length <= 1) {
       setAutoplayProgress(0);
       return;
     }
 
     const intervalTime = 100; // ms
-    const totalDuration = 4000; // 4 seconds per slide
+    const totalDuration = 6500; // 6.5s per slide for a gentle, elegant pace
     const step = (intervalTime / totalDuration) * 100;
 
     const timer = setInterval(() => {
@@ -228,7 +249,7 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
     }, intervalTime);
 
     return () => clearInterval(timer);
-  }, [isAutoplay, displayedPhotos.length, handleNext]);
+  }, [isAutoplay, isInView, viewMode, displayedPhotos.length, handleNext]);
 
   // Lock body scroll when lightbox modal is open
   useEffect(() => {
@@ -289,8 +310,12 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
     : displayedPhotos.slice(0, COLLAPSED_GRID_COUNT);
 
   return (
-    <section id="album-anh" className="py-14 sm:py-20 px-3 sm:px-6 lg:px-8 max-w-5xl mx-auto">
-      {/* Header */}
+    <section
+      ref={sectionRef}
+      id="album-anh"
+      className="py-14 sm:py-20 px-3 sm:px-6 lg:px-8 max-w-5xl mx-auto"
+    >
+      {/* Header with AOS scroll reveal effect */}
       <div
         data-aos="fade-up"
         data-aos-duration="800"
@@ -317,9 +342,8 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
           Trọn bộ <span className="font-semibold text-[#8B1E22]">{validPhotos.length} khoảnh khắc</span> ngọt ngào và hạnh phúc nhất
         </p>
 
-        {/* View Mode & Filter Controls */}
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-          {/* View Mode Switcher: Lookbook Slider vs Compact Grid */}
+        {/* View Mode Switcher: Lookbook Slider vs Compact Grid */}
+        <div className="mt-6 flex items-center justify-center">
           <div className="inline-flex items-center p-1 bg-[#FAF4E6] border border-[#C5A059]/40 rounded-full shadow-inner">
             <button
               onClick={() => setViewMode('lookbook')}
@@ -328,7 +352,7 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
                   ? 'bg-[#8B1E22] text-[#FAF4E6] shadow-md scale-[1.02]'
                   : 'text-stone-600 hover:text-[#8B1E22]'
               }`}
-              title="Chế độ Tạp Chí Cuộn Phim - Không làm dài trang web"
+              title="Chế độ Tạp Chí Cuộn Phim - Tinh tế và không làm dài trang web"
             >
               <Film className="h-3.5 w-3.5" />
               <span>Tạp Chí Lookbook</span>
@@ -347,62 +371,17 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
               <span>Lưới Nghệ Thuật</span>
             </button>
           </div>
-
-          {/* Quick Category Filter Pills */}
-          <div className="hidden sm:inline-flex items-center gap-1 text-xs text-stone-600 bg-white/70 px-3 py-1 rounded-full border border-stone-200">
-            <button
-              onClick={() => {
-                setActiveCategory('all');
-                setCurrentIndex(0);
-              }}
-              className={`px-2 py-0.5 rounded-full transition-colors ${
-                activeCategory === 'all'
-                  ? 'font-bold text-[#8B1E22] bg-[#FAF4E6]'
-                  : 'hover:text-[#8B1E22]'
-              }`}
-            >
-              Tất cả ({validPhotos.length})
-            </button>
-            <span>·</span>
-            <button
-              onClick={() => {
-                setActiveCategory('portrait');
-                setCurrentIndex(0);
-              }}
-              className={`px-2 py-0.5 rounded-full transition-colors ${
-                activeCategory === 'portrait'
-                  ? 'font-bold text-[#8B1E22] bg-[#FAF4E6]'
-                  : 'hover:text-[#8B1E22]'
-              }`}
-            >
-              Studio & Lễ Đường
-            </button>
-            <span>·</span>
-            <button
-              onClick={() => {
-                setActiveCategory('outdoor');
-                setCurrentIndex(0);
-              }}
-              className={`px-2 py-0.5 rounded-full transition-colors ${
-                activeCategory === 'outdoor'
-                  ? 'font-bold text-[#8B1E22] bg-[#FAF4E6]'
-                  : 'hover:text-[#8B1E22]'
-              }`}
-            >
-              Ngoại Cảnh & Hoàng Hôn
-            </button>
-          </div>
         </div>
       </div>
 
-      {/* DESIGN SOLUTION 1: LOOKBOOK SLIDER & FILMSTRIP (Ultra-compact, takes ~550px max, no endless scroll) */}
+      {/* DESIGN SOLUTION 1: LOOKBOOK SLIDER & FILMSTRIP */}
       {viewMode === 'lookbook' && validPhotos.length > 0 && currentPhoto && (
         <div
           data-aos="fade-up"
           data-aos-duration="700"
           className="relative max-w-4xl mx-auto flex flex-col items-center"
         >
-          {/* Main Showcase Frame */}
+          {/* Main Showcase Frame: 100% unobstructed view of wedding photo */}
           <div
             className="group relative w-full aspect-[4/3] sm:aspect-[16/10] md:aspect-[16/9] max-h-[500px] overflow-hidden rounded-2xl sm:rounded-3xl border-2 border-[#C5A059]/50 bg-stone-900 shadow-2xl transition-all duration-500"
             onTouchStart={handleTouchStart}
@@ -426,7 +405,7 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
             />
 
             {/* Autoplay Slide Progress Bar */}
-            {isAutoplay && (
+            {isAutoplay && isInView && (
               <div className="absolute top-0 left-0 right-0 h-1 bg-black/40 z-30 overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-[#C5A059] to-[#F5E6C8] transition-all duration-100 ease-linear"
@@ -435,39 +414,28 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
               </div>
             )}
 
-            {/* Top Toolbar Badges */}
-            <div className="absolute top-3 left-3 right-3 z-20 flex items-center justify-between pointer-events-none">
-              {/* Photo Index Counter */}
-              <div className="pointer-events-auto inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-[#C5A059]/40 text-[#F5E6C8] text-xs font-caps tracking-wider shadow-lg">
-                <Sparkles className="h-3 w-3 text-[#C5A059]" />
-                <span>
-                  Khoảnh khắc {String(currentIndex + 1).padStart(2, '0')} / {String(displayedPhotos.length).padStart(2, '0')}
-                </span>
-              </div>
+            {/* Top Toolbar: Action buttons (Autoplay & Maximize) aligned top-right */}
+            <div className="absolute top-3 right-3 z-20 flex items-center gap-2 pointer-events-auto">
+              <button
+                onClick={() => setIsAutoplay(!isAutoplay)}
+                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-caps font-semibold backdrop-blur-md border transition-all cursor-pointer shadow-lg ${
+                  isAutoplay
+                    ? 'bg-[#8B1E22] text-white border-[#C5A059]'
+                    : 'bg-black/60 text-white/90 border-[#C5A059]/40 hover:bg-[#8B1E22]'
+                }`}
+                title={isAutoplay ? 'Tạm dừng chiếu tự động' : 'Tự động phát trình chiếu (Slideshow)'}
+              >
+                {isAutoplay ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3 fill-current" />}
+                <span className="hidden sm:inline">{isAutoplay ? 'Đang chiếu' : 'Tự động'}</span>
+              </button>
 
-              {/* Action buttons (Autoplay & Maximize) */}
-              <div className="pointer-events-auto flex items-center gap-2">
-                <button
-                  onClick={() => setIsAutoplay(!isAutoplay)}
-                  className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-caps font-semibold backdrop-blur-md border transition-all cursor-pointer shadow-lg ${
-                    isAutoplay
-                      ? 'bg-[#8B1E22] text-white border-[#C5A059]'
-                      : 'bg-black/60 text-white/90 border-[#C5A059]/40 hover:bg-[#8B1E22]'
-                  }`}
-                  title={isAutoplay ? 'Tạm dừng chiếu tự động' : 'Tự động phát trình chiếu (Slideshow)'}
-                >
-                  {isAutoplay ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3 fill-current" />}
-                  <span className="hidden sm:inline">{isAutoplay ? 'Đang chiếu' : 'Tự động'}</span>
-                </button>
-
-                <button
-                  onClick={() => setSelectedLightboxIndex(currentIndex)}
-                  className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-black/60 hover:bg-[#8B1E22] text-white border border-[#C5A059]/40 backdrop-blur-md shadow-lg transition-all cursor-pointer"
-                  title="Phóng to toàn cảnh"
-                >
-                  <Maximize2 className="h-3.5 w-3.5" />
-                </button>
-              </div>
+              <button
+                onClick={() => setSelectedLightboxIndex(currentIndex)}
+                className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-black/60 hover:bg-[#8B1E22] text-white border border-[#C5A059]/40 backdrop-blur-md shadow-lg transition-all cursor-pointer"
+                title="Phóng to toàn cảnh"
+              >
+                <Maximize2 className="h-3.5 w-3.5" />
+              </button>
             </div>
 
             {/* Prev Navigation Arrow */}
@@ -493,24 +461,21 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
             >
               <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
             </button>
+          </div>
 
-            {/* Bottom Caption Pill */}
-            <div className="absolute bottom-3 inset-x-0 z-20 flex justify-center pointer-events-none">
-              <span className="pointer-events-auto px-4 py-1 rounded-full bg-black/60 backdrop-blur-md text-stone-200 text-xs font-display border border-white/10 shadow-lg">
-                Chạm để phóng to chiêm ngưỡng ảnh nét gốc
-              </span>
-            </div>
+          {/* Caption moved OUTSIDE below the photo frame */}
+          <div className="mt-3 flex justify-center">
+            <button
+              onClick={() => setSelectedLightboxIndex(currentIndex)}
+              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#FAF4E6] hover:bg-[#8B1E22] text-stone-600 hover:text-white border border-[#C5A059]/40 hover:border-[#8B1E22] shadow-sm hover:shadow-md transition-all duration-300 text-xs font-display cursor-pointer active:scale-95"
+            >
+              <Maximize2 className="h-3.5 w-3.5 text-[#C5A059]" />
+              <span>Chạm vào hình để phóng to chiêm ngưỡng ảnh nét gốc</span>
+            </button>
           </div>
 
           {/* Interactive Filmstrip Thumbnails Bar */}
-          <div className="mt-4 w-full">
-            <div className="flex items-center justify-between text-xs text-stone-500 mb-2 px-1">
-              <span className="font-caps tracking-wider text-[#8B1E22] font-semibold">
-                Cuộn ngang để chọn ảnh ({displayedPhotos.length} ảnh)
-              </span>
-              <span className="text-stone-400">Vuốt hoặc bấm thumbnail</span>
-            </div>
-
+          <div className="mt-3 w-full">
             <div
               ref={filmstripRef}
               className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-[#C5A059]/50 scrollbar-track-transparent snap-x py-1"
@@ -553,7 +518,7 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
         </div>
       )}
 
-      {/* DESIGN SOLUTION 2: COMPACT CURATED GRID WITH EXPAND/COLLAPSE (Does not overwhelm the page) */}
+      {/* DESIGN SOLUTION 2: COMPACT CURATED GRID WITH EXPAND/COLLAPSE */}
       {viewMode === 'grid' && validPhotos.length > 0 && (
         <div data-aos="fade-up" data-aos-duration="700" className="max-w-4xl mx-auto">
           {/* Magazine Mosaic Layout */}

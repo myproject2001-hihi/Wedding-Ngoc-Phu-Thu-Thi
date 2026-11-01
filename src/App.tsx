@@ -31,8 +31,10 @@ export default function App() {
   const [isAdminOpen, setIsAdminOpen] = useState<boolean>(false);
   const [toast, setToast] = useState<ToastData | null>(null);
 
-  // Initialize AOS (Animate on Scroll)
+  // Initialize AOS (Animate on Scroll) & ensure page starts at the top
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+
     AOS.init({
       duration: 800,
       easing: 'ease-out-cubic',
