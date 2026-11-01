@@ -109,7 +109,7 @@ export const RsvpModal: React.FC<RsvpModalProps> = ({
               XÁC NHẬN THAM DỰ
             </span>
             <h3 className="text-base sm:text-xl font-display font-bold text-stone-900 leading-tight">
-              Gửi Lời Phản Hồi<br className="sm:hidden" />Đến Cô Dâu & Chú Rể
+              Gửi Lời Phản Hồi <br className="sm:hidden" />Đến Cô Dâu & Chú Rể
             </h3>
             <p className="text-[11px] sm:text-xs font-display text-stone-500 mt-0.5 line-clamp-1">
               Ngày cưới: {weddingDateFormatted}
@@ -131,7 +131,7 @@ export const RsvpModal: React.FC<RsvpModalProps> = ({
             <div className="rounded-xl bg-[#FAF5E8] border border-[#C5A059]/30 p-3 text-xs font-display text-stone-600 flex items-center justify-center gap-2 text-center">
               <Heart className="h-4 w-4 text-[#8B1E22] fill-[#8B1E22] shrink-0" />
               <span className="text-center">
-                Vui lòng gửi phản hồi sớm<br className="sm:hidden" />để gia đình chuẩn bị đón tiếp bạn<br className="sm:hidden" />chu đáo nhất!
+                Vui lòng gửi phản hồi sớm <br className="sm:hidden" />để gia đình chuẩn bị đón tiếp bạn <br className="sm:hidden" />chu đáo!
               </span>
               <Heart className="h-4 w-4 text-[#8B1E22] fill-[#8B1E22] shrink-0" />
             </div>
@@ -228,7 +228,7 @@ export const RsvpModal: React.FC<RsvpModalProps> = ({
             {attending === 'yes' && (
               <div className="rounded-xl border border-[#C5A059]/40 bg-[#FFFDF9] p-3.5 space-y-2">
                 <label className="block text-xs font-caps uppercase tracking-wider text-stone-700 font-bold">
-                  Số lượng người tham dự<br className="sm:hidden" />(Bạn và Người thân) *
+                  Số lượng người tham dự <br className="sm:hidden" />(Bạn và Người thân) *
                 </label>
                 <div className="flex items-center gap-2">
                   <div className="relative flex-1">

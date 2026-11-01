@@ -303,7 +303,7 @@ export const HeroCard: React.FC<HeroCardProps> = ({
           <p className="text-xs font-caps uppercase tracking-[0.25em] text-[#8B1E22] font-bold">
             TRÂN TRỌNG KÍNH MỜI
           </p>
-          <div className="mt-1 text-lg sm:text-6xl font-display font-bold text-[#8B1E22] tracking-wide whitespace-nowrap">
+          <div className="mt-1 text-2xl sm:text-4xl font-display font-bold text-[#8B1E22] tracking-wide whitespace-nowrap">
             {guestName || 'Quý Khách & Gia Đình'}
           </div>
           <p className="mt-3 text-sm sm:text-base font-display text-stone-700 leading-relaxed max-w-lg mx-auto">

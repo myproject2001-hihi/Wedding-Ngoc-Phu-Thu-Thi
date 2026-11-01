@@ -372,7 +372,7 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
 
         <div className="flex items-center justify-center gap-2 mt-2 text-xs font-display text-stone-600">
           <Heart className="h-3.5 w-3.5 text-[#8B1E22] fill-[#8B1E22]" />
-          <span>Hành trình chung đôi<br className="sm:hidden" />Huỳnh Lê Ngọc Phú & Huỳnh Thị Thu Thi</span>
+          <span>Hành trình chung đôi <br className="sm:hidden" />Huỳnh Lê Ngọc Phú & Huỳnh Thị Thu Thi</span>
           <Heart className="h-3.5 w-3.5 text-[#8B1E22] fill-[#8B1E22]" />
         </div>
 
