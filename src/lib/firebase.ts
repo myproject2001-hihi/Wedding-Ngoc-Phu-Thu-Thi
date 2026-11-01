@@ -3,6 +3,7 @@ import { getAuth } from 'firebase/auth';
 import {
   getFirestore,
   doc,
+  getDoc,
   getDocFromServer,
   collection,
   addDoc,
@@ -72,15 +73,12 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
   throw new Error(JSON.stringify(errInfo));
 }
 
-// Validate connection to Firestore on boot as required
+// Validate connection to Firestore on boot gracefully
 export async function testConnection() {
   try {
-    await getDocFromServer(doc(db, 'test', 'connection'));
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.error('Please check your Firebase configuration.');
-    }
-  }
+    // Non-blocking connection test
+    getDoc(doc(db, 'test', 'connection')).catch(() => {});
+  } catch {}
 }
 testConnection();
 

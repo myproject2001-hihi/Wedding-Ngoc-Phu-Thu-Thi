@@ -340,8 +340,8 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
 
   const currentPhoto = displayedPhotos[currentIndex] || validPhotos[0];
 
-  // Number of photos to show in collapsed grid mode (6 photos gives a sleek magazine preview)
-  const COLLAPSED_GRID_COUNT = 6;
+  // Number of photos to show in collapsed grid mode (1 cover photo + 4 grid photos = 5 total)
+  const COLLAPSED_GRID_COUNT = 5;
   const gridPhotosToRender = isGridExpanded
     ? displayedPhotos
     : displayedPhotos.slice(0, COLLAPSED_GRID_COUNT);
@@ -583,8 +583,8 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
       {/* DESIGN SOLUTION 2: COMPACT CURATED GRID WITH EXPAND/COLLAPSE */}
       {viewMode === 'grid' && validPhotos.length > 0 && (
         <div data-aos="fade-up" data-aos-duration="700" className="max-w-4xl mx-auto">
-          {/* Magazine Mosaic Layout */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-5">
+          {/* Magazine Mosaic Layout: Full-width top cover photo + 2-column grid for all devices */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-5">
             {gridPhotosToRender.map((photo, idx) => {
               const isFirstFeatured = idx === 0;
               const isLastCollapsedSlot = !isGridExpanded && idx === COLLAPSED_GRID_COUNT - 1;
@@ -593,7 +593,7 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
               return (
                 <div
                   key={photo.id || idx}
-                  className={isFirstFeatured ? 'col-span-2 row-span-2' : 'col-span-1'}
+                  className={isFirstFeatured ? 'col-span-2' : 'col-span-1'}
                 >
                   <div
                     onClick={() => {
@@ -605,7 +605,7 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
                     }}
                     className={`group relative overflow-hidden rounded-xl sm:rounded-2xl border-2 border-[#C5A059]/40 bg-[#FAF4E6] cursor-pointer shadow-md hover:shadow-2xl hover:border-[#8B1E22] transition-all duration-500 w-full ${
                       isFirstFeatured
-                        ? 'aspect-[4/3] sm:aspect-[16/11]'
+                        ? 'aspect-[16/11] sm:aspect-[16/10]'
                         : 'aspect-[3/4]'
                     }`}
                   >
@@ -616,7 +616,7 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
                       loading={idx < 3 ? 'eager' : 'lazy'}
                     />
 
-                    {/* Overlay for the 6th slot when collapsed showing "+14 More Photos" */}
+                    {/* Overlay for the 5th slot when collapsed showing "+14 More Photos" */}
                     {isLastCollapsedSlot && remainingCount > 0 ? (
                       <div className="absolute inset-0 bg-black/75 backdrop-blur-sm flex flex-col items-center justify-center text-white text-center p-3 transition-colors hover:bg-black/65">
                         <span className="text-2xl sm:text-3xl font-display font-bold text-[#F5E6C8]">

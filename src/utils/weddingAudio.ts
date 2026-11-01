@@ -33,7 +33,7 @@ if (typeof window !== 'undefined') {
 }
 
 let currentSourceIndex = 0;
-let fiveSecondTimerId: ReturnType<typeof setTimeout> | null = null;
+let tenSecondTimerId: ReturnType<typeof setTimeout> | null = null;
 let gestureListenerRegistered = false;
 let removeGestureListeners: (() => void) | null = null;
 
@@ -216,7 +216,7 @@ export function getAudioElement(): HTMLAudioElement {
 }
 
 /**
- * Cho phép đổi link nhạc trực tiếp (vd: dán link GitHub MP3 từ giao diện Admin)
+ * Cho phép đổi link nhạc trực tiếp
  */
 export function setCustomAudioUrl(newUrl: string): void {
   const cleanUrl = newUrl.trim();
@@ -242,12 +242,12 @@ export function setCustomAudioUrl(newUrl: string): void {
 }
 
 /**
- * Hủy bỏ bộ hẹn giờ phát nhạc sau 5 giây nếu người dùng đã tương tác trước đó
+ * Hủy bỏ bộ hẹn giờ phát nhạc sau 10 giây nếu người dùng đã tương tác trước đó
  */
-function clearFiveSecondTimer(): void {
-  if (fiveSecondTimerId) {
-    clearTimeout(fiveSecondTimerId);
-    fiveSecondTimerId = null;
+export function clearTenSecondTimer(): void {
+  if (tenSecondTimerId) {
+    clearTimeout(tenSecondTimerId);
+    tenSecondTimerId = null;
   }
 }
 
@@ -278,8 +278,8 @@ export function playWeddingMusic(): Promise<void> {
     } catch {}
   }
 
-  // Clear 5s fallback timer since audio is now starting
-  clearFiveSecondTimer();
+  // Clear 10s fallback timer since audio is now starting
+  clearTenSecondTimer();
 
   try {
     audio.muted = isMuted;
@@ -310,8 +310,7 @@ export function playWeddingMusic(): Promise<void> {
 
 /**
  * Pause wedding music.
- * Tôn trọng người dùng: Ghi nhớ trạng thái tạm dừng trong sessionStorage,
- * ngăn hệ thống tự động bật lại khi khách tiếp tục lướt / vuốt trang.
+ * Tôn trọng người dùng: Ghi nhớ trạng thái tạm dừng trong sessionStorage.
  */
 export function pauseWeddingMusic(): void {
   const audio = getAudioElement();
@@ -322,10 +321,10 @@ export function pauseWeddingMusic(): void {
     } catch {}
   }
 
-  // Hủy hẹn giờ 5s nếu khách bấm tạm dừng sớm
-  clearFiveSecondTimer();
+  // Hủy hẹn giờ 10s nếu khách bấm tạm dừng sớm
+  clearTenSecondTimer();
 
-  // Dọn dẹp listener tự động bật lại để tôn trọng quyết định của khách
+  // Dọn dẹp listener tự động
   if (removeGestureListeners) {
     removeGestureListeners();
   }
@@ -439,17 +438,16 @@ export function subscribeWeddingAudio(
 }
 
 /**
- * Kích hoạt logic tự động phát nhạc sau 5 giây nếu người dùng chưa có bất kỳ thao tác nào:
- * - Sau 5s kể từ khi tải trang, hệ thống sẽ tự động gọi playWeddingMusic().
+ * Kích hoạt logic tự động phát nhạc sau 10 giây nếu người dùng chưa có bất kỳ thao tác nhấn nào:
+ * - Khi mở thiệp... qua 10s mà không thấy nhấn gì cả thì tự động kích hoạt nhạc mở lên.
  * - Nếu khách đã bấm Tạm dừng trước đó, sẽ KHÔNG phát (tôn trọng người dùng).
- * - Nếu người dùng đã chạm/lăn chuột trước đó, bộ đếm đã được hủy và nhạc đã bật từ thao tác đó.
  */
-export function startFiveSecondAutoplayTimer(): void {
+export function startTenSecondAutoplayTimer(): void {
   if (typeof window === 'undefined') return;
-  if (fiveSecondTimerId) return;
+  if (tenSecondTimerId) return;
 
-  fiveSecondTimerId = setTimeout(() => {
-    fiveSecondTimerId = null;
+  tenSecondTimerId = setTimeout(() => {
+    tenSecondTimerId = null;
 
     // Tôn trọng người dùng: Nếu khách bấm Tạm dừng, không bật lại
     if (userHasPaused) return;
@@ -457,41 +455,34 @@ export function startFiveSecondAutoplayTimer(): void {
     // Nếu nhạc đã đang phát rồi thì không cần làm gì
     if (isPlaying || (audioInstance && !audioInstance.paused)) return;
 
-    // Tự động phát nhạc sau 5 giây
+    // Tự động phát nhạc sau 10 giây
     playWeddingMusic()
       .then(() => {
-        // Tự động phát thành công sau 5s
         if (removeGestureListeners) {
           removeGestureListeners();
         }
       })
       .catch(() => {});
-  }, 5000);
+  }, 10000);
 }
 
 /**
  * Cơ chế kích hoạt trên từng thiết bị:
- * 1. Trên điện thoại (iOS / Android):
- *    - Khi vuốt ngón tay để lướt trang, thao tác chạm tay (touchstart / touchmove)
- *      ngay lập tức mở khóa âm thanh theo tiêu chuẩn trình duyệt di động và nhạc vang lên ngay lập tức.
- * 2. Trên máy tính (Desktop):
- *    - Khi lăn chuột (wheel / scroll) hoặc bấm chạm bất kỳ điểm nào (click / pointerdown / mousedown),
- *      nhạc sẽ tự động bật.
- * 3. Tôn trọng người dùng:
- *    - Nếu khách bấm Tạm dừng, hệ thống ghi nhớ (sessionStorage) và không tự bật lại khi tiếp tục lướt trang.
- * 4. Tự động phát sau 5 giây nếu chưa nhận được tương tác kích hoạt.
+ * 1. Thao tác nhấn trực tiếp (click, touchstart, touchend, pointerdown) như nhấn vào sáp/mở thiệp hoặc bấm bất kỳ đâu trên màn hình.
+ * 2. Tự động phát nhạc sau 10 giây nếu qua 10s không thấy nhấn gì.
+ * 3. Không dùng thao tác lướt cuộn màn hình.
  */
 export function initFirstGestureAudioUnlock(): () => void {
   if (typeof window === 'undefined') {
     return () => {};
   }
 
-  // Khởi động bộ đếm 5 giây tự động phát nếu chưa chạy
-  startFiveSecondAutoplayTimer();
+  // Khởi động bộ đếm 10 giây tự động phát nếu chưa chạy
+  startTenSecondAutoplayTimer();
 
-  // Nếu người dùng đã bấm Tạm dừng từ trước trong phiên, không kích hoạt tự phát trên thao tác cuộn
+  // Nếu người dùng đã bấm Tạm dừng từ trước trong phiên, không kích hoạt
   if (userHasPaused) {
-    clearFiveSecondTimer();
+    clearTenSecondTimer();
     return () => {};
   }
 
@@ -501,8 +492,8 @@ export function initFirstGestureAudioUnlock(): () => void {
 
   gestureListenerRegistered = true;
 
-  // Chỉ lắng nghe các thao tác tương tác người dùng hợp lệ theo chuẩn trình duyệt (click, tap, pointerdown):
-  // Không gán vào scroll, wheel hay touchmove vì trình duyệt Chrome & Safari nghiêm cấm phát âm thanh từ thao tác cuộn
+  // Chỉ lắng nghe thao tác nhấn/chạm hợp lệ (click, tap, pointerdown, touchstart):
+  // Không lướt màn hình
   const allEvents = ['click', 'pointerdown', 'touchstart', 'touchend'];
 
   const cleanup = () => {
@@ -518,7 +509,7 @@ export function initFirstGestureAudioUnlock(): () => void {
   const unlockHandler = (evt: Event) => {
     // 1. Tôn trọng người dùng: Nếu khách bấm Tạm dừng, không tự bật lại
     if (userHasPaused) {
-      clearFiveSecondTimer();
+      clearTenSecondTimer();
       cleanup();
       return;
     }
@@ -532,14 +523,14 @@ export function initFirstGestureAudioUnlock(): () => void {
     if (!audioInstance || audioInstance.paused || !isPlaying) {
       playWeddingMusic()
         .then(() => {
-          clearFiveSecondTimer();
+          clearTenSecondTimer();
           if (isPlaying) {
             cleanup();
           }
         })
         .catch(() => {});
     } else {
-      clearFiveSecondTimer();
+      clearTenSecondTimer();
       cleanup();
     }
   };
