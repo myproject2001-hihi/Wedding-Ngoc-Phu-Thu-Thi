@@ -163,7 +163,7 @@ export const HeroCard: React.FC<HeroCardProps> = ({
               <span className="text-[11px] sm:text-xs font-caps tracking-[0.2em] uppercase text-[#8B1E22] font-semibold bg-[#FAF0DC] px-2.5 py-0.5 rounded border border-[#C5A059]/30">
                 {weddingInfo.groomTitle}
               </span>
-              <h2 className="text-4xl sm:text-6xl lg:text-7xl font-wedding-names font-bold text-[#8B1E22] tracking-wide text-center py-1 select-none leading-tight">
+              <h2 className="text-5xl sm:text-6xl lg:text-7xl font-wedding-names font-bold text-[#8B1E22] tracking-wide text-center py-1 select-none leading-tight">
                 Huỳnh Lê <br className="block sm:hidden" /> Ngọc Phú
               </h2>
             </div>
@@ -182,7 +182,7 @@ export const HeroCard: React.FC<HeroCardProps> = ({
               <span className="text-[11px] sm:text-xs font-caps tracking-[0.2em] uppercase text-[#8B1E22] font-semibold bg-[#FAF0DC] px-2.5 py-0.5 rounded border border-[#C5A059]/30">
                 {weddingInfo.brideTitle}
               </span>
-              <h2 className="text-4xl sm:text-6xl lg:text-7xl font-wedding-names font-bold text-[#8B1E22] tracking-wide text-center py-1 select-none leading-tight">
+              <h2 className="text-5xl sm:text-6xl lg:text-7xl font-wedding-names font-bold text-[#8B1E22] tracking-wide text-center py-1 select-none leading-tight">
                 Huỳnh Thị <br className="block sm:hidden" /> Thu Thi
               </h2>
             </div>
@@ -254,7 +254,7 @@ export const HeroCard: React.FC<HeroCardProps> = ({
           </p>
 
           <div className="mt-4 pt-3 border-t border-[#C5A059]/30 flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-4 text-xs sm:text-sm font-caps text-[#8B1E22] font-bold">
-            <span>🍸 Đón Khách: 18H00</span>
+            <span>🍸 Đón Khách: 17H30</span>
             <span className="hidden sm:inline text-[#C5A059]">✦</span>
             <span>🍴 Khai Tiệc: 19H00</span>
           </div>

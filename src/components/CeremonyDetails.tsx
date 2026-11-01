@@ -22,7 +22,7 @@ export const CeremonyDetails: React.FC<CeremonyDetailsProps> = ({ weddingInfo })
 
   const eveningBanquetTimeline = [
     {
-      time: '18:00',
+      time: '17:30',
       title: 'Đón Tiếp Quan Khách',
       desc: 'Đón tiếp quý quan khách, người thân và bạn bè đến chung vui cùng gia đình tại Sảnh Akina (Tầng 8).',
     },
@@ -101,7 +101,7 @@ export const CeremonyDetails: React.FC<CeremonyDetailsProps> = ({ weddingInfo })
                 <div>
                   <p className="font-display text-base sm:text-lg font-bold text-stone-900 leading-snug">
                     <span className="text-[#8B1E22]">Thời gian tiệc tối:</span> <br/>
-                    Đón Khách: 18H00 <br className="sm:hidden" />
+                    Đón Khách: 17H30 <br className="sm:hidden" />
                     Khai Tiệc: 19H00
                   </p>
                   <p className="text-sm sm:text-base font-display text-[#B8860B] font-semibold mt-1">
