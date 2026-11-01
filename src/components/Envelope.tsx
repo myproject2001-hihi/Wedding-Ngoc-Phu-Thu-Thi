@@ -217,7 +217,7 @@ export const Envelope: React.FC<EnvelopeProps> = ({
             <span className="text-[10px] sm:text-[11px] font-caps tracking-[0.22em] uppercase text-[#8B1E22] font-semibold">
               TRÂN TRỌNG KÍNH MỜI
             </span>
-            <div className="mt-1 text-xl sm:text-3xl font-display font-bold text-[#8B1E22] tracking-wide break-words">
+            <div className="mt-1 text-lg sm:text-2xl font-display font-bold text-[#8B1E22] tracking-wide whitespace-nowrap">
               {guestName || 'Quý Khách & Gia Đình'}
             </div>
 

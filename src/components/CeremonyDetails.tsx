@@ -196,7 +196,7 @@ export const CeremonyDetails: React.FC<CeremonyDetailsProps> = ({ weddingInfo })
                       <span className="font-caps font-bold text-xs text-[#8B1E22] tabular-nums bg-[#FAF0DC] px-2 py-0.5 rounded border border-[#C5A059]/30">
                         {item.time}
                       </span>
-                      <h4 className="font-display font-bold text-sm text-stone-900 leading-snug">
+                      <h4 className="font-display font-bold text-sm text-stone-900 leading-snug whitespace-nowrap">
                         {item.title.includes('&') ? (
                           <>
                             {item.title.split('&')[0].trim()}

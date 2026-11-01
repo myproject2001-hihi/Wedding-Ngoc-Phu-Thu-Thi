@@ -296,35 +296,9 @@ export function playWeddingMusic(): Promise<void> {
         isPlaying = true;
         notifyListeners();
       })
-      .catch((err) => {
+      .catch(() => {
         isPlayPending = false;
-        console.warn('Direct unmuted play blocked on mobile, attempting muted-start fallback:', err);
-        // Mobile fallback: Safari/Chrome on mobile allows audio.play() if muted=true,
-        // then setting muted=false softly after playback starts.
-        try {
-          audio.muted = true;
-          return audio
-            .play()
-            .then(() => {
-              isPlaying = true;
-              notifyListeners();
-              setTimeout(() => {
-                if (!isMuted) {
-                  audio.muted = false;
-                  audio.volume = currentVolume / 100;
-                  notifyListeners();
-                }
-              }, 120);
-            })
-            .catch((err2) => {
-              console.warn('Muted fallback also awaiting user interaction:', err2);
-              notifyListeners();
-              throw err2;
-            });
-        } catch {
-          notifyListeners();
-          throw err;
-        }
+        notifyListeners();
       });
   }
 
@@ -491,11 +465,7 @@ export function startFiveSecondAutoplayTimer(): void {
           removeGestureListeners();
         }
       })
-      .catch((err) => {
-        // Trong trường hợp trình duyệt chặn tuyệt đối autoplay khi chưa có user gesture,
-        // các listener thao tác vuốt/lăn chuột vẫn tiếp tục hoạt động để bật ngay khi khách chạm màn hình.
-        console.info('[WeddingAudio] 5s auto-play waiting for first touch/scroll gesture:', err?.message || err);
-      });
+      .catch(() => {});
   }, 5000);
 }
 
@@ -531,12 +501,9 @@ export function initFirstGestureAudioUnlock(): () => void {
 
   gestureListenerRegistered = true;
 
-  // Danh sách sự kiện đa thiết bị:
-  // - Mobile: touchstart, touchmove, touchend
-  // - Desktop: wheel, scroll, click, pointerdown, mousedown, keydown
-  const mobileEvents = ['touchstart', 'touchmove', 'touchend'];
-  const desktopEvents = ['wheel', 'scroll', 'click', 'pointerdown', 'mousedown', 'keydown'];
-  const allEvents = [...mobileEvents, ...desktopEvents];
+  // Chỉ lắng nghe các thao tác tương tác người dùng hợp lệ theo chuẩn trình duyệt (click, tap, pointerdown):
+  // Không gán vào scroll, wheel hay touchmove vì trình duyệt Chrome & Safari nghiêm cấm phát âm thanh từ thao tác cuộn
+  const allEvents = ['click', 'pointerdown', 'touchstart', 'touchend'];
 
   const cleanup = () => {
     const options: AddEventListenerOptions = { capture: true };
@@ -556,8 +523,8 @@ export function initFirstGestureAudioUnlock(): () => void {
       return;
     }
 
-    // 2. Nếu là thao tác trên di động (touchstart / touchmove), mở khóa ngay AudioContext của di động
-    if (evt.type === 'touchstart' || evt.type === 'touchmove') {
+    // 2. Mở khóa AudioContext di động trên thao tác chạm
+    if (evt.type === 'touchstart' || evt.type === 'pointerdown') {
       primeMobileAudioSubsystem();
     }
 
@@ -570,9 +537,7 @@ export function initFirstGestureAudioUnlock(): () => void {
             cleanup();
           }
         })
-        .catch(() => {
-          // Nếu trình duyệt còn chặn, giữ listener để lần tương tác kế tiếp thử lại
-        });
+        .catch(() => {});
     } else {
       clearFiveSecondTimer();
       cleanup();

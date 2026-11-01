@@ -324,7 +324,9 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
         <div className="flex items-center justify-center gap-2 text-xs font-caps tracking-[0.25em] uppercase text-[#8B1E22] font-semibold leading-relaxed">
           <span>KHOẢNH KHẮC</span>
           <span className="text-[#C5A059]">✦</span>
-          <span>GỬI TRỌN YÊU THƯƠNG</span>
+          <span>
+            GỬI TRỌN<br className="sm:hidden" /> YÊU THƯƠNG
+          </span>
         </div>
 
         <h2 className="mt-2 text-3xl sm:text-4xl md:text-5xl font-display font-bold text-[#8B1E22] tracking-wide">
@@ -333,14 +335,9 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
 
         <div className="flex items-center justify-center gap-2 mt-2 text-xs font-display text-stone-600">
           <Heart className="h-3.5 w-3.5 text-[#8B1E22] fill-[#8B1E22]" />
-          <span>Hành trình chung đôi · Huỳnh Lê Ngọc Phú & Huỳnh Thị Thu Thi</span>
+          <span>Hành trình chung đôi<br className="sm:hidden" />Huỳnh Lê Ngọc Phú & Huỳnh Thị Thu Thi</span>
           <Heart className="h-3.5 w-3.5 text-[#8B1E22] fill-[#8B1E22]" />
         </div>
-
-        {/* Total photo count indicator */}
-        <p className="mt-2 text-xs sm:text-sm font-display text-stone-500">
-          Trọn bộ <span className="font-semibold text-[#8B1E22]">{validPhotos.length} khoảnh khắc</span> ngọt ngào và hạnh phúc nhất
-        </p>
 
         {/* View Mode Switcher: Lookbook Slider vs Compact Grid */}
         <div className="mt-6 flex items-center justify-center">
@@ -352,7 +349,7 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
                   ? 'bg-[#8B1E22] text-[#FAF4E6] shadow-md scale-[1.02]'
                   : 'text-stone-600 hover:text-[#8B1E22]'
               }`}
-              title="Chế độ Tạp Chí Cuộn Phim - Tinh tế và không làm dài trang web"
+              title="Chế độ Tạp Chí Cuộn Phim"
             >
               <Film className="h-3.5 w-3.5" />
               <span>Tạp Chí Lookbook</span>
@@ -365,7 +362,7 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
                   ? 'bg-[#8B1E22] text-[#FAF4E6] shadow-md scale-[1.02]'
                   : 'text-stone-600 hover:text-[#8B1E22]'
               }`}
-              title="Chế độ Lưới Tinh Gọn - Có nút Xem thêm / Thu gọn"
+              title="Chế độ Lưới Tinh Gọn"
             >
               <LayoutGrid className="h-3.5 w-3.5" />
               <span>Lưới Nghệ Thuật</span>
@@ -381,25 +378,27 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
           data-aos-duration="700"
           className="relative max-w-4xl mx-auto flex flex-col items-center"
         >
-          {/* Main Showcase Frame: 100% unobstructed view of wedding photo */}
+          {/* Main Showcase Frame: Studio Exhibition with uncropped full photo */}
           <div
-            className="group relative w-full aspect-[4/3] sm:aspect-[16/10] md:aspect-[16/9] max-h-[500px] overflow-hidden rounded-2xl sm:rounded-3xl border-2 border-[#C5A059]/50 bg-stone-900 shadow-2xl transition-all duration-500"
+            className="group relative w-full max-w-4xl mx-auto h-[480px] sm:h-[580px] md:h-[620px] overflow-hidden rounded-2xl sm:rounded-3xl border-2 border-[#C5A059]/50 bg-[#161311] shadow-2xl transition-all duration-500 flex items-center justify-center p-2 sm:p-4"
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={() => handleTouchEnd(false)}
           >
-            {/* Background blurred ambiance for portrait images */}
+            {/* Background blurred ambiance for artistic atmospheric studio lighting */}
             <div
-              className="absolute inset-0 bg-cover bg-center filter blur-xl opacity-20 scale-110 pointer-events-none transition-all duration-700"
+              className="absolute inset-0 bg-cover bg-center filter blur-2xl opacity-35 scale-110 pointer-events-none transition-all duration-1000"
               style={{ backgroundImage: `url(${currentPhoto.resolvedSrc || currentPhoto.src})` }}
             />
+            {/* Subtle dark vignette overlay for theater contrast */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-black/50 pointer-events-none" />
 
-            {/* Current Active Photo */}
+            {/* Current Active Photo: object-contain ALWAYS to preserve 100% of the couple's faces and attire */}
             <img
               key={currentPhoto.resolvedSrc || currentPhoto.src}
               src={currentPhoto.resolvedSrc || currentPhoto.src}
               alt="Ảnh cưới Ngọc Phú & Thu Thi"
-              className="relative z-10 h-full w-full object-contain sm:object-cover object-center transition-all duration-700 animate-in fade-in zoom-in-95 cursor-pointer"
+              className="relative z-10 max-h-full max-w-full h-auto w-auto object-contain mx-auto rounded-lg sm:rounded-xl shadow-2xl border border-white/10 transition-all duration-700 animate-in fade-in cursor-pointer drop-shadow-2xl"
               onClick={() => setSelectedLightboxIndex(currentIndex)}
               loading="eager"
             />
@@ -470,7 +469,7 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
               className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#FAF4E6] hover:bg-[#8B1E22] text-stone-600 hover:text-white border border-[#C5A059]/40 hover:border-[#8B1E22] shadow-sm hover:shadow-md transition-all duration-300 text-xs font-display cursor-pointer active:scale-95"
             >
               <Maximize2 className="h-3.5 w-3.5 text-[#C5A059]" />
-              <span>Chạm vào hình để phóng to chiêm ngưỡng ảnh nét gốc</span>
+              <span>Chạm vào hình để phóng to ảnh</span>
             </button>
           </div>
 

@@ -22,7 +22,6 @@ import { FloatingMusicPlayer } from './components/FloatingMusicPlayer';
 import { ScrollToTop } from './components/ScrollToTop';
 import { PetalsCanvas } from './components/PetalsCanvas';
 import { Heart, FileSpreadsheet } from 'lucide-react';
-import { playWeddingMusic } from './utils/weddingAudio';
 
 export default function App() {
   const [weddingInfo] = useState<WeddingInfo>(initialWeddingInfo);
@@ -69,24 +68,6 @@ export default function App() {
     return () => clearTimeout(timer);
   }, [isEnvelopeOpen]);
 
-  // Immediately play music on first scroll, touch swipe, or gesture on the wedding card
-  useEffect(() => {
-    const handleFirstGesture = () => {
-      playWeddingMusic().catch(() => {});
-    };
-
-    window.addEventListener('scroll', handleFirstGesture, { passive: true });
-    window.addEventListener('touchmove', handleFirstGesture, { passive: true });
-    window.addEventListener('touchstart', handleFirstGesture, { passive: true });
-    window.addEventListener('wheel', handleFirstGesture, { passive: true });
-
-    return () => {
-      window.removeEventListener('scroll', handleFirstGesture);
-      window.removeEventListener('touchmove', handleFirstGesture);
-      window.removeEventListener('touchstart', handleFirstGesture);
-      window.removeEventListener('wheel', handleFirstGesture);
-    };
-  }, []);
 
   // Check URL params for guest name or admin mode
   useEffect(() => {
