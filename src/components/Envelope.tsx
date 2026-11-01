@@ -66,13 +66,13 @@ export const Envelope: React.FC<EnvelopeProps> = ({
         </div>
 
         <div className="mt-4 flex flex-col items-center justify-center space-y-0.5 sm:space-y-1">
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-wedding-names font-bold text-[#8B1E22] tracking-wide text-center py-1 select-none leading-tight">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-wedding-names font-bold text-[#8B1E22] tracking-wide text-center py-1 select-none leading-tight">
             Huỳnh Lê <br className="block sm:hidden" /> Ngọc Phú
           </h1>
-          <span className="font-calligraphy text-2xl sm:text-4xl text-[#C5A059] my-0.5 select-none leading-none font-bold">
+          <span className="font-calligraphy text-3xl sm:text-4xl text-[#C5A059] my-0.5 select-none leading-none font-bold">
             &
           </span>
-          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-wedding-names font-bold text-[#8B1E22] tracking-wide text-center py-1 select-none leading-tight">
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-wedding-names font-bold text-[#8B1E22] tracking-wide text-center py-1 select-none leading-tight">
             Huỳnh Thị <br className="block sm:hidden" /> Thu Thi
           </h2>
         </div>
