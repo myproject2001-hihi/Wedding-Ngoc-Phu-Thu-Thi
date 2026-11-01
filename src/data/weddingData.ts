@@ -97,9 +97,14 @@ export const loveStoryMilestones = [
 ];
 
 export const quickWishesPresets = [
-  'Chúc hai bạn trăm năm hạnh phúc, đầu bạc răng long!',
-  'Chúc tổ ấm nhỏ luôn ngập tràn tiếng cười và yêu thương ngọt ngào!',
-  'Mừng ngày chung đôi! Chúc Phú & Thi vạn sự như ý, sớm đón quý tử công chúa!',
-  'Chúc tân lang tân nương mãi mãi son sắt, cùng nhau vượt qua mọi thử thách!',
-  'Hôn nhân hạnh phúc viên mãn, tài lộc dồi dào, gia đạo an khang!',
+  'Chúc hai bạn trăm năm hạnh phúc, đầu bạc răng long! Chúc cho tình yêu của Phú và Thi mãi bền chặt, cùng nhau sẻ chia mọi khoảnh khắc ngọt ngào của cuộc sống.',
+  'Chúc tổ ấm nhỏ luôn ngập tràn tiếng cười, bình an và ấm áp. Mong hai bạn luôn là điểm tựa bình yên nhất của nhau sau những bộn bề cuộc sống.',
+  'Mừng ngày hai bạn chính thức về chung một nhà! Chúc chặng đường mới luôn rực rỡ niềm vui, vạn sự cát tường và cùng nhau chạm tới mọi ước mơ.',
+  'Chúc tân lang tân nương mãi mãi một lòng son sắt, luôn thấu hiểu, bao dung và nắm chặt tay nhau vượt qua mọi thử thách trên đường đời.',
+  'Hôn nhân hạnh phúc viên mãn, công danh sự nghiệp thăng hoa, gia đạo an khang thịnh vượng và cuộc sống luôn sung túc, trọn vẹn đủ đầy.',
+  'Gặp gỡ là duyên, nên vợ nên chồng là phúc trăm năm. Chúc hai bạn bách niên giai lão, dù năm tháng đổi thay vẫn vẹn nguyên nghĩa tình thủy chung.',
+  'Chúc cho mỗi sớm mai thức dậy hai bạn đều thấy nụ cười của nhau, cùng nấu những bữa cơm ấm áp và cùng già đi trong sự dịu dàng, êm đềm.',
+  'Chúc Phú và Thi luôn là hậu phương vững chắc và là người bạn đồng hành tuyệt vời nhất của nhau, đồng tâm hiệp lực xây đắp mái ấm vững bền.',
+  'Chúc hai bạn sớm đón những thiên thần nhỏ kháu khỉnh, tiếng cười trẻ thơ rộn vang để niềm hạnh phúc gia đình thêm trọn vẹn và viên mãn.',
+  'Chúc tình yêu của hai bạn luôn tươi mới và nồng nàn như ngày đầu tiên gặp gỡ, mỗi ngày bên nhau đều là một ngày ngập tràn điều kỳ diệu và lãng mạn.',
 ];

@@ -20,7 +20,7 @@ export const LoveStory: React.FC = () => {
           Chuyện Tình Chúng Mình
         </h2>
         <p className="mt-2 text-xs sm:text-sm font-display text-stone-600 max-w-lg mx-auto italic">
-          "Mỗi khoảnh khắc bên nhau đều là một viên gạch quý giá xây đắp nên mái ấm hôm nay"
+          "Mỗi khoảnh khắc bên nhau<br />đều là một viên gạch quý giá xây đắp nên mái ấm hôm nay"
         </p>
       </div>
 

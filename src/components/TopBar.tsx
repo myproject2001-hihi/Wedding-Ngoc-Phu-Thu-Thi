@@ -1,13 +1,16 @@
 import React from 'react';
+import { FileSpreadsheet } from 'lucide-react';
 
 interface TopBarProps {
   groomName: string;
   brideName: string;
   onOpenRsvp: () => void;
+  onOpenAdmin?: () => void;
 }
 
 export const TopBar: React.FC<TopBarProps> = ({
   onOpenRsvp,
+  onOpenAdmin,
 }) => {
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between gap-3 sm:gap-6 border-b border-[#C5A059]/30 bg-[#FAF6EE]/95 px-3.5 sm:px-6 py-2.5 sm:py-3.5 backdrop-blur-md">
@@ -69,14 +72,25 @@ export const TopBar: React.FC<TopBarProps> = ({
         </a>
       </nav>
 
-      {/* Zone 3: 1 primary action */}
-      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+      {/* Zone 3: 1 primary action + Admin Guest Book button */}
+      <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
         <button
           onClick={onOpenRsvp}
           className="px-3.5 sm:px-4 py-1.5 sm:py-2 text-[11px] sm:text-xs font-caps font-semibold uppercase tracking-wider text-[#FAF4E6] bg-[#8B1E22] rounded-lg hover:bg-[#6E1418] transition-colors shadow-sm whitespace-nowrap shrink-0 cursor-pointer"
         >
           Xác Nhận Tham Dự
         </button>
+
+        {onOpenAdmin && (
+          <button
+            onClick={onOpenAdmin}
+            className="flex items-center justify-center h-8 w-8 sm:h-9 sm:w-9 rounded-lg border border-[#C5A059]/40 bg-[#FAF4E6] text-stone-700 hover:text-[#8B1E22] hover:border-[#8B1E22] hover:bg-[#FAF0DC] transition-all cursor-pointer shadow-xs"
+            title="Sổ Khách Mời & Xuất File Excel (Dành Cho Cô Dâu & Chú Rể)"
+            aria-label="Sổ Khách Mời & Xuất File Excel"
+          >
+            <FileSpreadsheet className="h-4 w-4 text-emerald-700" />
+          </button>
+        )}
       </div>
     </header>
   );

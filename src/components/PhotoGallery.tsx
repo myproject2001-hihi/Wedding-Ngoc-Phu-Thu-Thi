@@ -322,7 +322,7 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
         className="text-center mb-8 sm:mb-10"
       >
         <div className="flex items-center justify-center gap-2 text-xs font-caps tracking-[0.25em] uppercase text-[#8B1E22] font-semibold leading-relaxed">
-          <span>KHOẢNH KHẮC</span>
+          <span>KHOẢNH<br className="sm:hidden" /> KHẮC</span>
           <span className="text-[#C5A059]">✦</span>
           <span>
             GỬI TRỌN<br className="sm:hidden" /> YÊU THƯƠNG
@@ -562,10 +562,6 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
                         <span className="text-xs font-caps tracking-wider text-stone-200 mt-1">
                           Khoảnh khắc nữa
                         </span>
-                        <div className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold text-[#C5A059] bg-white/10 px-2.5 py-1 rounded-full">
-                          <span>Xem tất cả</span>
-                          <ChevronDown className="h-3 w-3" />
-                        </div>
                       </div>
                     ) : (
                       /* Clean Hover Overlay with Zoom Icon */
@@ -591,12 +587,12 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
                 {isGridExpanded ? (
                   <>
                     <ChevronUp className="h-4 w-4" />
-                    <span>Thu gọn bớt ảnh (Trở về {COLLAPSED_GRID_COUNT} ảnh tiêu điểm)</span>
+                    <span>Thu gọn bộ album ảnh cưới</span>
                   </>
                 ) : (
                   <>
                     <ChevronDown className="h-4 w-4" />
-                    <span>Xem trọn bộ {displayedPhotos.length} bức ảnh cưới</span>
+                    <span>Xem trọn bộ album ảnh cưới</span>
                   </>
                 )}
               </button>

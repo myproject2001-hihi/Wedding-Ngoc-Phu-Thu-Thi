@@ -67,13 +67,13 @@ export const Envelope: React.FC<EnvelopeProps> = ({
 
         <div className="mt-4 flex flex-col items-center justify-center space-y-0.5 sm:space-y-1">
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-wedding-names font-bold text-[#8B1E22] tracking-wide text-center py-1 select-none leading-tight">
-            Huỳnh Lê <br className="block sm:hidden" /> Ngọc Phú
+            Huỳnh Lê Ngọc Phú
           </h1>
           <span className="font-calligraphy text-3xl sm:text-4xl text-[#C5A059] my-0.5 select-none leading-none font-bold">
             &
           </span>
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-wedding-names font-bold text-[#8B1E22] tracking-wide text-center py-1 select-none leading-tight">
-            Huỳnh Thị <br className="block sm:hidden" /> Thu Thi
+            Huỳnh Thị Thu Thi
           </h2>
         </div>
 
@@ -159,7 +159,7 @@ export const Envelope: React.FC<EnvelopeProps> = ({
                   <p className="text-[10px] font-caps tracking-[0.25em] uppercase text-[#8B1E22] font-semibold">
                     KÍNH GỬI
                   </p>
-                  <p className="mt-0.5 text-xs sm:text-base font-display font-bold text-[#8B1E22] truncate">
+                  <p className="mt-0.5 text-s sm:text-base font-display font-bold text-[#8B1E22] truncate">
                     {guestName || 'Quý Khách & Gia Đình'}
                   </p>
                 </div>
@@ -217,7 +217,7 @@ export const Envelope: React.FC<EnvelopeProps> = ({
             <span className="text-[10px] sm:text-[11px] font-caps tracking-[0.22em] uppercase text-[#8B1E22] font-semibold">
               TRÂN TRỌNG KÍNH MỜI
             </span>
-            <div className="mt-1 text-lg sm:text-2xl font-display font-bold text-[#8B1E22] tracking-wide whitespace-nowrap">
+            <div className="mt-1 text-lg sm:text-5xl font-display font-bold text-[#8B1E22] tracking-wide whitespace-nowrap">
               {guestName || 'Quý Khách & Gia Đình'}
             </div>
 
@@ -257,7 +257,7 @@ export const Envelope: React.FC<EnvelopeProps> = ({
           className="group inline-flex items-center gap-2 rounded-full border border-[#8B1E22]/30 bg-[#FAF4E6] px-6 py-2.5 text-xs sm:text-sm font-caps font-semibold tracking-wider text-[#8B1E22] shadow-sm hover:bg-[#8B1E22] hover:text-[#FAF4E6] transition-all duration-300 cursor-pointer"
         >
           <Sparkles className="h-4 w-4 text-[#C5A059] group-hover:text-[#F6D799]" />
-          <span>{isOpen ? 'Gập lại phong bì' : 'Mở Thiệp Mừng'}</span>
+          <span>{isOpen ? 'Gập phong bì lại' : 'Mở Thiệp Mừng'}</span>
         </button>
 
       </div>

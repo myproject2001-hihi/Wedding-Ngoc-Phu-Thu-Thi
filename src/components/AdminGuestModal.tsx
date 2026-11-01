@@ -13,6 +13,7 @@ import {
 import { RsvpData } from '../types';
 import { exportRsvpsToExcelCsv } from '../utils/excelExport';
 import { loadAllGuestRsvps, getInitialGuestRsvps } from '../utils/guestStorage';
+import { subscribeToRsvps } from '../lib/firebase';
 
 interface AdminGuestModalProps {
   isOpen: boolean;
@@ -24,7 +25,7 @@ export const AdminGuestModal: React.FC<AdminGuestModalProps> = ({ isOpen, onClos
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'yes' | 'no'>('all');
 
-  // Load RSVPs from high-capacity storage (IndexedDB + localStorage backup)
+  // Load RSVPs from high-capacity storage & Cloud Firebase Firestore
   const refreshRsvps = async () => {
     try {
       const data = await loadAllGuestRsvps();
@@ -37,6 +38,22 @@ export const AdminGuestModal: React.FC<AdminGuestModalProps> = ({ isOpen, onClos
   useEffect(() => {
     if (isOpen) {
       refreshRsvps();
+      // Listen to real-time RSVPs from Firebase
+      const unsubscribe = subscribeToRsvps((cloudRsvps) => {
+        if (cloudRsvps && cloudRsvps.length > 0) {
+          const formatted: RsvpData[] = cloudRsvps.map((c) => ({
+            id: c.id,
+            name: c.name || 'Khách mời',
+            relationship: c.relation || 'Khách mời',
+            attending: (c.attending ? 'yes' : 'no') as 'yes' | 'no',
+            guestCount: c.guestsCount || 1,
+            wishes: c.note || '',
+            submittedAt: c.submittedAt ? new Date(c.submittedAt).toLocaleString('vi-VN') : 'Vừa xong',
+          }));
+          setRsvps(formatted);
+        }
+      });
+      return () => unsubscribe();
     }
   }, [isOpen]);
 

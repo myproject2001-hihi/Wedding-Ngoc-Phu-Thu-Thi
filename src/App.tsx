@@ -130,6 +130,7 @@ export default function App() {
         groomName={weddingInfo.groomName}
         brideName={weddingInfo.brideName}
         onOpenRsvp={() => setIsRsvpOpen(true)}
+        onOpenAdmin={() => setIsAdminOpen(true)}
       />
 
       <main className="relative z-10">

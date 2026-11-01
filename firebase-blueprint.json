@@ -1,0 +1,44 @@
+{
+  "entities": {
+    "Wish": {
+      "title": "Guest Wish",
+      "description": "A wedding wish sent by a guest to the bride and groom",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string", "maxLength": 100 },
+        "relation": { "type": "string", "maxLength": 100 },
+        "message": { "type": "string", "maxLength": 1000 },
+        "createdAt": { "type": "string" },
+        "likes": { "type": "number" }
+      },
+      "required": ["name", "relation", "message"]
+    },
+    "Rsvp": {
+      "title": "RSVP Attendance Confirmation",
+      "description": "An attendance confirmation sent by a guest",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string", "maxLength": 100 },
+        "attending": { "type": "boolean" },
+        "guestsCount": { "type": "number" },
+        "relation": { "type": "string", "maxLength": 100 },
+        "note": { "type": "string", "maxLength": 500 },
+        "dietary": { "type": "string", "maxLength": 200 },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["name", "attending", "guestsCount"]
+    }
+  },
+  "firestore": {
+    "/wishes/{wishId}": {
+      "schema": "Wish",
+      "description": "Public guestbook wishes for the wedding"
+    },
+    "/rsvps/{rsvpId}": {
+      "schema": "Rsvp",
+      "description": "RSVP responses from invited guests"
+    }
+  }
+}

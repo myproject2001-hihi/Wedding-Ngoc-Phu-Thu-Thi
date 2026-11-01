@@ -104,7 +104,7 @@ export const HeroCard: React.FC<HeroCardProps> = ({
             {/* P&T Handwriting monogram overlapping gracefully out of the heart (khớp ảnh) */}
             <div className="absolute inset-0 flex items-center justify-center pt-2.5">
               <span className="font-wedding-names text-4xl sm:text-5xl font-bold text-[#8B1E22] select-none tracking-tight drop-shadow-sm scale-110">
-                P&T
+                P T
               </span>
             </div>
           </div>
@@ -235,7 +235,7 @@ export const HeroCard: React.FC<HeroCardProps> = ({
           <p className="text-xs font-caps uppercase tracking-[0.25em] text-[#8B1E22] font-bold">
             TRÂN TRỌNG KÍNH MỜI
           </p>
-          <div className="mt-1 text-lg sm:text-2xl font-display font-bold text-[#8B1E22] tracking-wide whitespace-nowrap">
+          <div className="mt-1 text-lg sm:text-6xl font-display font-bold text-[#8B1E22] tracking-wide whitespace-nowrap">
             {guestName || 'Quý Khách & Gia Đình'}
           </div>
           <p className="mt-3 text-sm sm:text-base font-display text-stone-700 leading-relaxed max-w-lg mx-auto">

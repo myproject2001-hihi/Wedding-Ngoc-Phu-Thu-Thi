@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidString(val, minLen, maxLen) {
+      return val is string && val.size() >= minLen && val.size() <= maxLen;
+    }
+
+    // Wish validation helper
+    function isValidWish(data) {
+      return data.keys().hasAll(['name', 'relation', 'message'])
+        && isValidString(data.name, 1, 100)
+        && isValidString(data.relation, 1, 100)
+        && isValidString(data.message, 1, 1000);
+    }
+
+    // RSVP validation helper
+    function isValidRsvp(data) {
+      return data.keys().hasAll(['name', 'attending', 'guestsCount'])
+        && isValidString(data.name, 1, 100)
+        && data.attending is bool
+        && data.guestsCount is number && data.guestsCount >= 1 && data.guestsCount <= 20;
+    }
+
+    // Wishes collection: public wedding guestbook
+    match /wishes/{wishId} {
+      allow read: if true;
+      allow create: if isValidWish(incoming());
+      allow update: if incoming().diff(existing()).affectedKeys().hasOnly(['likes'])
+                    && incoming().likes is number
+                    && incoming().likes == existing().likes + 1;
+      allow delete: if false;
+    }
+
+    // RSVPs collection: wedding guest confirmation
+    match /rsvps/{rsvpId} {
+      allow create: if isValidRsvp(incoming());
+      allow read: if true;
+      allow update, delete: if false;
+    }
+  }
+}

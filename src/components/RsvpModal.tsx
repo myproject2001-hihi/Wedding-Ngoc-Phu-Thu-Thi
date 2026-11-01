@@ -3,6 +3,7 @@ import { X, CheckCircle, Users, User, Heart, MessageSquare, Sparkles } from 'luc
 import { triggerFireworks } from '../utils/fireworks';
 import { saveGuestRsvp } from '../utils/guestStorage';
 import { RsvpData } from '../types';
+import { submitRsvpToFirebase, submitWishToFirebase } from '../lib/firebase';
 
 interface RsvpModalProps {
   isOpen: boolean;
@@ -50,8 +51,18 @@ export const RsvpModal: React.FC<RsvpModalProps> = ({
     // Save to high-capacity persistent storage (IndexedDB + localStorage, supporting 1000+ guests)
     saveGuestRsvp(rsvpItem);
 
+    // Sync to Cloud Firebase Firestore
+    submitRsvpToFirebase({
+      name: guestNameValue,
+      attending: attending === 'yes',
+      guestsCount: attending === 'yes' ? guestCount : 1,
+      relation: relationship,
+      note: wishes.trim(),
+    }).catch(() => {});
+
     // Also push to wishes if wishes provided
     if (wishes.trim()) {
+      submitWishToFirebase(guestNameValue, relationship, wishes.trim()).catch(() => {});
       const existingWishes = JSON.parse(localStorage.getItem('wedding_wishes') || '[]');
       existingWishes.unshift({
         id: 'wish-' + Date.now(),
