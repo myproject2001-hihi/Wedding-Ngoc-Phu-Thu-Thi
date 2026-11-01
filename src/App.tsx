@@ -206,7 +206,7 @@ export default function App() {
               title="Xem danh sách khách đã xác nhận tham dự và tải file Excel (.csv)"
             >
               <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-700" />
-              <span>Dành Cho Cô Dâu & Chú Rể<br className="sm:hidden" />Sổ Khách Mời & Lời Chúc Tốt Đẹp Từ Người Thân</span>
+              <span>Dành Cho Cô Dâu & Chú Rể<br className="sm:hidden" />Sổ Khách Mời & Những Lời Chúc Tốt Đẹp<br className="sm:hidden" />Từ Người Thân</span>
             </button>
           </div>
         </div>

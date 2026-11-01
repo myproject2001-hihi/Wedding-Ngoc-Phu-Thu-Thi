@@ -323,7 +323,7 @@ export const WishingWell: React.FC<WishingWellProps> = ({ onOpenRsvp }) => {
                 <span>Xác Nhận Tham Dự</span>
               </button>
               <p className="mt-1.5 text-center text-[11px] font-display text-stone-500 italic">
-                Bấm vào đây để gửi phản hồi tham dự tiệc cưới đến gia đình
+                Bấm vào đây để gửi phản hồi tham dự tiệc cưới<br className="sm:hidden" />đến với gia đình chúng con
               </p>
             </div>
           </form>
