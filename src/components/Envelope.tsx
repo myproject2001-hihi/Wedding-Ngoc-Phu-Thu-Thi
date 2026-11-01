@@ -21,19 +21,30 @@ export const Envelope: React.FC<EnvelopeProps> = ({
   onOpen,
   onClose,
 }) => {
-  // Ensure window scrolls to top on initial load / reset as requested
+  // Ensure window strictly stays at the top on initial load
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }, []);
 
   const handleOpenEnvelope = () => {
     if (isOpen) {
       onClose();
     } else {
+      // Keep viewport firmly at the very top of the envelope when opening
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
       // Synchronously trigger wedding music directly inside the user click gesture when opening
       playWeddingMusic().catch(() => {});
       window.dispatchEvent(new CustomEvent('wedding-play-music'));
       onOpen();
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      });
+      setTimeout(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      }, 60);
     }
   };
 

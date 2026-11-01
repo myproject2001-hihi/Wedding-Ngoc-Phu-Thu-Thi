@@ -99,6 +99,8 @@ function primeMobileAudioSubsystem() {
   } catch {}
 }
 
+let isPlayPending = false;
+
 /**
  * Returns the persistent Audio singleton instance with all event handlers attached once.
  */
@@ -108,7 +110,37 @@ export function getAudioElement(): HTMLAudioElement {
   }
 
   if (!audioInstance) {
-    audioInstance = new Audio();
+    if (typeof document !== 'undefined') {
+      let existingAudio = document.getElementById('wedding-persistent-audio') as HTMLAudioElement | null;
+      if (!existingAudio) {
+        existingAudio = document.createElement('audio');
+        existingAudio.id = 'wedding-persistent-audio';
+        existingAudio.setAttribute('playsinline', 'true');
+        existingAudio.setAttribute('webkit-playsinline', 'true');
+        existingAudio.preload = 'auto';
+        existingAudio.loop = true;
+        existingAudio.style.position = 'fixed';
+        existingAudio.style.width = '1px';
+        existingAudio.style.height = '1px';
+        existingAudio.style.opacity = '0.01';
+        existingAudio.style.pointerEvents = 'none';
+        existingAudio.style.zIndex = '-9999';
+
+        if (document.body) {
+          document.body.appendChild(existingAudio);
+        } else {
+          window.addEventListener('DOMContentLoaded', () => {
+            if (!document.getElementById('wedding-persistent-audio')) {
+              document.body.appendChild(existingAudio!);
+            }
+          });
+        }
+      }
+      audioInstance = existingAudio;
+    } else {
+      audioInstance = new Audio();
+    }
+
     const sources = getSourcesList();
     audioInstance.src = sources[0];
     audioInstance.preload = 'auto';
@@ -227,7 +259,17 @@ export function playWeddingMusic(): Promise<void> {
   const audio = getAudioElement();
   if (!audio) return Promise.resolve();
 
-  // Reset user-paused flag since the user explicitly requested or authorized playback
+  // If already playing, do nothing
+  if (isPlaying && !audio.paused) {
+    return Promise.resolve();
+  }
+
+  // Prevent multiple overlapping calls from aborting pending play request
+  if (isPlayPending) {
+    return Promise.resolve();
+  }
+
+  isPlayPending = true;
   userHasPaused = false;
   hasError = false;
   if (typeof window !== 'undefined') {
@@ -236,7 +278,7 @@ export function playWeddingMusic(): Promise<void> {
     } catch {}
   }
 
-  // Clear 5s fallback timer since audio is now playing
+  // Clear 5s fallback timer since audio is now starting
   clearFiveSecondTimer();
 
   try {
@@ -250,16 +292,43 @@ export function playWeddingMusic(): Promise<void> {
   if (playPromise !== undefined) {
     return playPromise
       .then(() => {
+        isPlayPending = false;
         isPlaying = true;
         notifyListeners();
       })
       .catch((err) => {
-        console.warn('Audio play request awaiting user gesture:', err);
-        notifyListeners();
-        throw err;
+        isPlayPending = false;
+        console.warn('Direct unmuted play blocked on mobile, attempting muted-start fallback:', err);
+        // Mobile fallback: Safari/Chrome on mobile allows audio.play() if muted=true,
+        // then setting muted=false softly after playback starts.
+        try {
+          audio.muted = true;
+          return audio
+            .play()
+            .then(() => {
+              isPlaying = true;
+              notifyListeners();
+              setTimeout(() => {
+                if (!isMuted) {
+                  audio.muted = false;
+                  audio.volume = currentVolume / 100;
+                  notifyListeners();
+                }
+              }, 120);
+            })
+            .catch((err2) => {
+              console.warn('Muted fallback also awaiting user interaction:', err2);
+              notifyListeners();
+              throw err2;
+            });
+        } catch {
+          notifyListeners();
+          throw err;
+        }
       });
   }
 
+  isPlayPending = false;
   isPlaying = true;
   notifyListeners();
   return Promise.resolve();
