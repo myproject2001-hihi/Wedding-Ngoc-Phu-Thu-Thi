@@ -237,7 +237,7 @@ export const HeroCard: React.FC<HeroCardProps> = ({
           </p>
           <div className="mt-1 text-lg sm:text-2xl font-display font-bold text-[#8B1E22] tracking-wide whitespace-nowrap">
             {guestName || 'Quý Khách & Gia Đình'}
-          </p>
+          </div>
           <p className="mt-3 text-sm sm:text-base font-display text-stone-700 leading-relaxed max-w-lg mx-auto">
             Đến dự buổi tiệc chung vui<br className="sm:hidden" /> cùng gia đình chúng tôi tại:
             <br />
