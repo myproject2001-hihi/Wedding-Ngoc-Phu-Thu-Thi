@@ -96,6 +96,35 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
   const filmstripRef = useRef<HTMLDivElement | null>(null);
   const lightboxFilmstripRef = useRef<HTMLDivElement | null>(null);
 
+  // User interaction state to prevent jarring scroll jumps when dragging/scrolling upcoming thumbnails
+  const isUserInteractingWithFilmstrip = useRef(false);
+  const filmstripInteractionTimeout = useRef<NodeJS.Timeout | null>(null);
+  const [isPausedByUser, setIsPausedByUser] = useState(false);
+
+  const handleFilmstripUserActivity = useCallback(() => {
+    isUserInteractingWithFilmstrip.current = true;
+    setIsPausedByUser(true);
+    setAutoplayProgress(0);
+
+    if (filmstripInteractionTimeout.current) {
+      clearTimeout(filmstripInteractionTimeout.current);
+    }
+
+    // Resume autoplay & auto-centering only after 7 seconds of idle
+    filmstripInteractionTimeout.current = setTimeout(() => {
+      isUserInteractingWithFilmstrip.current = false;
+      setIsPausedByUser(false);
+    }, 7000);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (filmstripInteractionTimeout.current) {
+        clearTimeout(filmstripInteractionTimeout.current);
+      }
+    };
+  }, []);
+
   // IntersectionObserver: Only activate album slideshow when user actually scrolls to the album section
   useEffect(() => {
     const el = sectionRef.current;
@@ -193,6 +222,8 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
 
   // Pure container-level horizontal scrolling for active thumbnail (NEVER scrolls the window)
   useEffect(() => {
+    // If user is actively dragging or browsing upcoming thumbnails, do NOT yank it back!
+    if (isUserInteractingWithFilmstrip.current) return;
     if (!filmstripRef.current) return;
     const container = filmstripRef.current;
     const activeEl = container.querySelector<HTMLElement>(`[data-thumb-index="${currentIndex}"]`);
@@ -227,9 +258,15 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
   }, [selectedLightboxIndex]);
 
   // Autoplay timer for Slideshow
-  // Slower transition (6.5s per slide) & only runs when album is in viewport!
+  // Slower transition (6.5s per slide) & pauses when user is interacting or scrolled out of view!
   useEffect(() => {
-    if (!isAutoplay || !isInView || viewMode !== 'lookbook' || displayedPhotos.length <= 1) {
+    if (
+      !isAutoplay ||
+      isPausedByUser ||
+      !isInView ||
+      viewMode !== 'lookbook' ||
+      displayedPhotos.length <= 1
+    ) {
       setAutoplayProgress(0);
       return;
     }
@@ -249,7 +286,7 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
     }, intervalTime);
 
     return () => clearInterval(timer);
-  }, [isAutoplay, isInView, viewMode, displayedPhotos.length, handleNext]);
+  }, [isAutoplay, isPausedByUser, isInView, viewMode, displayedPhotos.length, handleNext]);
 
   // Lock body scroll when lightbox modal is open
   useEffect(() => {
@@ -477,6 +514,11 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
           <div className="mt-3 w-full">
             <div
               ref={filmstripRef}
+              onScroll={handleFilmstripUserActivity}
+              onTouchStart={handleFilmstripUserActivity}
+              onTouchMove={handleFilmstripUserActivity}
+              onMouseDown={handleFilmstripUserActivity}
+              onWheel={handleFilmstripUserActivity}
               className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-[#C5A059]/50 scrollbar-track-transparent snap-x py-1"
             >
               {displayedPhotos.map((photo, idx) => {
@@ -486,8 +528,29 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
                     key={photo.id || idx}
                     data-thumb-index={idx}
                     onClick={() => {
+                      // Explicit user click: clear scroll pause & center selected photo immediately
+                      isUserInteractingWithFilmstrip.current = false;
+                      if (filmstripInteractionTimeout.current) {
+                        clearTimeout(filmstripInteractionTimeout.current);
+                      }
+                      setIsPausedByUser(false);
                       setCurrentIndex(idx);
                       setAutoplayProgress(0);
+
+                      if (filmstripRef.current) {
+                        const container = filmstripRef.current;
+                        const activeEl = container.querySelector<HTMLElement>(`[data-thumb-index="${idx}"]`);
+                        if (activeEl) {
+                          const elLeft = activeEl.offsetLeft;
+                          const elWidth = activeEl.offsetWidth;
+                          const containerWidth = container.offsetWidth;
+                          const scrollTarget = elLeft - containerWidth / 2 + elWidth / 2;
+                          container.scrollTo({
+                            left: Math.max(0, scrollTarget),
+                            behavior: 'smooth',
+                          });
+                        }
+                      }
                     }}
                     className={`relative shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 snap-center ${
                       isActive
