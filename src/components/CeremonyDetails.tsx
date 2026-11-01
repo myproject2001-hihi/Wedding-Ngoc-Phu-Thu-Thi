@@ -199,7 +199,7 @@ export const CeremonyDetails: React.FC<CeremonyDetailsProps> = ({ weddingInfo })
                       <h4 className="font-display font-bold text-sm text-stone-900 leading-snug whitespace-nowrap">
                         {item.title.includes('&') ? (
                           <>
-                            {item.title.split('&')[0].trim()}
+                            {item.title.split('&')[0].trim()}{' '}
                             <br className="sm:hidden" />
                             &amp; {item.title.split('&')[1].trim()}
                           </>
@@ -238,7 +238,7 @@ export const CeremonyDetails: React.FC<CeremonyDetailsProps> = ({ weddingInfo })
                       <h4 className="font-display font-bold text-sm text-stone-900 leading-snug">
                         {item.title.includes('&') ? (
                           <>
-                            {item.title.split('&')[0].trim()}
+                            {item.title.split('&')[0].trim()}{' '}
                             <br className="sm:hidden" />
                             &amp; {item.title.split('&')[1].trim()}
                           </>

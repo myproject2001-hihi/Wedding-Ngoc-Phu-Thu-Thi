@@ -97,7 +97,7 @@ export const WishingWell: React.FC<WishingWellProps> = ({ onOpenRsvp }) => {
           <span>GUESTBOOK<br className="sm:hidden" /> & WISHES</span>
         </div>
         <h2 className="mt-2 text-3xl sm:text-4xl font-display font-bold text-[#8B1E22] tracking-wide">
-          Sổ Lưu Bút Chúc Phúc
+          Sổ Lưu Bút <br className="sm:hidden" />Chúc Phúc
         </h2>
         <p className="mt-2 text-xs sm:text-sm font-display text-stone-600 max-w-lg mx-auto">
           Mỗi lời chúc thân thương của bạn là món quà vô giá đồng hành cùng khởi đầu mới của cô dâu chú rể.
