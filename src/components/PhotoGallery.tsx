@@ -75,7 +75,7 @@ async function resolveWorkingUrl(candidates: string[]): Promise<string | null> {
 
 export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
   const [validPhotos, setValidPhotos] = useState<ValidatedPhoto[]>([]);
-  const [viewMode, setViewMode] = useState<'lookbook' | 'grid'>('lookbook');
+  const [viewMode, setViewMode] = useState<'lookbook' | 'grid'>('grid');
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isGridExpanded, setIsGridExpanded] = useState<boolean>(false);
   const [selectedLightboxIndex, setSelectedLightboxIndex] = useState<number | null>(null);
@@ -380,8 +380,21 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
         <div className="mt-6 flex items-center justify-center">
           <div className="inline-flex items-center p-1 bg-[#FAF4E6] border border-[#C5A059]/40 rounded-full shadow-inner">
             <button
+              onClick={() => setViewMode('grid')}
+              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-caps font-semibold transition-all duration-300 cursor-pointer ${
+                viewMode === 'grid'
+                  ? 'bg-[#8B1E22] text-[#FAF4E6] shadow-md scale-[1.02]'
+                  : 'text-stone-600 hover:text-[#8B1E22]'
+              }`}
+              title="Chế độ Lưới Nghệ Thuật"
+            >
+              <LayoutGrid className="h-3.5 w-3.5" />
+              <span>Lưới Nghệ Thuật</span>
+            </button>
+
+            <button
               onClick={() => setViewMode('lookbook')}
-              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-caps font-semibold transition-all duration-300 ${
+              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-caps font-semibold transition-all duration-300 cursor-pointer ${
                 viewMode === 'lookbook'
                   ? 'bg-[#8B1E22] text-[#FAF4E6] shadow-md scale-[1.02]'
                   : 'text-stone-600 hover:text-[#8B1E22]'
@@ -390,19 +403,6 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
             >
               <Film className="h-3.5 w-3.5" />
               <span>Tạp Chí Lookbook</span>
-            </button>
-
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-caps font-semibold transition-all duration-300 ${
-                viewMode === 'grid'
-                  ? 'bg-[#8B1E22] text-[#FAF4E6] shadow-md scale-[1.02]'
-                  : 'text-stone-600 hover:text-[#8B1E22]'
-              }`}
-              title="Chế độ Lưới Tinh Gọn"
-            >
-              <LayoutGrid className="h-3.5 w-3.5" />
-              <span>Lưới Nghệ Thuật</span>
             </button>
           </div>
         </div>
