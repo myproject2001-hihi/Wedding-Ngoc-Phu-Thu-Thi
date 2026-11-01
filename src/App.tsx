@@ -130,7 +130,6 @@ export default function App() {
         groomName={weddingInfo.groomName}
         brideName={weddingInfo.brideName}
         onOpenRsvp={() => setIsRsvpOpen(true)}
-        onOpenAdmin={() => setIsAdminOpen(true)}
       />
 
       <main className="relative z-10">
@@ -183,7 +182,7 @@ export default function App() {
       <footer className="border-t border-[#C5A059]/30 bg-[#FAF5E8] py-12 text-center text-stone-600">
         <div className="max-w-2xl mx-auto px-4 space-y-3">
           {/* Hình 4 & Hình 1: Tên cô dâu chú rể ở footer viết bằng font chữ viết tay, ngắt 2 chữ trên mobile */}
-          <div className="flex items-center justify-center gap-3 text-2xl sm:text-3xl font-wedding-names text-[#8B1E22] font-bold">
+          <div className="flex items-center justify-center gap-3 text-3xl sm:text-3xl font-wedding-names text-[#8B1E22] font-bold">
             <span>Huỳnh Lê <br className="block sm:hidden" /> Ngọc Phú</span>
             <Heart className="h-4 w-4 fill-[#8B1E22] text-[#8B1E22]" />
             <span>Huỳnh Thị <br className="block sm:hidden" /> Thu Thi</span>
@@ -207,7 +206,7 @@ export default function App() {
               title="Xem danh sách khách đã xác nhận tham dự và tải file Excel (.csv)"
             >
               <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-700" />
-              <span>Dành Cho Cô Dâu & Chú Rể: Sổ Khách Mời & Xuất File Excel</span>
+              <span>Dành Cho Cô Dâu & Chú Rể<br className="sm:hidden" />Sổ Khách Mời & Lời Chúc Tốt Đẹp Từ Người Thân</span>
             </button>
           </div>
         </div>

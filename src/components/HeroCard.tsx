@@ -58,8 +58,8 @@ export const HeroCard: React.FC<HeroCardProps> = ({
 
         {/* Hình 1: Đổi design huy hiệu trái tim lồng chữ P&T đè lên viền cực kỳ sang trọng và nghệ thuật (khớp đúng ảnh mẫu mới gửi) */}
         <div className="text-center mb-8">
-          <div className="relative mx-auto w-32 h-32 sm:w-36 sm:h-36 flex items-center justify-center">
-            {/* SVG Heart Crest matching the uploaded reference image exactly */}
+          <div className="relative mx-auto w-36 h-36 sm:w-40 sm:h-40 flex items-center justify-center">
+            {/* Royal Gold Botanical Laurel Crest SVG (Mẫu thiết kế Huy Hiệu Hoàng Gia mới) */}
             <svg
               viewBox="0 0 200 200"
               className="absolute inset-0 w-full h-full drop-shadow-md select-none"
@@ -69,43 +69,111 @@ export const HeroCard: React.FC<HeroCardProps> = ({
               <defs>
                 <linearGradient id="goldLuxury3" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stopColor="#C5A059" />
-                  <stop offset="40%" stopColor="#F5E6CC" />
-                  <stop offset="70%" stopColor="#9E7632" />
+                  <stop offset="35%" stopColor="#F5E6CC" />
+                  <stop offset="65%" stopColor="#B38738" />
                   <stop offset="100%" stopColor="#D4AF37" />
                 </linearGradient>
-                <linearGradient id="creamHeart3" x1="0%" y1="0%" x2="100%" y2="100%">
+                <radialGradient id="creamCrestBg" cx="50%" cy="50%" r="50%">
                   <stop offset="0%" stopColor="#FFFDF9" />
-                  <stop offset="100%" stopColor="#FAF2E2" />
-                </linearGradient>
+                  <stop offset="70%" stopColor="#FAF4E8" />
+                  <stop offset="100%" stopColor="#F5EADA" />
+                </radialGradient>
               </defs>
 
-              {/* Heart Shape */}
-              <path
-                d="M100 25 C115 10, 142 12, 160 26 C178 40, 187 64, 180 89 C172 116, 146 142, 100 185 C54 142, 28 116, 20 89 C13 64, 22 40, 40 26 C58 12, 85 10, 100 25 Z"
-                fill="url(#creamHeart3)"
+              {/* Circular Medallion Background */}
+              <circle
+                cx="100"
+                cy="100"
+                r="74"
+                fill="url(#creamCrestBg)"
                 stroke="url(#goldLuxury3)"
-                strokeWidth="3.5"
+                strokeWidth="2.5"
               />
-              {/* Inner dashed Heart outline */}
+
+              {/* Inner Beaded Pearl Ring */}
+              <circle
+                cx="100"
+                cy="100"
+                r="67"
+                stroke="url(#goldLuxury3)"
+                strokeWidth="1.2"
+                strokeDasharray="2.5 3.5"
+                opacity="0.85"
+              />
+
+              {/* Fine Inner Accent Ring */}
+              <circle
+                cx="100"
+                cy="100"
+                r="62"
+                stroke="url(#goldLuxury3)"
+                strokeWidth="0.8"
+                opacity="0.5"
+              />
+
+              {/* Botanical Laurel Stems */}
               <path
-                d="M100 37 C112 25, 134 27, 148 39 C162 51, 170 71, 163 92 C156 115, 134 137, 100 171 C66 137, 44 115, 37 92 C30 71, 38 51, 52 39 C66 27, 88 25, 100 37 Z"
-                fill="#FFFDF9"
+                d="M 100 178 C 45 168 30 120 38 80 C 42 60 55 42 75 30"
                 stroke="url(#goldLuxury3)"
                 strokeWidth="1.8"
-                strokeDasharray="4 2"
+                strokeLinecap="round"
               />
-              {/* Top ornaments */}
-              <circle cx="100" cy="20" r="3.5" fill="url(#goldLuxury3)" />
-              <circle cx="89" cy="22" r="2.5" fill="url(#goldLuxury3)" />
-              <circle cx="111" cy="22" r="2.5" fill="url(#goldLuxury3)" />
-              <circle cx="100" cy="191" r="3.5" fill="url(#goldLuxury3)" />
+              <path
+                d="M 100 178 C 155 168 170 120 162 80 C 158 60 145 42 125 30"
+                stroke="url(#goldLuxury3)"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+              />
+
+              {/* Left Laurel Leaves */}
+              <ellipse cx="38" cy="115" rx="7" ry="3.5" transform="rotate(-30 38 115)" fill="url(#goldLuxury3)" />
+              <ellipse cx="40" cy="95" rx="7" ry="3.5" transform="rotate(-45 40 95)" fill="url(#goldLuxury3)" />
+              <ellipse cx="48" cy="75" rx="7" ry="3.5" transform="rotate(-60 48 75)" fill="url(#goldLuxury3)" />
+              <ellipse cx="62" cy="55" rx="7" ry="3.5" transform="rotate(-75 62 55)" fill="url(#goldLuxury3)" />
+              <ellipse cx="80" cy="40" rx="7" ry="3.5" transform="rotate(-85 80 40)" fill="url(#goldLuxury3)" />
+              <ellipse cx="50" cy="138" rx="7" ry="3.5" transform="rotate(-15 50 138)" fill="url(#goldLuxury3)" />
+              <ellipse cx="70" cy="160" rx="7" ry="3.5" transform="rotate(10 70 160)" fill="url(#goldLuxury3)" />
+
+              {/* Right Laurel Leaves */}
+              <ellipse cx="162" cy="115" rx="7" ry="3.5" transform="rotate(30 162 115)" fill="url(#goldLuxury3)" />
+              <ellipse cx="160" cy="95" rx="7" ry="3.5" transform="rotate(45 160 95)" fill="url(#goldLuxury3)" />
+              <ellipse cx="152" cy="75" rx="7" ry="3.5" transform="rotate(60 152 75)" fill="url(#goldLuxury3)" />
+              <ellipse cx="138" cy="55" rx="7" ry="3.5" transform="rotate(75 138 55)" fill="url(#goldLuxury3)" />
+              <ellipse cx="120" cy="40" rx="7" ry="3.5" transform="rotate(85 120 40)" fill="url(#goldLuxury3)" />
+              <ellipse cx="150" cy="138" rx="7" ry="3.5" transform="rotate(15 150 138)" fill="url(#goldLuxury3)" />
+              <ellipse cx="130" cy="160" rx="7" ry="3.5" transform="rotate(-10 130 160)" fill="url(#goldLuxury3)" />
+
+              {/* Top Star & Accent Pearls */}
+              <path
+                d="M100 14 L102.5 22 L111 24.5 L102.5 27 L100 35 L97.5 27 L89 24.5 L97.5 22 Z"
+                fill="url(#goldLuxury3)"
+              />
+              <circle cx="80" cy="27" r="2.2" fill="url(#goldLuxury3)" />
+              <circle cx="120" cy="27" r="2.2" fill="url(#goldLuxury3)" />
+
+              {/* Bottom Decorative Bow */}
+              <circle cx="100" cy="178" r="3.5" fill="url(#goldLuxury3)" />
+              <path
+                d="M92 181 C84 186 78 193 84 195 C90 197 96 188 100 182 C104 188 110 197 116 195 C122 193 116 186 108 181"
+                stroke="url(#goldLuxury3)"
+                strokeWidth="1.5"
+                fill="none"
+              />
             </svg>
 
-            {/* P&T Handwriting monogram overlapping gracefully out of the heart (khớp ảnh) */}
-            <div className="absolute inset-0 flex items-center justify-center pt-2.5">
-              <span className="font-wedding-names text-4xl sm:text-5xl font-bold text-[#8B1E22] select-none tracking-tight drop-shadow-sm scale-110">
-                P T
-              </span>
+            {/* P ♥ T Handwriting Monogram inside the Royal Wreath */}
+            <div className="absolute inset-0 flex items-center justify-center pt-1">
+              <div className="flex items-center justify-center gap-1.5 select-none">
+                <span className="font-wedding-names text-4xl sm:text-5xl font-bold text-[#8B1E22] drop-shadow-xs">
+                  P
+                </span>
+                <span className="text-[#C5A059] text-base sm:text-lg select-none drop-shadow-xs">
+                  ❤
+                </span>
+                <span className="font-wedding-names text-4xl sm:text-5xl font-bold text-[#8B1E22] drop-shadow-xs">
+                  T
+                </span>
+              </div>
             </div>
           </div>
 

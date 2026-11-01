@@ -257,12 +257,13 @@ export const CeremonyDetails: React.FC<CeremonyDetailsProps> = ({ weddingInfo })
           </div>
 
           <div className="mt-5 pt-4 border-t border-[#C5A059]/20 text-center">
-            <p className="text-xs sm:text-sm font-display text-stone-600 italic flex items-center justify-center gap-1.5 leading-relaxed">
+            <p className="text-xs sm:text-sm font-display text-stone-600 italic flex items-center justify-center gap-2 leading-relaxed">
               <Heart className="h-3.5 w-3.5 text-[#8B1E22] fill-[#8B1E22] shrink-0" />
               <span>
                 Sự hiện diện của quý khách<br />
                 là niềm vinh hạnh cho gia đình chúng tôi!
               </span>
+              <Heart className="h-3.5 w-3.5 text-[#8B1E22] fill-[#8B1E22] shrink-0" />
             </p>
           </div>
         </div>
