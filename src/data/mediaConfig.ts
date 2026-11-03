@@ -35,21 +35,24 @@ export function getCandidateUrlsForFile(filename: string): string[] {
   const repoOwner = 'myproject2001-hihi';
   const repoName = 'Wedding-Ngoc-Phu-Thu-Thi';
   const branch = 'main';
+  const verifiedCommit = 'a94a23d';
+
+  const isPng = filename.endsWith('.png');
+  const ext = isPng ? '.png' : '.jpg';
+  const altExt = isPng ? '.jpg' : '.png';
 
   return [
-    `/assets/${baseName}.jpg`,
-    `/assets/${baseName}.png`,
+    `/assets/${baseName}${ext}`,
+    `/assets/${baseName}${altExt}`,
     `/assets/${baseName}.jpeg`,
-    `https://raw.githubusercontent.com/${repoOwner}/${repoName}/${branch}/public/assets/${baseName}.jpg`,
-    `https://raw.githubusercontent.com/${repoOwner}/${repoName}/${branch}/public/assets/${baseName}.png`,
-    `https://raw.githubusercontent.com/${repoOwner}/${repoName}/${branch}/public/assets/${baseName}.jpeg`,
-    `https://cdn.jsdelivr.net/gh/${repoOwner}/${repoName}@${branch}/public/assets/${baseName}.jpg`,
-    `https://cdn.jsdelivr.net/gh/${repoOwner}/${repoName}@${branch}/public/assets/${baseName}.png`,
+    `https://raw.githubusercontent.com/${repoOwner}/${repoName}/${verifiedCommit}/public/assets/${baseName}${ext}`,
+    `https://raw.githubusercontent.com/${repoOwner}/${repoName}/${branch}/public/assets/${baseName}${ext}`,
+    `https://cdn.jsdelivr.net/gh/${repoOwner}/${repoName}@${verifiedCommit}/public/assets/${baseName}${ext}`,
+    `https://cdn.jsdelivr.net/gh/${repoOwner}/${repoName}@${branch}/public/assets/${baseName}${ext}`,
   ];
 }
 
-// 21 khung ảnh cưới sẵn sàng: Hình bìa (anhbia.jpg) lớn ở trên cùng + 20 ảnh chi tiết (anh1 -> anh20)
-// Khi có ảnh trên GitHub hoặc assets sẽ tự động hiện khung, khung nào chưa có ảnh thì ẩn đi
+// 21 khung ảnh cưới chuẩn: Hình bìa (anhbia.jpg) lớn ở trên cùng + 20 ảnh chi tiết (anh1 -> anh20)
 export const initialGalleryPhotos: GalleryPhoto[] = [
   {
     id: 'cover',
@@ -61,7 +64,7 @@ export const initialGalleryPhotos: GalleryPhoto[] = [
   },
   ...Array.from({ length: 20 }, (_, idx) => {
     const num = idx + 1;
-    const filename = `anh${num}.jpg`;
+    const filename = num === 12 ? 'anh12.png' : `anh${num}.jpg`;
     return {
       id: `photo-${num}`,
       filename,
@@ -159,14 +162,20 @@ export function getActiveImages() {
 /**
  * Lấy toàn bộ danh sách ảnh trong Album (mặc định 10 ảnh: anhbia + anh1 -> anh9, hỗ trợ đến 20 ảnh)
  */
+const GALLERY_CACHE_KEY_VERSION = 'wedding_gallery_v4_21photos_sync';
+
 export function getActiveGalleryPhotos(): GalleryPhoto[] {
   if (typeof window !== 'undefined') {
+    const cachedVersion = localStorage.getItem('wedding_gallery_version');
+    if (cachedVersion !== GALLERY_CACHE_KEY_VERSION) {
+      localStorage.removeItem('wedding_custom_gallery');
+      localStorage.setItem('wedding_gallery_version', GALLERY_CACHE_KEY_VERSION);
+    }
     const saved = localStorage.getItem('wedding_custom_gallery');
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          // If stored items have old deleted placeholders or do not have anhbia as the first slot, clear and return default
           const isUpdatedFormat = parsed[0]?.filename === 'anhbia.jpg';
           const hasOldSample = parsed.some(
             (p: { src?: string }) =>
