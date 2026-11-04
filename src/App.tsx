@@ -31,6 +31,10 @@ export default function App() {
   const [isAdminOpen, setIsAdminOpen] = useState<boolean>(false);
   const [toast, setToast] = useState<ToastData | null>(null);
 
+  // Cấu hình tạm ẩn nút Sổ tay khách mời (Dành cho Cô dâu & Chú rể).
+  // Đổi thành true khi cần hiển thị lại nút bấm trên giao diện footer.
+  const SHOW_ADMIN_GUESTBOOK_BUTTON = false;
+
   // Initialize AOS (Animate on Scroll) & ensure page starts firmly at the top
   useEffect(() => {
     if ('scrollRestoration' in window.history) {
@@ -198,17 +202,20 @@ export default function App() {
             đã cùng chia vui trong ngày trọng đại
           </p>
 
-          {/* Discreet Admin Management Link for Bride & Groom */}
-          <div className="pt-4 border-t border-[#C5A059]/25 flex items-center justify-center">
-            <button
-              onClick={() => setIsAdminOpen(true)}
-              className="inline-flex items-center gap-1.5 text-[11px] font-caps tracking-wider text-stone-500 hover:text-[#8B1E22] transition-colors py-1.5 px-3 rounded-lg hover:bg-[#FAF0DC]/60 border border-transparent hover:border-[#C5A059]/30"
-              title="Xem danh sách khách đã xác nhận tham dự và tải file Excel (.csv)"
-            >
-              <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-700" />
-              <span>Dành Cho Cô Dâu & Chú Rể: <br className="sm:hidden" />Sổ Khách Mời & Những Lời Chúc Tốt Đẹp <br className="sm:hidden" />Từ Người Thân</span>
-            </button>
-          </div>
+          {/* Sổ tay khách mời dành cho Cô Dâu & Chú Rể - Tạm thời ẩn theo yêu cầu (đổi thành true khi cần bật lại) */}
+          {/* eslint-disable-next-line @typescript-eslint/no-unnecessary-condition */}
+          {SHOW_ADMIN_GUESTBOOK_BUTTON && (
+            <div className="pt-4 border-t border-[#C5A059]/25 flex items-center justify-center">
+              <button
+                onClick={() => setIsAdminOpen(true)}
+                className="inline-flex items-center gap-1.5 text-[11px] font-caps tracking-wider text-stone-500 hover:text-[#8B1E22] transition-colors py-1.5 px-3 rounded-lg hover:bg-[#FAF0DC]/60 border border-transparent hover:border-[#C5A059]/30"
+                title="Xem danh sách khách đã xác nhận tham dự và tải file Excel (.csv)"
+              >
+                <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-700" />
+                <span>Dành Cho Cô Dâu & Chú Rể: <br className="sm:hidden" />Sổ Khách Mời & Những Lời Chúc Tốt Đẹp <br className="sm:hidden" />Từ Người Thân</span>
+              </button>
+            </div>
+          )}
         </div>
       </footer>
 

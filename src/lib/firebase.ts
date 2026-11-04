@@ -6,7 +6,7 @@ import {
   getDoc,
   getDocFromServer,
   collection,
-  addDoc,
+  setDoc,
   onSnapshot,
   query,
   orderBy,
@@ -127,13 +127,45 @@ export function subscribeToWishes(onWishesUpdate: (wishes: GuestWish[]) => void)
   }
 }
 
+/**
+ * Tạo ID tài liệu Firebase dễ nhìn và dễ nhận biết cho Quản trị viên (Admin).
+ * Định dạng: [TienTo]_[TenKhachKhongDau]_[YYYYMMDD]_[HHmmss]_[Random]
+ * Ví dụ:
+ *  - RSVP_Nguyen_Van_A_20261104_153022_9f2
+ *  - LoiChuc_Tran_Thi_B_20261104_153022_a4b
+ */
+function createReadableDocId(prefix: 'RSVP' | 'LoiChuc', rawName: string): string {
+  const cleanName = (rawName || 'Khach')
+    .trim()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Bỏ dấu tiếng Việt
+    .replace(/[đĐ]/g, (match) => (match === 'đ' ? 'd' : 'D'))
+    .replace(/[^a-zA-Z0-9]/g, '_')   // Chuyển ký tự đặc biệt/khoảng trắng thành dấu gạch dưới
+    .replace(/_+/g, '_')             // Gộp nhiều gạch dưới liên tiếp
+    .replace(/^_+|_+$/g, '')         // Bỏ gạch dưới ở đầu/cuối
+    .slice(0, 30) || 'Khach';
+
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = (now.getMonth() + 1).toString().padStart(2, '0');
+  const day = now.getDate().toString().padStart(2, '0');
+  const hours = now.getHours().toString().padStart(2, '0');
+  const minutes = now.getMinutes().toString().padStart(2, '0');
+  const seconds = now.getSeconds().toString().padStart(2, '0');
+  const randomSuffix = Math.random().toString(36).substring(2, 5);
+
+  return `${prefix}_${cleanName}_${year}${month}${day}_${hours}${minutes}${seconds}_${randomSuffix}`;
+}
+
 export async function submitWishToFirebase(name: string, relation: string, message: string): Promise<string> {
-  const path = 'wishes';
+  const docId = createReadableDocId('LoiChuc', name);
+  const path = `wishes/${docId}`;
   try {
     const now = new Date();
     const formattedDate = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} · ${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}`;
 
-    const docRef = await addDoc(collection(db, path), {
+    const wishRef = doc(db, 'wishes', docId);
+    await setDoc(wishRef, {
       name: name.trim().slice(0, 100),
       relation: relation.trim().slice(0, 100),
       message: message.trim().slice(0, 1000),
@@ -141,7 +173,7 @@ export async function submitWishToFirebase(name: string, relation: string, messa
       createdAt: serverTimestamp(),
       likes: 0,
     });
-    return docRef.id;
+    return docId;
   } catch (error) {
     handleFirestoreError(error, OperationType.CREATE, path);
     throw error;
@@ -172,9 +204,11 @@ export interface RsvpData {
 }
 
 export async function submitRsvpToFirebase(rsvp: RsvpData): Promise<string> {
-  const path = 'rsvps';
+  const docId = createReadableDocId('RSVP', rsvp.name);
+  const path = `rsvps/${docId}`;
   try {
-    const docRef = await addDoc(collection(db, path), {
+    const rsvpRef = doc(db, 'rsvps', docId);
+    await setDoc(rsvpRef, {
       name: rsvp.name.trim().slice(0, 100),
       attending: rsvp.attending,
       guestsCount: Number(rsvp.guestsCount) || 1,
@@ -184,7 +218,7 @@ export async function submitRsvpToFirebase(rsvp: RsvpData): Promise<string> {
       createdAt: serverTimestamp(),
       submittedAt: new Date().toISOString(),
     });
-    return docRef.id;
+    return docId;
   } catch (error) {
     handleFirestoreError(error, OperationType.CREATE, path);
     throw error;
