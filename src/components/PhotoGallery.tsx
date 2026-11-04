@@ -73,8 +73,16 @@ async function resolveWorkingUrl(candidates: string[]): Promise<string | null> {
   return null;
 }
 
+const getInitialPhotos = (): ValidatedPhoto[] => {
+  return getActiveGalleryPhotos().map((p) => ({
+    ...p,
+    resolvedSrc: p.src,
+  }));
+};
+
 export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
-  const [validPhotos, setValidPhotos] = useState<ValidatedPhoto[]>([]);
+  // Initialize with all photos immediately so the album is never empty or delayed
+  const [validPhotos, setValidPhotos] = useState<ValidatedPhoto[]>(getInitialPhotos);
   const [viewMode, setViewMode] = useState<'lookbook' | 'grid'>('grid');
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isGridExpanded, setIsGridExpanded] = useState<boolean>(false);
@@ -145,7 +153,7 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
     return () => observer.disconnect();
   }, []);
 
-  // Validate candidate photos
+  // Gracefully resolve working image candidates in background without ever discarding photo slots
   useEffect(() => {
     let isMounted = true;
     const allSlots = getActiveGalleryPhotos();
@@ -154,19 +162,15 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
       const checkPromises = allSlots.map(async (slot) => {
         const candidates = slot.candidateUrls || getCandidateUrlsForFile(slot.filename);
         const workingUrl = await resolveWorkingUrl(candidates);
-        if (workingUrl) {
-          return {
-            ...slot,
-            resolvedSrc: workingUrl,
-          };
-        }
-        return null;
+        return {
+          ...slot,
+          resolvedSrc: workingUrl || slot.src,
+        };
       });
 
       const results = await Promise.all(checkPromises);
       if (isMounted) {
-        const verified = results.filter((p): p is ValidatedPhoto => p !== null);
-        setValidPhotos(verified);
+        setValidPhotos(results);
       }
     };
 
@@ -182,6 +186,20 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
       window.removeEventListener('wedding_media_updated', handleMediaUpdate);
     };
   }, []);
+
+  const handleImageErrorFallback = (
+    e: React.SyntheticEvent<HTMLImageElement, Event>,
+    candidates?: string[]
+  ) => {
+    const target = e.currentTarget;
+    if (!candidates || candidates.length === 0) return;
+    const currentSrc = target.src;
+    const nextCandidate = candidates.find((c) => !currentSrc.includes(c));
+    if (nextCandidate && target.dataset.lastFallback !== nextCandidate) {
+      target.dataset.lastFallback = nextCandidate;
+      target.src = nextCandidate;
+    }
+  };
 
   const displayedPhotos = validPhotos;
 
@@ -435,6 +453,7 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
               key={currentPhoto.resolvedSrc || currentPhoto.src}
               src={currentPhoto.resolvedSrc || currentPhoto.src}
               alt="Ảnh cưới Ngọc Phú & Thu Thi"
+              onError={(e) => handleImageErrorFallback(e, currentPhoto.candidateUrls)}
               className="relative z-10 max-h-full max-w-full h-auto w-auto object-contain mx-auto rounded-lg sm:rounded-xl shadow-2xl border border-white/10 transition-all duration-700 animate-in fade-in cursor-pointer drop-shadow-2xl"
               onClick={() => setSelectedLightboxIndex(currentIndex)}
               loading="eager"
@@ -562,6 +581,7 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
                     <img
                       src={photo.resolvedSrc || photo.src}
                       alt={`Thumbnail ${idx + 1}`}
+                      onError={(e) => handleImageErrorFallback(e, photo.candidateUrls)}
                       className="w-full h-full object-cover object-center"
                       loading="lazy"
                     />
@@ -612,6 +632,7 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
                     <img
                       src={photo.resolvedSrc || photo.src}
                       alt="Ảnh cưới Phú & Thi"
+                      onError={(e) => handleImageErrorFallback(e, photo.candidateUrls)}
                       className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
                       loading={idx < 3 ? 'eager' : 'lazy'}
                     />
@@ -743,6 +764,12 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
                     displayedPhotos[selectedLightboxIndex].src
                   }
                   alt="Ảnh cưới Phú & Thi"
+                  onError={(e) =>
+                    handleImageErrorFallback(
+                      e,
+                      displayedPhotos[selectedLightboxIndex]?.candidateUrls
+                    )
+                  }
                   className="max-h-[calc(100dvh-170px)] sm:max-h-[calc(100dvh-180px)] max-w-[94vw] sm:max-w-[84vw] w-auto h-auto object-contain rounded-xl sm:rounded-2xl border-2 border-[#C5A059]/70 shadow-2xl transition-all duration-300"
                 />
               </div>
@@ -785,6 +812,7 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = () => {
                       <img
                         src={photo.resolvedSrc || photo.src}
                         alt={`Thumb ${idx + 1}`}
+                        onError={(e) => handleImageErrorFallback(e, photo.candidateUrls)}
                         className="w-full h-full object-cover object-center"
                       />
                     </button>
