@@ -37,10 +37,21 @@ export default function App() {
 
   // Initialize AOS (Animate on Scroll) & ensure page starts firmly at the top
   useEffect(() => {
+    const hash = window.location.hash.toLowerCase();
+    const urlParams = new URLSearchParams(window.location.search);
+    const adminParam = urlParams.get('admin');
+    if (
+      hash === '#admin' ||
+      hash === '#so-khach-moi' ||
+      (adminParam !== null && adminParam.toLowerCase() !== 'false')
+    ) {
+      setIsAdminOpen(true);
+    }
+
     if ('scrollRestoration' in window.history) {
       window.history.scrollRestoration = 'manual';
     }
-    if (window.location.hash) {
+    if (window.location.hash && hash !== '#admin' && hash !== '#so-khach-moi') {
       window.history.replaceState(null, '', window.location.pathname + window.location.search);
     }
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
@@ -73,16 +84,31 @@ export default function App() {
   }, [isEnvelopeOpen]);
 
 
-  // Check URL params for guest name or admin mode
+  // Check URL params & hash for guest name or admin mode (#admin, #so-khach-moi, ?admin=true)
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const guestParam = urlParams.get('guest') || urlParams.get('to');
-    if (guestParam) {
-      setGuestName(guestParam);
-    }
-    if (urlParams.get('admin') !== null || urlParams.get('manage') !== null) {
-      setIsAdminOpen(true);
-    }
+    const checkUrlAccess = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const guestParam = urlParams.get('guest') || urlParams.get('to');
+      if (guestParam) {
+        setGuestName(guestParam);
+      }
+
+      const hash = window.location.hash.toLowerCase();
+      const adminParam = urlParams.get('admin');
+      const manageParam = urlParams.get('manage');
+      if (
+        hash === '#admin' ||
+        hash === '#so-khach-moi' ||
+        (adminParam !== null && adminParam.toLowerCase() !== 'false') ||
+        (manageParam !== null && manageParam.toLowerCase() !== 'false')
+      ) {
+        setIsAdminOpen(true);
+      }
+    };
+
+    checkUrlAccess();
+    window.addEventListener('hashchange', checkUrlAccess);
+    return () => window.removeEventListener('hashchange', checkUrlAccess);
   }, []);
 
   // Listen for media update events (custom images / audio changes)
@@ -193,13 +219,11 @@ export default function App() {
           </div>
 
           <p className="font-display text-sm italic text-stone-700 leading-relaxed">
-            "Sự hiện diện của bạn<br className="sm:hidden" /> là niềm hạnh phúc lớn nhất<br className="sm:hidden" />{" "}
-            của chúng tôi"
-          </p>
-
-          <p className="text-xs font-display text-stone-500 leading-relaxed">
-            Trân trọng cảm ơn quý vị quan khách<br />
-            đã cùng chia vui trong ngày trọng đại
+            Cảm ơn mọi người
+            <br />
+            vì đã trở thành 1 phần quan trọng
+            <br />
+            trong ngày đặc biệt và trọng đại này
           </p>
 
           {/* Sổ tay khách mời dành cho Cô Dâu & Chú Rể - Tạm thời ẩn theo yêu cầu (đổi thành true khi cần bật lại) */}
