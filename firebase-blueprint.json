@@ -9,6 +9,7 @@
         "name": { "type": "string", "maxLength": 100 },
         "relation": { "type": "string", "maxLength": 100 },
         "message": { "type": "string", "maxLength": 1000 },
+        "createdDate": { "type": "string", "maxLength": 50 },
         "createdAt": { "type": "string" },
         "likes": { "type": "number" }
       },
@@ -26,6 +27,7 @@
         "relation": { "type": "string", "maxLength": 100 },
         "note": { "type": "string", "maxLength": 500 },
         "dietary": { "type": "string", "maxLength": 200 },
+        "submittedAt": { "type": "string", "maxLength": 50 },
         "createdAt": { "type": "string" }
       },
       "required": ["name", "attending", "guestsCount"]

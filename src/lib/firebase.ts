@@ -11,6 +11,7 @@ import {
   query,
   orderBy,
   updateDoc,
+  deleteDoc,
   increment,
   serverTimestamp,
 } from 'firebase/firestore';
@@ -246,5 +247,16 @@ export function subscribeToRsvps(onRsvpUpdate: (rsvps: any[]) => void): () => vo
   } catch (error) {
     handleFirestoreError(error, OperationType.LIST, path);
     return () => {};
+  }
+}
+
+export async function deleteRsvpFromFirebase(rsvpId: string): Promise<void> {
+  const path = `rsvps/${rsvpId}`;
+  try {
+    const rsvpRef = doc(db, 'rsvps', rsvpId);
+    await deleteDoc(rsvpRef);
+  } catch (error) {
+    handleFirestoreError(error, OperationType.DELETE, path);
+    throw error;
   }
 }

@@ -6,6 +6,10 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
     function incoming() {
       return request.resource.data;
     }
@@ -21,29 +25,40 @@ service cloud.firestore {
     // Wish validation helper
     function isValidWish(data) {
       return data.keys().hasAll(['name', 'relation', 'message'])
+        && data.keys().hasOnly(['name', 'relation', 'message', 'createdDate', 'createdAt', 'likes'])
         && isValidString(data.name, 1, 100)
         && isValidString(data.relation, 1, 100)
-        && isValidString(data.message, 1, 1000);
+        && isValidString(data.message, 1, 1000)
+        && (!('createdDate' in data) || isValidString(data.createdDate, 0, 50))
+        && (!('likes' in data) || (data.likes is number && data.likes >= 0));
     }
 
     // RSVP validation helper
     function isValidRsvp(data) {
       return data.keys().hasAll(['name', 'attending', 'guestsCount'])
+        && data.keys().hasOnly(['name', 'attending', 'guestsCount', 'relation', 'note', 'dietary', 'createdAt', 'submittedAt'])
         && isValidString(data.name, 1, 100)
         && data.attending is bool
-        && data.guestsCount is number && data.guestsCount >= 1 && data.guestsCount <= 20;
+        && data.guestsCount is number && data.guestsCount >= 1 && data.guestsCount <= 20
+        && (!('relation' in data) || isValidString(data.relation, 0, 100))
+        && (!('note' in data) || isValidString(data.note, 0, 500))
+        && (!('dietary' in data) || isValidString(data.dietary, 0, 200))
+        && (!('submittedAt' in data) || isValidString(data.submittedAt, 0, 50));
     }
 
     // Connection test document
     match /test/{docId} {
-      allow read: if true;
+      allow get: if isValidId(docId);
     }
 
     // Wishes collection: public wedding guestbook
     match /wishes/{wishId} {
-      allow read: if true;
-      allow create: if isValidWish(incoming());
-      allow update: if incoming().diff(existing()).affectedKeys().hasOnly(['likes'])
+      allow get: if isValidId(wishId);
+      allow list: if true;
+      allow create: if isValidId(wishId) && isValidWish(incoming());
+      allow update: if isValidId(wishId)
+                    && isValidWish(incoming())
+                    && incoming().diff(existing()).affectedKeys().hasOnly(['likes'])
                     && incoming().likes is number
                     && incoming().likes == existing().likes + 1;
       allow delete: if false;
@@ -51,9 +66,11 @@ service cloud.firestore {
 
     // RSVPs collection: wedding guest confirmation
     match /rsvps/{rsvpId} {
-      allow create: if isValidRsvp(incoming());
-      allow read: if true;
-      allow update, delete: if false;
+      allow get: if isValidId(rsvpId);
+      allow list: if true;
+      allow create: if isValidId(rsvpId) && isValidRsvp(incoming());
+      allow update: if false;
+      allow delete: if isValidId(rsvpId);
     }
   }
 }

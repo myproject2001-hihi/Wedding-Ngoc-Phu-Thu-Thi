@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   X,
   FileSpreadsheet,
@@ -6,14 +6,19 @@ import {
   UserCheck,
   UserX,
   Search,
-  Download,
   CheckCircle2,
   Database,
+  AlertTriangle,
+  Trash2,
+  Loader2,
 } from 'lucide-react';
 import { RsvpData } from '../types';
-import { exportRsvpsToExcelCsv } from '../utils/excelExport';
-import { loadAllGuestRsvps, getInitialGuestRsvps } from '../utils/guestStorage';
-import { subscribeToRsvps } from '../lib/firebase';
+import {
+  loadAllGuestRsvps,
+  getInitialGuestRsvps,
+  deleteGuestRsvp,
+} from '../utils/guestStorage';
+import { subscribeToRsvps, deleteRsvpFromFirebase } from '../lib/firebase';
 
 interface AdminGuestModalProps {
   isOpen: boolean;
@@ -24,40 +29,54 @@ export const AdminGuestModal: React.FC<AdminGuestModalProps> = ({ isOpen, onClos
   const [rsvps, setRsvps] = useState<RsvpData[]>(() => getInitialGuestRsvps());
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'yes' | 'no'>('all');
+  const [guestToDelete, setGuestToDelete] = useState<RsvpData | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteNotice, setDeleteNotice] = useState<string | null>(null);
+  const hasCloudSnapshotRef = useRef(false);
 
-  // Load RSVPs from high-capacity storage & Cloud Firebase Firestore
+  // Load RSVPs from local storage (fallback before cloud responds)
   const refreshRsvps = async () => {
+    if (hasCloudSnapshotRef.current) return;
     try {
       const data = await loadAllGuestRsvps();
-      setRsvps(data);
+      if (!hasCloudSnapshotRef.current) {
+        setRsvps(data);
+      }
     } catch {
-      setRsvps(getInitialGuestRsvps());
+      if (!hasCloudSnapshotRef.current) {
+        setRsvps(getInitialGuestRsvps());
+      }
     }
   };
 
   useEffect(() => {
     if (isOpen) {
+      hasCloudSnapshotRef.current = false;
       refreshRsvps();
       // Listen to real-time RSVPs from Firebase
       const unsubscribe = subscribeToRsvps((cloudRsvps) => {
-        if (cloudRsvps && cloudRsvps.length > 0) {
-          const formatted: RsvpData[] = cloudRsvps.map((c) => ({
-            id: c.id,
-            name: c.name || 'Khách mời',
-            relationship: c.relation || 'Khách mời',
-            attending: (c.attending ? 'yes' : 'no') as 'yes' | 'no',
-            guestCount: c.guestsCount || 1,
-            wishes: c.note || '',
-            submittedAt: c.submittedAt ? new Date(c.submittedAt).toLocaleString('vi-VN') : 'Vừa xong',
-          }));
-          setRsvps(formatted);
-        }
+        hasCloudSnapshotRef.current = true;
+        const formatted: RsvpData[] = (cloudRsvps || []).map((c) => ({
+          id: c.id,
+          name: c.name || 'Khách mời',
+          relationship: c.relation || 'Khách mời',
+          attending: (c.attending ? 'yes' : 'no') as 'yes' | 'no',
+          guestCount: c.guestsCount || 1,
+          wishes: c.note || '',
+          submittedAt: c.submittedAt ? new Date(c.submittedAt).toLocaleString('vi-VN') : 'Vừa xong',
+        }));
+        setRsvps(formatted);
       });
       return () => unsubscribe();
+    } else {
+      setGuestToDelete(null);
+      setDeleteError(null);
+      setDeleteNotice(null);
     }
   }, [isOpen]);
 
-  // Listen for real-time updates when a guest confirms in RsvpModal
+  // Listen for local updates when a guest confirms in RsvpModal (offline fallback)
   useEffect(() => {
     const handleUpdate = () => {
       refreshRsvps();
@@ -70,6 +89,60 @@ export const AdminGuestModal: React.FC<AdminGuestModalProps> = ({ isOpen, onClos
       window.removeEventListener('storage', handleUpdate);
     };
   }, []);
+
+  // Auto-dismiss success notice
+  useEffect(() => {
+    if (!deleteNotice) return;
+    const timer = setTimeout(() => setDeleteNotice(null), 3500);
+    return () => clearTimeout(timer);
+  }, [deleteNotice]);
+
+  // Allow closing confirmation modal with Escape key
+  useEffect(() => {
+    if (!guestToDelete) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !isDeleting) {
+        setGuestToDelete(null);
+        setDeleteError(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [guestToDelete, isDeleting]);
+
+  const handleRequestDelete = (guest: RsvpData) => {
+    setDeleteError(null);
+    setGuestToDelete(guest);
+  };
+
+  const handleCancelDelete = () => {
+    if (isDeleting) return;
+    setGuestToDelete(null);
+    setDeleteError(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!guestToDelete || isDeleting) return;
+    setIsDeleting(true);
+    setDeleteError(null);
+
+    const target = guestToDelete;
+    try {
+      // 1. Delete from Cloud Firestore
+      await deleteRsvpFromFirebase(target.id);
+      // 2. Clean up any matching local copy (IndexedDB + localStorage)
+      await deleteGuestRsvp(target.id, target.name);
+      // 3. Optimistically update UI immediately
+      setRsvps((prev) => prev.filter((item) => item.id !== target.id));
+      setGuestToDelete(null);
+      setDeleteNotice(`Đã xóa khách mời "${target.name}" khỏi danh sách.`);
+    } catch (err) {
+      console.error('Failed to delete guest RSVP:', err);
+      setDeleteError('Không thể xóa khách mời lúc này. Vui lòng kiểm tra kết nối mạng và thử lại.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -125,8 +198,26 @@ export const AdminGuestModal: React.FC<AdminGuestModalProps> = ({ isOpen, onClos
           </button>
         </div>
 
-        {/* Content Body: Direct RSVP & Excel export, no tabs */}
+        {/* Content Body */}
         <div className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 sm:space-y-6">
+          {/* Deletion Success Banner */}
+          {deleteNotice && (
+            <div className="flex items-center justify-between gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-xs sm:text-sm text-emerald-800 shadow-2xs">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-emerald-700 shrink-0" />
+                <span className="font-medium">{deleteNotice}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDeleteNotice(null)}
+                className="p-1 text-emerald-700 hover:bg-emerald-100 rounded-full transition-colors cursor-pointer"
+                aria-label="Đóng thông báo"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )}
+
           {/* Quick Stat Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
             <div className="rounded-xl border border-stone-200 bg-white p-3 sm:p-4 shadow-2xs">
@@ -166,7 +257,7 @@ export const AdminGuestModal: React.FC<AdminGuestModalProps> = ({ isOpen, onClos
             </div>
           </div>
 
-          {/* Action Bar: Search, Filter, Export Button */}
+          {/* Action Bar: Search & Filter */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-3 rounded-xl border border-stone-200 shadow-2xs">
             <div className="flex flex-1 items-center gap-2">
               <div className="relative flex-1">
@@ -204,12 +295,13 @@ export const AdminGuestModal: React.FC<AdminGuestModalProps> = ({ isOpen, onClos
                     <th className="py-3 px-4 text-center">Số Người</th>
                     <th className="py-3 px-4">Thời Gian</th>
                     <th className="py-3 px-4">Lời Chúc Mừng</th>
+                    <th className="py-3 px-3 text-center w-14">Xóa</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100">
                   {filteredRsvps.length > 0 ? (
                     filteredRsvps.map((item, index) => (
-                      <tr key={index} className="hover:bg-stone-50/80 transition-colors">
+                      <tr key={item.id || index} className="hover:bg-stone-50/80 transition-colors">
                         <td className="py-3 px-4 font-bold text-stone-900">{item.name}</td>
                         <td className="py-3 px-4 text-stone-600">{item.relationship || '—'}</td>
                         <td className="py-3 px-4">
@@ -231,11 +323,22 @@ export const AdminGuestModal: React.FC<AdminGuestModalProps> = ({ isOpen, onClos
                         <td className="py-3 px-4 text-stone-600 max-w-xs truncate italic">
                           {item.wishes ? `"${item.wishes}"` : '—'}
                         </td>
+                        <td className="py-3 px-3 text-center">
+                          <button
+                            type="button"
+                            onClick={() => handleRequestDelete(item)}
+                            className="inline-flex items-center justify-center h-7 w-7 rounded-full text-stone-400 hover:text-red-700 hover:bg-red-50 border border-transparent hover:border-red-200 transition-colors cursor-pointer"
+                            title={`Xóa khách mời ${item.name}`}
+                            aria-label={`Xóa khách mời ${item.name}`}
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={6} className="py-8 text-center text-stone-500">
+                      <td colSpan={7} className="py-8 text-center text-stone-500">
                         Không tìm thấy phản hồi nào phù hợp.
                       </td>
                     </tr>
@@ -248,18 +351,29 @@ export const AdminGuestModal: React.FC<AdminGuestModalProps> = ({ isOpen, onClos
             <div className="md:hidden divide-y divide-stone-100">
               {filteredRsvps.length > 0 ? (
                 filteredRsvps.map((item, index) => (
-                  <div key={index} className="p-3.5 space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <div className="font-bold text-stone-900">{item.name}</div>
-                      {item.attending === 'yes' ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
-                          Tham dự ({item.guestCount})
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center rounded-full bg-stone-100 px-2 py-0.5 text-[10px] text-stone-600">
-                          Vắng mặt
-                        </span>
-                      )}
+                  <div key={item.id || index} className="p-3.5 space-y-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="font-bold text-stone-900 truncate">{item.name}</div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {item.attending === 'yes' ? (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
+                            Tham dự ({item.guestCount})
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center rounded-full bg-stone-100 px-2 py-0.5 text-[10px] text-stone-600">
+                            Vắng mặt
+                          </span>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleRequestDelete(item)}
+                          className="inline-flex items-center justify-center h-7 w-7 rounded-full text-stone-400 hover:text-red-700 hover:bg-red-50 border border-transparent hover:border-red-200 transition-colors cursor-pointer"
+                          title={`Xóa khách mời ${item.name}`}
+                          aria-label={`Xóa khách mời ${item.name}`}
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
                     <div className="text-xs text-stone-600 flex items-center justify-between">
                       <span>{item.relationship || 'Người thân'}</span>
@@ -281,6 +395,118 @@ export const AdminGuestModal: React.FC<AdminGuestModalProps> = ({ isOpen, onClos
           </div>
         </div>
       </div>
+
+      {/* Confirmation Dialog for Deleting a Guest */}
+      {guestToDelete && (
+        <div
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="confirm-delete-guest-title"
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/55 backdrop-blur-[2px] animate-in fade-in duration-150"
+          onClick={handleCancelDelete}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-[#FFFDF9] border border-[#C5A059] shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Dialog Header */}
+            <div className="bg-[#FAF4E6] border-b border-[#C5A059]/40 px-5 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-red-100 text-[#8B1E22] shrink-0">
+                  <AlertTriangle className="h-5 w-5" />
+                </div>
+                <h4
+                  id="confirm-delete-guest-title"
+                  className="font-serif text-base sm:text-lg font-bold text-[#8B1E22]"
+                >
+                  Xác Nhận Xóa Khách Mời
+                </h4>
+              </div>
+              <button
+                type="button"
+                onClick={handleCancelDelete}
+                disabled={isDeleting}
+                className="rounded-full p-1.5 text-stone-400 hover:bg-[#FAF0DC] hover:text-stone-700 transition-colors disabled:opacity-40 cursor-pointer"
+                aria-label="Đóng bảng xác nhận"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Dialog Body */}
+            <div className="p-5 space-y-4">
+              <p className="text-sm text-stone-700 leading-relaxed">
+                Bạn có chắc chắn muốn xóa khách mời{' '}
+                <strong className="text-stone-900">{guestToDelete.name}</strong> khỏi sổ quản lý không?
+              </p>
+
+              {/* Guest Info Summary Box */}
+              <div className="rounded-xl bg-[#FAF6EE] border border-[#C5A059]/35 p-3.5 text-xs space-y-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-stone-500">Mối quan hệ:</span>
+                  <span className="font-semibold text-stone-800">
+                    {guestToDelete.relationship || 'Khách mời'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-stone-500">Trạng thái:</span>
+                  <span className="font-semibold text-stone-800">
+                    {guestToDelete.attending === 'yes'
+                      ? `Tham dự (${guestToDelete.guestCount} người)`
+                      : 'Vắng mặt'}
+                  </span>
+                </div>
+                {guestToDelete.wishes && (
+                  <div className="pt-1.5 mt-1 border-t border-[#C5A059]/25 text-stone-600 italic">
+                    "{guestToDelete.wishes}"
+                  </div>
+                )}
+              </div>
+
+              <p className="text-xs text-stone-500">
+                Dữ liệu của khách mời này sẽ bị xóa vĩnh viễn khỏi hệ thống và không thể khôi phục lại.
+              </p>
+
+              {deleteError && (
+                <div className="rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-xs text-red-700">
+                  {deleteError}
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-end gap-2.5 pt-2">
+                <button
+                  type="button"
+                  onClick={handleCancelDelete}
+                  disabled={isDeleting}
+                  className="px-4 py-2 rounded-xl border border-stone-300 bg-white text-stone-700 hover:bg-stone-50 text-xs sm:text-sm font-semibold transition-colors disabled:opacity-50 cursor-pointer"
+                >
+                  Hủy bỏ
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmDelete}
+                  disabled={isDeleting}
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#8B1E22] hover:bg-[#6E1418] text-[#FAF4E6] text-xs sm:text-sm font-semibold shadow-xs transition-colors disabled:opacity-60 cursor-pointer"
+                >
+                  {isDeleting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Đang xóa...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="h-4 w-4" />
+                      Xác nhận xóa
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+

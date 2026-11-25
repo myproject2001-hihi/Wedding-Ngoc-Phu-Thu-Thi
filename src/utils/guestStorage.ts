@@ -151,3 +151,45 @@ export async function saveGuestRsvp(rsvp: RsvpData): Promise<RsvpData[]> {
 
   return loadAllGuestRsvps();
 }
+
+/**
+ * Delete a guest RSVP from both localStorage and IndexedDB
+ */
+export async function deleteGuestRsvp(id: string, fallbackName?: string): Promise<RsvpData[]> {
+  // 1. Remove from localStorage
+  try {
+    const existing = getInitialGuestRsvps();
+    const updated = existing.filter((item) => {
+      if (item.id === id) return false;
+      if (fallbackName && item.name === fallbackName && id.startsWith('RSVP_')) return false;
+      return true;
+    });
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+  } catch (err) {
+    console.warn('localStorage delete failed:', err);
+  }
+
+  // 2. Remove from IndexedDB
+  try {
+    const db = await openDB();
+    await new Promise<void>((resolve, reject) => {
+      const transaction = db.transaction(STORE_NAME, 'readwrite');
+      const store = transaction.objectStore(STORE_NAME);
+      const request = store.delete(id);
+
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  } catch (err) {
+    console.error('Error deleting from IndexedDB:', err);
+  }
+
+  // Notify listeners
+  try {
+    window.dispatchEvent(new CustomEvent('wedding_rsvp_updated', { detail: { deletedId: id } }));
+  } catch {
+    // ignore
+  }
+
+  return loadAllGuestRsvps();
+}
