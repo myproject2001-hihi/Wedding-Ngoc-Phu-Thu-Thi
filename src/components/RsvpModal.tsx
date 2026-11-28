@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, CheckCircle, Users, User, Heart, MessageSquare, Sparkles } from 'lucide-react';
 import { triggerFireworks } from '../utils/fireworks';
 import { saveGuestRsvp } from '../utils/guestStorage';
 import { RsvpData } from '../types';
 import { submitRsvpToFirebase, submitWishToFirebase } from '../lib/firebase';
+import { isTestMode } from '../utils/testMode';
 
 interface RsvpModalProps {
   isOpen: boolean;
   onClose: () => void;
   defaultGuestName?: string;
+  prefillName?: string;
+  prefillRelation?: string;
   weddingDateFormatted: string;
   onSubmitted?: (guest: { name: string; attending: 'yes' | 'no'; guestCount: number }) => void;
 }
@@ -17,6 +20,8 @@ export const RsvpModal: React.FC<RsvpModalProps> = ({
   isOpen,
   onClose,
   defaultGuestName = '',
+  prefillName = '',
+  prefillRelation = '',
   weddingDateFormatted,
   onSubmitted,
 }) => {
@@ -26,6 +31,19 @@ export const RsvpModal: React.FC<RsvpModalProps> = ({
   const [attending, setAttending] = useState<'yes' | 'no'>('yes');
   const [guestCount, setGuestCount] = useState<number>(1);
   const [wishes, setWishes] = useState('');
+
+  // Auto-fill name & relationship when arriving from WishingWell thank-you dialog
+  useEffect(() => {
+    if (isOpen) {
+      if (prefillName && prefillName.trim()) {
+        setName(prefillName.trim());
+        setNameError('');
+      }
+      if (prefillRelation && prefillRelation.trim()) {
+        setRelationship(prefillRelation.trim());
+      }
+    }
+  }, [isOpen, prefillName, prefillRelation]);
 
   if (!isOpen) return null;
 
@@ -48,31 +66,33 @@ export const RsvpModal: React.FC<RsvpModalProps> = ({
       submittedAt: new Date().toLocaleString('vi-VN'),
     };
 
-    // Save to high-capacity persistent storage (IndexedDB + localStorage, supporting 1000+ guests)
-    saveGuestRsvp(rsvpItem);
+    if (!isTestMode()) {
+      // Save to high-capacity persistent storage (IndexedDB + localStorage, supporting 1000+ guests)
+      saveGuestRsvp(rsvpItem);
 
-    // Sync to Cloud Firebase Firestore
-    submitRsvpToFirebase({
-      name: guestNameValue,
-      attending: attending === 'yes',
-      guestsCount: attending === 'yes' ? guestCount : 1,
-      relation: relationship,
-      note: wishes.trim(),
-    }).catch(() => {});
-
-    // Also push to wishes if wishes provided
-    if (wishes.trim()) {
-      submitWishToFirebase(guestNameValue, relationship, wishes.trim()).catch(() => {});
-      const existingWishes = JSON.parse(localStorage.getItem('wedding_wishes') || '[]');
-      existingWishes.unshift({
-        id: 'wish-' + Date.now(),
+      // Sync to Cloud Firebase Firestore
+      submitRsvpToFirebase({
         name: guestNameValue,
+        attending: attending === 'yes',
+        guestsCount: attending === 'yes' ? guestCount : 1,
         relation: relationship,
-        message: wishes.trim(),
-        createdAt: 'Vừa xong',
-        likes: 0,
-      });
-      localStorage.setItem('wedding_wishes', JSON.stringify(existingWishes));
+        note: wishes.trim(),
+      }).catch(() => {});
+
+      // Also push to wishes if wishes provided
+      if (wishes.trim()) {
+        submitWishToFirebase(guestNameValue, relationship, wishes.trim()).catch(() => {});
+        const existingWishes = JSON.parse(localStorage.getItem('wedding_wishes') || '[]');
+        existingWishes.unshift({
+          id: 'wish-' + Date.now(),
+          name: guestNameValue,
+          relation: relationship,
+          message: wishes.trim(),
+          createdAt: 'Vừa xong',
+          likes: 0,
+        });
+        localStorage.setItem('wedding_wishes', JSON.stringify(existingWishes));
+      }
     }
 
     // Trigger celebratory fireworks effect across the screen

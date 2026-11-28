@@ -1,11 +1,24 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, MessageCircle, User, CheckCircle, Sparkles, Check, ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  Send,
+  MessageCircle,
+  User,
+  CheckCircle,
+  Sparkles,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Heart,
+  X,
+  PartyPopper,
+} from 'lucide-react';
 import { GuestWish } from '../types';
-import { initialWishes, quickWishesPresets } from '../data/weddingData';
-import { subscribeToWishes, submitWishToFirebase, likeWishInFirebase } from '../lib/firebase';
+import { subscribeToWishes, submitWishToFirebase } from '../lib/firebase';
+import { triggerFireworks } from '../utils/fireworks';
+import { isTestMode } from '../utils/testMode';
 
 interface WishingWellProps {
-  onOpenRsvp?: () => void;
+  onOpenRsvp?: (prefill?: { name?: string; relation?: string }) => void;
 }
 
 export const WishingWell: React.FC<WishingWellProps> = ({ onOpenRsvp }) => {
@@ -37,6 +50,10 @@ export const WishingWell: React.FC<WishingWellProps> = ({ onOpenRsvp }) => {
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [thankYouModal, setThankYouModal] = useState<{
+    name: string;
+    relation: string;
+  } | null>(null);
 
   // Subscribe to real-time Firestore guestbook updates
   useEffect(() => {
@@ -53,34 +70,67 @@ export const WishingWell: React.FC<WishingWellProps> = ({ onOpenRsvp }) => {
     localStorage.setItem('wedding_wishes', JSON.stringify(wishes));
   }, [wishes]);
 
+  // Allow closing thank-you modal with Escape key
+  useEffect(() => {
+    if (!thankYouModal) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setThankYouModal(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [thankYouModal]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !message.trim()) return;
+    if (!name.trim() || !message.trim() || isSubmitting) return;
 
     const trimmedName = name.trim();
     const trimmedMessage = message.trim();
+    const selectedRelation = relation;
     setIsSubmitting(true);
 
     try {
-      await submitWishToFirebase(trimmedName, relation, trimmedMessage);
+      if (!isTestMode()) {
+        await submitWishToFirebase(trimmedName, selectedRelation, trimmedMessage);
+      }
     } catch {
-      // Local fallback in case offline
-      const newWish: GuestWish = {
-        id: `wish-${Date.now()}`,
-        name: trimmedName,
-        relation,
-        message: trimmedMessage,
-        createdAt: 'Vừa xong',
-        likes: 0,
-      };
-      setWishes((prev) => [newWish, ...prev]);
+      if (!isTestMode()) {
+        // Local fallback in case offline
+        const newWish: GuestWish = {
+          id: `wish-${Date.now()}`,
+          name: trimmedName,
+          relation: selectedRelation,
+          message: trimmedMessage,
+          createdAt: 'Vừa xong',
+          likes: 0,
+        };
+        setWishes((prev) => [newWish, ...prev]);
+      }
     } finally {
       setIsSubmitting(false);
       setName('');
       setMessage('');
       setIsSubmitted(true);
+      setThankYouModal({ name: trimmedName, relation: selectedRelation });
       setTimeout(() => setIsSubmitted(false), 4000);
     }
+  };
+
+  const handleGoToRsvp = () => {
+    if (!thankYouModal) return;
+    const prefill = {
+      name: thankYouModal.name,
+      relation: thankYouModal.relation,
+    };
+    setThankYouModal(null);
+    onOpenRsvp?.(prefill);
+  };
+
+  const handleAlreadyConfirmed = () => {
+    setThankYouModal(null);
+    triggerFireworks(4500);
   };
 
   return (
@@ -300,10 +350,11 @@ export const WishingWell: React.FC<WishingWellProps> = ({ onOpenRsvp }) => {
 
             <button
               type="submit"
-              className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-[#8B1E22] py-2.5 px-4 text-xs sm:text-sm font-display font-semibold uppercase tracking-wider text-[#FAF4E6] shadow-sm hover:bg-[#6E1418] transition-colors"
+              disabled={isSubmitting}
+              className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-[#8B1E22] py-2.5 px-4 text-xs sm:text-sm font-display font-semibold uppercase tracking-wider text-[#FAF4E6] shadow-sm hover:bg-[#6E1418] transition-colors disabled:opacity-60 cursor-pointer"
             >
               <Send className="h-4 w-4" />
-              <span>Gửi Lời Chúc Phúc</span>
+              <span>{isSubmitting ? 'Đang Gửi Lời Chúc...' : 'Gửi Lời Chúc Phúc'}</span>
             </button>
 
             {isSubmitted && (
@@ -316,8 +367,14 @@ export const WishingWell: React.FC<WishingWellProps> = ({ onOpenRsvp }) => {
             <div className="pt-4 mt-2 border-t border-[#C5A059]/30">
               <button
                 type="button"
-                onClick={onOpenRsvp}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-lg border-2 border-[#8B1E22] bg-[#FAF4E6] py-2.5 px-4 text-xs sm:text-sm font-display font-bold uppercase tracking-wider text-[#8B1E22] hover:bg-[#8B1E22] hover:text-[#FAF4E6] shadow-xs transition-all duration-300"
+                onClick={() =>
+                  onOpenRsvp?.(
+                    name.trim()
+                      ? { name: name.trim(), relation }
+                      : undefined
+                  )
+                }
+                className="w-full inline-flex items-center justify-center gap-2 rounded-lg border-2 border-[#8B1E22] bg-[#FAF4E6] py-2.5 px-4 text-xs sm:text-sm font-display font-bold uppercase tracking-wider text-[#8B1E22] hover:bg-[#8B1E22] hover:text-[#FAF4E6] shadow-xs transition-all duration-300 cursor-pointer"
               >
                 <CheckCircle className="h-4 w-4" />
                 <span>Xác Nhận Tham Dự</span>
@@ -384,6 +441,80 @@ export const WishingWell: React.FC<WishingWellProps> = ({ onOpenRsvp }) => {
         </div>
       </div>
       </div>
+
+      {/* Thank-You Modal from Bride & Groom after Sending a Wish */}
+      {thankYouModal && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="wish-thankyou-title"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-xs animate-in fade-in duration-200"
+          onClick={() => setThankYouModal(null)}
+        >
+          <div
+            className="relative w-full max-w-md rounded-2xl sm:rounded-3xl bg-[#FFFDF9] border border-[#C5A059] shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="relative bg-[#FAF4E6] border-b border-[#C5A059]/40 px-6 pt-6 pb-5 text-center">
+              <button
+                type="button"
+                onClick={() => setThankYouModal(null)}
+                className="absolute top-3.5 right-3.5 rounded-full p-1.5 text-stone-400 hover:bg-[#FAF0DC] hover:text-[#8B1E22] transition-colors cursor-pointer"
+                aria-label="Đóng thông báo cảm ơn"
+              >
+                <X className="h-4 w-4" />
+              </button>
+
+              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#8B1E22] text-[#FAF4E6] shadow-md ring-4 ring-[#C5A059]/30">
+                <Heart className="h-6 w-6 fill-[#FAF4E6]" />
+              </div>
+
+              <p className="text-[10px] sm:text-[11px] font-caps uppercase tracking-[0.25em] text-[#8B1E22] font-bold">
+                Lời Cảm Ơn Từ Cô Dâu &amp; Chú Rể
+              </p>
+              <h3
+                id="wish-thankyou-title"
+                className="mt-1.5 font-display text-xl sm:text-2xl font-bold text-stone-900"
+              >
+                Cảm Ơn {thankYouModal.name}!
+              </h3>
+            </div>
+
+            {/* Body */}
+            <div className="p-6 text-center space-y-4">
+              <p className="text-sm font-display text-stone-700 leading-relaxed">
+                <strong className="text-[#8B1E22]">Ngọc Phú &amp; Thu Thi</strong> chân thành cảm ơn lời chúc phúc ấm áp của bạn. Lời chúc đã được lưu giữ trân trọng trong sổ lưu bút ngày cưới!
+              </p>
+
+              <div className="rounded-xl bg-[#FAF5E8] border border-[#C5A059]/40 px-4 py-3 text-xs sm:text-sm font-display text-stone-700 leading-relaxed">
+                Bạn đừng quên gửi <strong className="text-[#8B1E22]">xác nhận tham dự</strong> để gia đình chúng mình chuẩn bị đón tiếp bạn thật chu đáo nhé!
+              </div>
+
+              {/* 2 Action Buttons */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2">
+                <button
+                  type="button"
+                  onClick={handleGoToRsvp}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#8B1E22] py-3 px-4 text-xs sm:text-sm font-caps font-bold uppercase tracking-wider text-[#FAF4E6] shadow-md hover:bg-[#6E1418] active:scale-[0.98] transition-all cursor-pointer"
+                >
+                  <CheckCircle className="h-4 w-4 text-[#FFD700] shrink-0" />
+                  <span>Xác Nhận</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleAlreadyConfirmed}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-[#8B1E22] bg-[#FAF4E6] py-3 px-4 text-xs sm:text-sm font-caps font-bold uppercase tracking-wider text-[#8B1E22] hover:bg-[#FAF0DC] active:scale-[0.98] transition-all cursor-pointer"
+                >
+                  <PartyPopper className="h-4 w-4 shrink-0" />
+                  <span>Đã Xác Nhận</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

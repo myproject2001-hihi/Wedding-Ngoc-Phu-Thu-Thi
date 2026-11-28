@@ -21,15 +21,28 @@ import { ToastNotification, ToastData } from './components/ToastNotification';
 import { FloatingMusicPlayer } from './components/FloatingMusicPlayer';
 import { ScrollToTop } from './components/ScrollToTop';
 import { PetalsCanvas } from './components/PetalsCanvas';
-import { Heart, FileSpreadsheet } from 'lucide-react';
+import { Heart, FileSpreadsheet, FlaskConical } from 'lucide-react';
+import { isTestMode } from './utils/testMode';
 
 export default function App() {
   const [weddingInfo] = useState<WeddingInfo>(initialWeddingInfo);
   const [guestName, setGuestName] = useState<string>('Quý Khách & Gia Đình');
   const [isEnvelopeOpen, setIsEnvelopeOpen] = useState<boolean>(false);
   const [isRsvpOpen, setIsRsvpOpen] = useState<boolean>(false);
+  const [rsvpPrefill, setRsvpPrefill] = useState<{ name?: string; relation?: string } | null>(null);
   const [isAdminOpen, setIsAdminOpen] = useState<boolean>(false);
   const [toast, setToast] = useState<ToastData | null>(null);
+  const [testModeActive, setTestModeActive] = useState<boolean>(() => isTestMode());
+
+  const handleOpenRsvp = (prefill?: { name?: string; relation?: string }) => {
+    setRsvpPrefill(prefill ?? null);
+    setIsRsvpOpen(true);
+  };
+
+  const handleCloseRsvp = () => {
+    setIsRsvpOpen(false);
+    setRsvpPrefill(null);
+  };
 
   // Cấu hình tạm ẩn nút Sổ tay khách mời (Dành cho Cô dâu & Chú rể).
   // Đổi thành true khi cần hiển thị lại nút bấm trên giao diện footer.
@@ -51,7 +64,7 @@ export default function App() {
     if ('scrollRestoration' in window.history) {
       window.history.scrollRestoration = 'manual';
     }
-    if (window.location.hash && hash !== '#admin' && hash !== '#so-khach-moi') {
+    if (window.location.hash && hash !== '#admin' && hash !== '#so-khach-moi' && hash !== '#test') {
       window.history.replaceState(null, '', window.location.pathname + window.location.search);
     }
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
@@ -104,6 +117,7 @@ export default function App() {
       ) {
         setIsAdminOpen(true);
       }
+      setTestModeActive(isTestMode());
     };
 
     checkUrlAccess();
@@ -143,6 +157,14 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#FAF6EE] text-[#2D2319] selection:bg-[#8B1E22] selection:text-[#FAF6EE] relative font-display">
+      {/* Subtle banner visible ONLY when ?test=true or #test is in the URL */}
+      {testModeActive && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[70] flex items-center gap-2 rounded-full bg-amber-950/90 text-amber-100 border border-amber-400/60 px-4 py-1.5 text-xs font-sans shadow-lg backdrop-blur-xs pointer-events-none">
+          <FlaskConical className="h-3.5 w-3.5 text-amber-300 shrink-0" />
+          <span>Chế độ Test — Không lưu dữ liệu lên Firebase</span>
+        </div>
+      )}
+
       {/* Toast Notification at top-right corner */}
       <ToastNotification toast={toast} onClose={() => setToast(null)} />
 
@@ -159,7 +181,7 @@ export default function App() {
       <TopBar
         groomName={weddingInfo.groomName}
         brideName={weddingInfo.brideName}
-        onOpenRsvp={() => setIsRsvpOpen(true)}
+        onOpenRsvp={() => handleOpenRsvp()}
       />
 
       <main className="relative z-10">
@@ -191,7 +213,7 @@ export default function App() {
           <HeroCard
             weddingInfo={weddingInfo}
             guestName={guestName}
-            onOpenRsvp={() => setIsRsvpOpen(true)}
+            onOpenRsvp={() => handleOpenRsvp()}
           />
 
           {/* Ceremony & Reception Schedule + Venues */}
@@ -204,7 +226,7 @@ export default function App() {
           <PhotoGallery weddingInfo={weddingInfo} />
 
           {/* Guestbook & Wishing Well */}
-          <WishingWell onOpenRsvp={() => setIsRsvpOpen(true)} />
+          <WishingWell onOpenRsvp={handleOpenRsvp} />
         </div>
       </main>
 
@@ -246,8 +268,10 @@ export default function App() {
       {/* Modals */}
       <RsvpModal
         isOpen={isRsvpOpen}
-        onClose={() => setIsRsvpOpen(false)}
+        onClose={handleCloseRsvp}
         defaultGuestName={guestName}
+        prefillName={rsvpPrefill?.name}
+        prefillRelation={rsvpPrefill?.relation}
         weddingDateFormatted={formattedDate}
         onSubmitted={handleRsvpSubmitted}
       />
