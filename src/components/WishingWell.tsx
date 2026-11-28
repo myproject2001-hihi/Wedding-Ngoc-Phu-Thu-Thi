@@ -412,8 +412,6 @@ export const WishingWell: React.FC<WishingWellProps> = ({ onOpenRsvp }) => {
                       </h4>
                       <div className="flex items-center gap-2 text-xs font-display text-stone-500">
                         <span>{item.relation}</span>
-                        <span aria-hidden="true">·</span>
-                        <span>{item.createdAt}</span>
                       </div>
                     </div>
                   </div>
@@ -484,11 +482,11 @@ export const WishingWell: React.FC<WishingWellProps> = ({ onOpenRsvp }) => {
             {/* Body */}
             <div className="p-6 text-center space-y-4">
               <p className="text-sm font-display text-stone-700 leading-relaxed">
-                <strong className="text-[#8B1E22]">Ngọc Phú &amp; Thu Thi</strong> chân thành cảm ơn những lời chúc phúc ấm áp từ người thân của chúng con.
+                <strong className="text-[#8B1E22]">Chú rể Ngọc Phú &amp; Cô dâu Thu Thi</strong> chân thành cảm ơn những lời chúc phúc ấm áp từ người thân của chúng con.
               </p>
 
               <div className="rounded-xl bg-[#FAF5E8] border border-[#C5A059]/40 px-4 py-3 text-xs sm:text-sm font-display text-stone-700 leading-relaxed">
-                Người thân yêu của chúng ơi, đừng quên gửi 1 lời <strong className="text-[#8B1E22]">Xác nhận tham dự</strong> để gia đình chúng con chuẩn bị đón tiếp thật chu đáo nhé!
+                Người thân yêu của chúng con ơi, đừng quên gửi 1 lời <strong className="text-[#8B1E22]">Xác nhận tham dự</strong> để gia đình chúng con chuẩn bị đón tiếp 1 cách chu đáo nhé!
               </div>
 
               {/* 2 Action Buttons */}
