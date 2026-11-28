@@ -484,11 +484,11 @@ export const WishingWell: React.FC<WishingWellProps> = ({ onOpenRsvp }) => {
             {/* Body */}
             <div className="p-6 text-center space-y-4">
               <p className="text-sm font-display text-stone-700 leading-relaxed">
-                <strong className="text-[#8B1E22]">Ngọc Phú &amp; Thu Thi</strong> chân thành cảm ơn lời chúc phúc ấm áp của bạn. Lời chúc đã được lưu giữ trân trọng trong sổ lưu bút ngày cưới!
+                <strong className="text-[#8B1E22]">Ngọc Phú &amp; Thu Thi</strong> chân thành cảm ơn những lời chúc phúc ấm áp từ người thân của chúng con.
               </p>
 
               <div className="rounded-xl bg-[#FAF5E8] border border-[#C5A059]/40 px-4 py-3 text-xs sm:text-sm font-display text-stone-700 leading-relaxed">
-                Bạn đừng quên gửi <strong className="text-[#8B1E22]">xác nhận tham dự</strong> để gia đình chúng mình chuẩn bị đón tiếp bạn thật chu đáo nhé!
+                Người thân yêu của chúng ơi, đừng quên gửi 1 lời <strong className="text-[#8B1E22]">Xác nhận tham dự</strong> để gia đình chúng con chuẩn bị đón tiếp thật chu đáo nhé!
               </div>
 
               {/* 2 Action Buttons */}
